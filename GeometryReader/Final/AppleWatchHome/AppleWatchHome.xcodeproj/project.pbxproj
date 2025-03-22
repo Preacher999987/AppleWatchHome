@@ -14,6 +14,7 @@
 		B5CC843C270498D800DFB13B /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B5CC843B270498D800DFB13B /* Preview Assets.xcassets */; };
 		B5CC844427049E4600DFB13B /* GridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5CC844327049E4600DFB13B /* GridView.swift */; };
 		B5CC84472704D02E00DFB13B /* AppIcons.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5CC84462704D02E00DFB13B /* AppIcons.swift */; };
+		BB8E39562D8DE88300CDC7BB /* DeepLabV3.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = BB8E39552D8DE88300CDC7BB /* DeepLabV3.mlmodel */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -25,6 +26,7 @@
 		B5CC843B270498D800DFB13B /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		B5CC844327049E4600DFB13B /* GridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GridView.swift; sourceTree = "<group>"; };
 		B5CC84462704D02E00DFB13B /* AppIcons.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppIcons.swift; sourceTree = "<group>"; };
+		BB8E39552D8DE88300CDC7BB /* DeepLabV3.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; path = DeepLabV3.mlmodel; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -49,6 +51,7 @@
 		B5CC8428270498D700DFB13B = {
 			isa = PBXGroup;
 			children = (
+				BB8E39552D8DE88300CDC7BB /* DeepLabV3.mlmodel */,
 				B5CC8433270498D700DFB13B /* AppleWatchHome */,
 				B5CC8432270498D700DFB13B /* Products */,
 			);
@@ -173,6 +176,7 @@
 				B540F427271513860052A111 /* GeometryDemoView.swift in Sources */,
 				B5CC8437270498D700DFB13B /* AppleWatchView.swift in Sources */,
 				B5CC844427049E4600DFB13B /* GridView.swift in Sources */,
+				BB8E39562D8DE88300CDC7BB /* DeepLabV3.mlmodel in Sources */,
 				B5CC84472704D02E00DFB13B /* AppIcons.swift in Sources */,
 				B5CC8435270498D700DFB13B /* AppleWatchHomeApp.swift in Sources */,
 			);
@@ -305,7 +309,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"AppleWatchHome/Preview Content\"";
-				DEVELOPMENT_TEAM = LHJA6J73E9;
+				DEVELOPMENT_TEAM = KUK9NFG3B7;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -335,7 +339,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"AppleWatchHome/Preview Content\"";
-				DEVELOPMENT_TEAM = LHJA6J73E9;
+				DEVELOPMENT_TEAM = KUK9NFG3B7;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
