@@ -12,7 +12,7 @@ struct PhotoPreviewView: View {
     let retakeAction: () -> Void
     
     // Add a closure for when analysis is complete
-    let onAnalysisComplete: (AnalysisResult) -> Void
+    let onAnalysisComplete: ([Collectible]) -> Void
     
     // Create an instance of the ViewModel
     @StateObject private var viewModel = PhotoPreviewViewModel()

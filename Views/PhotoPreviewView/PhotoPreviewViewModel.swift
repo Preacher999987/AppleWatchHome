@@ -9,7 +9,7 @@ import SwiftUI
 
 // PhotoPreviewViewModel.swift
 class PhotoPreviewViewModel: ObservableObject {
-    func analyzePhoto(image: UIImage, completion: @escaping (Result<AnalysisResult, Error>) -> Void) {
+    func analyzePhoto(image: UIImage, completion: @escaping (Result<[Collectible], Error>) -> Void) {
         let url = URL(string: "http://192.168.1.17:3000/analyse")!
         
         var request = URLRequest(url: url)
@@ -48,7 +48,7 @@ class PhotoPreviewViewModel: ObservableObject {
             
             do {
                 let decoder = JSONDecoder()
-                let result = try decoder.decode(AnalysisResult.self, from: data)
+                let result = try decoder.decode([Collectible].self, from: data)
                 DispatchQueue.main.async {
                     completion(.success(result))
                 }

@@ -1,6 +1,17 @@
+//
+//  AsyncImageLoader.swift
+//  FunkoCollector
+//
+//  Created by Home on 24.03.2025.
+//
+
+import SwiftUI
+
+
 struct AsyncImageLoader: View {
         let url: URL?
         let placeholder: Image
+        let grayScale: Bool
         @State private var showPlaceholder = false
         @State private var delayedTask: Task<Void, Never>?
         
@@ -22,6 +33,7 @@ struct AsyncImageLoader: View {
                             image
                                 .resizable()
                                 .scaledToFit()
+                                .saturation(grayScale ? 0 : 1)
                                 .transition(.opacity.animation(.easeOut(duration: 0.5)))
                         case .failure:
                             placeholder

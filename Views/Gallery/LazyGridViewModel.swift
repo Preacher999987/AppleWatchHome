@@ -1,63 +1,86 @@
 //
-//  PhotoPreviewViewModel.swift
+//  LazyGridViewModel.swift
 //  FunkoCollector
 //
 //  Created by Home on 25.03.2025.
 //
 
+import SwiftUI
+import Foundation
 
-// PhotoPreviewViewModel.swift
-class PhotoPreviewViewModel: ObservableObject {
-    func analyzePhoto(image: UIImage, completion: @escaping (Result<[AnalysisResult], Error>) -> Void) {
-        let url = URL(string: "http://192.168.1.17:3000/analyse")!
+// LazyGridViewModel.swift
+class LazyGridViewModel: ObservableObject {
+    @Published var isLoading = false
+    
+    func getRelated(for itemId: String, completion: @escaping ([Collectible]) -> Void) {
+        isLoading = true
         
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        
-        let boundary = UUID().uuidString
-        request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
-        
-        var body = Data()
-        
-        if let imageData = image.jpegData(compressionQuality: 1.0) {
-            body.append("--\(boundary)\r\n".data(using: .utf8)!)
-            body.append("Content-Disposition: form-data; name=\"photo\"; filename=\"photo.jpg\"\r\n".data(using: .utf8)!)
-            body.append("Content-Type: image/jpeg\r\n\r\n".data(using: .utf8)!)
-            body.append(imageData)
-            body.append("\r\n".data(using: .utf8)!)
+        guard let relatedSubject = try? FunkoDatabase.item(by: itemId),
+              let encodedQuery = relatedSubject.subject.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) else {
+            isLoading = false
+            completion([]) // Return empty array on failure
+            return
         }
         
-        body.append("--\(boundary)--\r\n".data(using: .utf8)!)
-        request.httpBody = body
+        let url = URL(string: "http://192.168.1.17:3000/related/\(encodedQuery)")!
         
-        let task = URLSession.shared.dataTask(with: request) { data, response, error in
-            if let error = error {
-                DispatchQueue.main.async {
-                    completion(.failure(error))
-                }
-                return
+        URLSession.shared.dataTask(with: url) { [weak self] data, response, error in
+            DispatchQueue.main.async {
+                self?.isLoading = false
             }
             
             guard let data = data else {
-                DispatchQueue.main.async {
-                    completion(.failure(NSError(domain: "NoData", code: -1, userInfo: nil)))
-                }
+                completion([]) // Return empty array on failure
                 return
             }
             
             do {
-                let decoder = JSONDecoder()
-                let result = try decoder.decode([AnalysisResult].self, from: data)
-                DispatchQueue.main.async {
-                    completion(.success(result))
-                }
+                let items = try JSONDecoder().decode([Collectible].self, from: data)
+                completion(items) // Return decoded items
             } catch {
-                DispatchQueue.main.async {
-                    completion(.failure(error))
-                }
+                completion([]) // Return empty array on failure
             }
+        }.resume()
+    }
+    
+    func getGalleryImages(for id: String, completion: @escaping (Result<[ImageData], Error>) -> Void) {
+        isLoading = true
+        
+        // Construct URL with path parameter
+        guard let apiUrl = URL(string: "http://192.168.1.17:3000/gallery/\(id)") else {
+            completion(.failure(NSError(domain: "InvalidURL", code: -3, userInfo: nil)))
+            isLoading = false
+            return
         }
         
-        task.resume()
+        var request = URLRequest(url: apiUrl)
+        request.httpMethod = "GET"
+        request.setValue("application/json", forHTTPHeaderField: "Accept") // Changed to Accept header
+        
+        URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
+            DispatchQueue.main.async {
+                self?.isLoading = false
+            }
+            
+            if let error = error {
+                completion(.failure(error))
+                return
+            }
+            
+            guard let data = data else {
+                completion(.failure(NSError(domain: "NoData", code: -2, userInfo: nil)))
+                return
+            }
+            
+            do {
+                // Decode array of ImageData directly
+                let images = try JSONDecoder().decode([ImageData].self, from: data)
+                completion(.success(images))
+            } catch {
+                print("Decoding error: \(error)")
+                completion(.failure(error))
+            }
+        }.resume()
     }
 }
+
