@@ -35,23 +35,15 @@ class FunkoDatabase {
     
     // Add single item
     static func addItem(_ item: Collectible) throws {
-        var currentItems = (try? loadItems()) ?? []
+        var currentItems = try loadItems()
         currentItems.append(item)
         try saveItems(currentItems)
     }
     
-    // Delete item by index
-    static func deleteItem(at index: Int) throws {
-        var currentItems = try loadItems()
-        guard index < currentItems.count else { return }
-        currentItems.remove(at: index)
-        try saveItems(currentItems)
-    }
-    
     // Delete item by object reference (new method)
-    static func deleteItem(_ item: Collectible) throws {
+    static func deleteItem(for id: String) throws {
         var currentItems = try loadItems()
-        currentItems.removeAll { $0.id == item.id }
+        currentItems.removeAll { $0.id == id }
         try saveItems(currentItems)
     }
     
@@ -87,7 +79,7 @@ class FunkoDatabase {
     static func updateGallery(by id: String, galleryImages: [ImageData]) throws {
         if var item = try? item(by: id) {
             item.attributes.images.gallery = galleryImages
-            try saveItems([item])
+            try addItem(item)
         }
     }
 }

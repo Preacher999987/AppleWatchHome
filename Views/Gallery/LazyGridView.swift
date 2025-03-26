@@ -23,6 +23,8 @@ struct LazyGridGalleryView: View {
 
     @State private var showAddToCollectionConfirmation = false
     @State private var isLoadingRelated = false
+    // State property to manage gallery carousel
+    @State private var currentImageIndex: Int = 0
     
     // Create an instance of the ViewModel
     @StateObject private var viewModel = LazyGridViewModel()
@@ -275,8 +277,8 @@ struct LazyGridGalleryView: View {
                         withAnimation(.easeOut(duration: 0.3)) {
                             if let index = selectedItem {
                                 // Remove the item from the data source
+                                try? FunkoDatabase.deleteItem(for: payload[index].id)
                                 payload.remove(at: index)
-                                try? FunkoDatabase.deleteItem(at: index)
                                 // Reset selection
                                 selectedItem = nil
                             }
@@ -299,90 +301,103 @@ struct LazyGridGalleryView: View {
     private func fullScreenView(for index: Int) -> some View {
         // Get the current item from payload
         let currentItem = payload[index]
-        let fullscreenUrl = URL(string: currentItem.gallery.first?.url ?? currentItem.mainImageUrl)
+        let galleryImages = currentItem.attributes.images.gallery ?? []
         
         return VStack(spacing: 20) {
+            // Carousel View
             ZStack {
-                // Use AsyncImageLoader with the payload item's imageUrl
-                AsyncImageLoader(
-                    url: fullscreenUrl,
-                    placeholder: Image(.gridItemPlaceholder),
-                    grayScale: false
-                )
-                .applyConditionalScaling(isScaledToFit: isFullScreen)
-                .clipShape(RoundedRectangle(cornerRadius: 20))  // Use clipShape instead
-                .offset(y: !isFullScreen ? 150 : 20)
-                .frame(height: !isFullScreen ? 300 : .infinity)
-                .matchedGeometryEffect(id: index, in: animationNamespace)
-                .gesture(
-                    DragGesture()
-                        .onEnded { gesture in
-                            if gesture.translation.height > 100 {
-                                withAnimation(.spring()) {
-                                    isFullScreen = false
-                                    selectedItem = nil
-                                }
-                            }
-                        }
-                )
-                .gesture(
-                    TapGesture()
-                        .onEnded {
-                            withAnimation(.spring()) {
-                                isFullScreen = true
-                            }
-                        }
-                )
-                .cornerRadius(20)
+                // Background for carousel
+//                Color.black.opacity(0.9).edgesIgnoringSafeArea(.all)
                 
-                if isFullScreen {
+                // Image Carousel with conditional offset
+                TabView(selection: $currentImageIndex) {
+                    ForEach(Array(galleryImages.enumerated()), id: \.offset) { index, imageData in
+                        AsyncImageLoader(
+                            url: URL(string: imageData.url),
+                            placeholder: Image(.gridItemPlaceholder),
+                            grayScale: false
+                        )
+                        .scaledToFit()
+                        .tag(index)
+                        .gesture(
+                            TapGesture()
+                                .onEnded {
+                                    if !isFullScreen {
+                                        withAnimation(.spring()) {
+                                            isFullScreen = true
+                                        }
+                                    }
+                                }
+                                .exclusively(before:
+                                    DragGesture()
+                                        .onEnded { gesture in
+                                            if gesture.translation.height > 100 {
+                                                withAnimation(.spring()) {
+                                                    isFullScreen = false
+                                                }
+                                            }
+                                            else if abs(gesture.translation.width) > 50 {
+                                                withAnimation {
+                                                    currentImageIndex = gesture.translation.width > 0 ?
+                                                        (currentImageIndex - 1 + galleryImages.count) % galleryImages.count :
+                                                        (currentImageIndex + 1) % galleryImages.count
+                                                }
+                                            }
+                                        }
+                                )
+                        )
+                        .clipShape(RoundedRectangle(cornerRadius: 20)) // <-- Same as details view
+                    }
+                }
+                .tabViewStyle(PageTabViewStyle(indexDisplayMode: isFullScreen ? .always : .never)) // <-- Show indicators only when fullscreen
+                .indexViewStyle(PageIndexViewStyle(backgroundDisplayMode: .always))
+                .offset(y: !isFullScreen ? 150 : 0)  // Half of 300 to maintain visual balance
+                
+                // Navigation Arrows
+                if galleryImages.count > 1 {
                     HStack {
                         Button(action: {
-                            if index > 0 {
-                                withAnimation(.spring()) {
-                                    selectedItem = index - 1
-                                }
+                            withAnimation {
+                                currentImageIndex = (currentImageIndex - 1 + galleryImages.count) % galleryImages.count
                             }
                         }) {
                             Image(systemName: "chevron.left.circle.fill")
-                                .font(.system(size: 24))
-                                .foregroundColor(.black).opacity(0.7)
-                                .background(Color.white)
+                                .font(.system(size: 30))
+                                .foregroundColor(.white)
+                                .opacity(0.8)
+                                .background(Color.black.opacity(0.5))
                                 .clipShape(Circle())
                         }
-                        .frame(width: 44, height: 44) // Minimum tappable area
-                        .contentShape(Circle()) // Makes entire circle tappable
                         .padding(.leading, 20)
                         
                         Spacer()
                         
                         Button(action: {
-                            if index < payload.count - 1 {
-                                withAnimation(.spring()) {
-                                    selectedItem = index + 1
-                                }
+                            withAnimation {
+                                currentImageIndex = (currentImageIndex + 1) % galleryImages.count
                             }
                         }) {
                             Image(systemName: "chevron.right.circle.fill")
-                                .font(.system(size: 24))
-                                .foregroundColor(.black).opacity(0.7)
-                                .background(Color.white)
+                                .font(.system(size: 30))
+                                .foregroundColor(.white)
+                                .opacity(0.8)
+                                .background(Color.black.opacity(0.5))
                                 .clipShape(Circle())
                         }
-                        .frame(width: 44, height: 44) // Minimum tappable area
-                        .contentShape(Circle()) // Makes entire circle tappable
                         .padding(.trailing, 20)
                     }
+                    .offset(y: !isFullScreen ? 300 : 0) // <-- Also offset the navigation buttons
                 }
             }
-            .layoutPriority(0)
+            .frame(height: !isFullScreen ? 300 : UIScreen.main.bounds.height * 0.6)
+            .matchedGeometryEffect(id: index, in: animationNamespace)
             
+            // Details View
             if isFullScreen {
-                // Update detailsView to show current item's details
                 VStack(spacing: 10) {
                     detailRow(title: "ITEM:", value: currentItem.attributes.name)
                     detailRow(title: "VALUE:", value: currentItem.estimatedValue ?? "N/A")
-                    // Add the new button
+                    
                     Button(action: {
                         seeMissingPopsAction(currentItem)
                     }) {
@@ -398,9 +413,7 @@ struct LazyGridGalleryView: View {
                             )
                     }
                     .padding(.top, 10)
-                    // Add more details as needed
                 }
-                .layoutPriority(1)
                 .padding(.vertical, 20)
                 .background(Color.gray.opacity(0.4))
                 .cornerRadius(20)
@@ -409,6 +422,9 @@ struct LazyGridGalleryView: View {
         }
         .padding(.horizontal, 20)
         .transition(.opacity)
+        .onAppear {
+            currentImageIndex = 0
+        }
     }
     
     private var detailsView: some View {
@@ -476,6 +492,17 @@ struct LazyGridGalleryView: View {
                         .padding(.bottom, Self.size/2)
                         .padding(.leading, 20)
                     }
+                    .contentShape(Rectangle()) // Make entire scroll view tappable
+                    .gesture(
+                        TapGesture()
+                            .onEnded {
+                                if !isFullScreen {
+                                    withAnimation(.spring()) {
+                                        selectedItem = nil
+                                    }
+                                }
+                            }
+                    )
                     .sheet(isPresented: $isShowingImagePicker) {
                         ImagePicker(selectedImage: $selectedBackgroundImage)
                     }
