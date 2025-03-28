@@ -60,6 +60,8 @@ struct ContentView: View {
                         // Reset to initial state when going back
                         capturedImage = nil
                         analysisResult = []
+                        appState.showPlusButton = false
+                        appState.showEllipsisButton = false
                         appState.openMyCollection = false
                     },
                                         seeMissingPopsAction: { selectedItem in
@@ -91,6 +93,8 @@ struct ContentView: View {
                             
                             if let result = try? FunkoDatabase.loadItems(), !result.isEmpty {
                                 appState.openMyCollection = true
+                                appState.showPlusButton = true
+                                appState.showEllipsisButton = true
                                 appState.showAddToCollectionButton = false
                                 analysisResult = result
                             }
@@ -140,6 +144,8 @@ struct ContentView: View {
                                 analysisResult = result
                             }
                             appState.openMyCollection = true
+                            appState.showPlusButton = true
+                            appState.showEllipsisButton = true
                             appState.showCollectionButton = false
                             appState.showAddToCollectionButton = false
                         }) {

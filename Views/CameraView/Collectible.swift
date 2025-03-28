@@ -1,12 +1,3 @@
-//
-//  Collectible.swift
-//  FunkoCollector
-//
-//  Created by Home on 24.03.2025.
-//
-
-
-// Collectible.swift
 import Foundation
 
 struct Details: Codable, Hashable {
@@ -36,7 +27,8 @@ struct ImageData: Codable, Hashable {
 struct CollectibleAttributes: Codable, Hashable {
     var images: Images
     let name: String
-    let estimatedValueRange: [String]?
+    var _estimatedValue: String? // New property
+    var estimatedValueRange: [String?]? // Updated to handle nulls
     let relatedSubjects: [RelatedSubject]?
     
     struct Images: Codable, Hashable {
@@ -53,8 +45,33 @@ struct CollectibleAttributes: Codable, Hashable {
     
     enum CodingKeys: String, CodingKey {
         case images, name
+        case _estimatedValue = "estimated_value"
         case estimatedValueRange = "estimated_value_range"
         case relatedSubjects = "related_subjects"
+    }
+    
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        images = try container.decode(Images.self, forKey: .images)
+        name = try container.decode(String.self, forKey: .name)
+        _estimatedValue = try container.decodeIfPresent(String.self, forKey: ._estimatedValue)
+        relatedSubjects = try container.decodeIfPresent([RelatedSubject].self, forKey: .relatedSubjects)
+        
+        // Handle null values in estimatedValueRange
+        if var rangeContainer = try? container.nestedUnkeyedContainer(forKey: .estimatedValueRange) {
+            var decodedRange = [String?]()
+            while !rangeContainer.isAtEnd {
+                if try rangeContainer.decodeNil() {
+                    decodedRange.append(nil)
+                } else {
+                    let value = try rangeContainer.decode(String.self)
+                    decodedRange.append(value)
+                }
+            }
+            estimatedValueRange = decodedRange.isEmpty ? nil : decodedRange
+        } else {
+            estimatedValueRange = nil
+        }
     }
 }
 
@@ -68,23 +85,35 @@ struct Collectible: Codable, Hashable {
     var searchImageNoBgUrl: String { attributes.images.searchNoBg?.url ?? "" }
     var mainImageUrl: String { attributes.images.main?.url ?? "" }
     var gallery: [ImageData] { attributes.images.gallery ?? [] }
-        
-    var ev: String {
-        attributes.estimatedValueRange?.joined(separator: " - ") ?? ""
-    }
     
     var subject: String {
         attributes.relatedSubjects?.first(where: { $0.type == .aiClassified })?.name ?? ""
     }
     
     var estimatedValue: String? {
-        guard let range = attributes.estimatedValueRange else { return nil }
-        if range.count == 2 {
-            let low = range[0].components(separatedBy: ".").first ?? range[0]
-            let high = range[1].components(separatedBy: ".").first ?? range[1]
-            return "$\(low) - $\(high)"
+        // Return formatted _estimatedValue if available
+        if let singleValue = attributes._estimatedValue {
+            // Ensure the value starts with $
+            if singleValue.hasPrefix("$") {
+                return singleValue
+            } else {
+                return "$\(singleValue)"
+            }
         }
-        else if let firstValue = range.first {
+        
+        // Check if estimatedValueRange is nil or contains any nulls
+        guard let range = attributes.estimatedValueRange,
+              !range.contains(where: { $0 == nil }) else {
+            return nil
+        }
+        
+        // Process valid range
+        let nonNilRange = range.compactMap { $0 }
+        if nonNilRange.count == 2 {
+            let low = nonNilRange[0].components(separatedBy: ".").first ?? nonNilRange[0]
+            let high = nonNilRange[1].components(separatedBy: ".").first ?? nonNilRange[1]
+            return "$\(low) - $\(high)"
+        } else if let firstValue = nonNilRange.first {
             let value = firstValue.components(separatedBy: ".").first ?? firstValue
             return "$\(value)"
         }

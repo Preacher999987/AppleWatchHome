@@ -20,11 +20,16 @@ struct LazyGridGalleryView: View {
     @State private var isFullScreen: Bool = false // Track full-screen state
     @State private var selectedBackgroundImage: UIImage? = nil // Store the selected background image
     @State private var isShowingImagePicker: Bool = false // Control the image picker presentation
-
+    
     @State private var showAddToCollectionConfirmation = false
     @State private var isLoadingRelated = false
     // State property to manage gallery carousel
     @State private var currentImageIndex: Int = 0
+    
+    @State private var showDeleteConfirmation = false
+    
+    @State private var showAddMenu = false
+    @State private var isPresentingScanner = false
     
     // Create an instance of the ViewModel
     @StateObject private var viewModel = LazyGridViewModel()
@@ -84,122 +89,146 @@ struct LazyGridGalleryView: View {
     
     private var topButtonsBar: some View {
         VStack {
-            HStack {
-                // Back Button
-                if appState.showBackButton {
-                    Button(action: dismissActionWrapped) {
-                        Image(systemName: "chevron.left.circle.fill")
-                            .font(.system(size: 22))
-                            .foregroundColor(.black).opacity(0.8)
-                            .background(Color.blue)
-                            .clipShape(Circle())
+            ZStack {
+                HStack {
+                    // Back Button
+                    if appState.showBackButton {
+                        Button(action: dismissActionWrapped) {
+                            Image(systemName: "chevron.left.circle.fill")
+                                .font(.system(size: 22))
+                                .foregroundColor(.black).opacity(0.8)
+                                .background(Color.blue)
+                                .clipShape(Circle())
+                        }
+                        .frame(width: 44, height: 44)
+                        .contentShape(Circle())
+                        .padding(.leading, 20)
+                        Spacer()
                     }
-                    .frame(width: 44, height: 44)
-                    .contentShape(Circle())
-                    .padding(.leading, 20)
-                    .padding(.top, 40)
                 }
-                
-                Spacer()
                 
                 // Centered Logo Image
                 Image(.gridItemPlaceholder) // Replace with your actual asset name
                     .resizable()
                     .scaledToFit()
                     .frame(height: 40) // Adjust size as needed
-                    .padding(.top, 40)
                 
-                Spacer()
-                
-                // Add to Collection Button (new)
-                if appState.showAddToCollectionButton {
-                    Button(action: {
-                        showAddToCollectionConfirmation = true
-                    }) {
-                        Text("Add to Collection")
-                            .font(.system(size: 16, weight: .medium))
-                            .foregroundColor(.white)
-                            .padding(.horizontal, 16)
+                HStack {
+                    Spacer()
+                    // Add to Collection Button (new)
+                    if appState.showAddToCollectionButton {
+                        Button(action: {
+                            showAddToCollectionConfirmation = true
+                        }) {
+                            HStack(spacing: 4) {
+                                Image(systemName: "plus.circle.fill")
+                                
+                                Text("Collection")
+                                    .font(.system(size: 14, weight: .medium))
+                                    .transition(.opacity.combined(with: .move(edge: .trailing)))
+                            }
+                            .padding(.horizontal, 12)
                             .padding(.vertical, 8)
                             .background(
-                                RoundedRectangle(cornerRadius: 20)
-                                    .fill(Color.black.opacity(0.7))
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 20)
-                                            .stroke(Color.green, lineWidth: 1.5)
-                                    )
+                                Capsule()
+                                    .fill(Color.black.opacity(0.9))
+                                    .shadow(radius: 2)
                             )
-                            .shadow(radius: 2)
-                    }
-                    .padding(.trailing, appState.showPlusButton ? 10 : 20)
-                    .padding(.top, 40)
-                    .alert("Add to Collection", isPresented: $showAddToCollectionConfirmation) {
-                        Button("Add", action: addToCollection)
-                        Button("Cancel", role: .cancel) {}
-                    } message: {
-                        Text("Add these items to your permanent Collection?")
-                    }
-                }
-                
-                // Plus Button
-                if appState.showPlusButton {
-                    Button(action: {}) {
-                        Image(systemName: "plus.circle.fill")
-                            .font(.system(size: 22))
-                            .foregroundColor(.black).opacity(0.8)
-                            .background(Color.blue)
-                            .clipShape(Circle())
-                    }
-                    .frame(width: 44, height: 44)
-                    .contentShape(Circle())
-                    .padding(.trailing, appState.showEllipsisButton ? 0 : 20)
-                    .padding(.top, 40)
-                }
-                
-                // Ellipsis Button
-                if appState.showEllipsisButton {
-                    Button(action: {
-                        isShowingImagePicker = true
-                    }) {
-                        Image(systemName: "ellipsis.circle.fill")
-                            .font(.system(size: 22))
-                            .foregroundColor(.black).opacity(0.8)
-                            .background(Color.gray)
-                            .clipShape(Circle())
-                    }
-                    .frame(width: 44, height: 44)
-                    .contentShape(Circle())
-                    .padding(.trailing, 20)
-                    .padding(.top, 40)
-                }
-                
-                if appState.showCollectionButton {
-                    // Add Collection View button
-                    Button(action: {
-                        appState.openMyCollection = true
-                        appState.showCollectionButton = false
-                        appState.showAddToCollectionButton = false
-                        dismissAction()
-                    }) {
-                        Text("My Collection")
-                            .font(.system(size: 16, weight: .medium))
-                            .foregroundColor(.white)
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 8)
-                            .background(
-                                RoundedRectangle(cornerRadius: 20)
-                                    .fill(Color.black.opacity(0.7))
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 20)
-                                            .stroke(Color.blue, lineWidth: 1.5)
-                                    )
+                            .foregroundColor(.green)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 15)
+                                    .stroke(Color.green, lineWidth: 1)
                             )
-                            .shadow(radius: 2)
+                        }
+                        .padding(.trailing, appState.showPlusButton ? 10 : 20)
+                        .alert("Add to Collection", isPresented: $showAddToCollectionConfirmation) {
+                            Button("Add", action: addToCollection)
+                            Button("Cancel", role: .cancel) {}
+                        } message: {
+                            Text("Add these items to your permanent Collection?")
+                        }
                     }
-                    .padding(.trailing, 20)
-                    .padding(.top, 40)
+                    
+                    // Plus Button
+                    if appState.showPlusButton {
+                        Menu {
+                            Button(action: {
+                                isPresentingScanner = true
+                            }) {
+                                Label("Scan Barcode", systemImage: "barcode.viewfinder")
+                            }
+                            
+                            Button(action: {
+                                // Handle photo addition
+                            }) {
+                                Label("Add by Photo", systemImage: "photo")
+                            }
+                            
+                            Button(action: {
+                                // Handle manual addition
+                            }) {
+                                Label("Add Manually", systemImage: "keyboard")
+                            }
+                        } label: {
+                            Image(systemName: "plus.circle.fill")
+                                .font(.system(size: 24))
+                                .rotationEffect(.degrees(showAddMenu ? 45 : 0))
+                                .animation(.spring(), value: showAddMenu)
+                        }
+                        .menuStyle(BorderlessButtonMenuStyle())
+                        .menuIndicator(.hidden)
+                        .sheet(isPresented: $isPresentingScanner) {
+                            BarcodeScannerView { items in
+                                payload.append(contentsOf: items)
+                            }
+                        }
+                    }
+                    
+                    // Ellipsis Button
+                    if appState.showEllipsisButton {
+                        Button(action: {
+                            isShowingImagePicker = true
+                        }) {
+                            Image(systemName: "ellipsis.circle.fill")
+                                .font(.system(size: 22))
+                                .foregroundColor(.black).opacity(0.8)
+                                .background(Color.gray)
+                                .clipShape(Circle())
+                        }
+                        .frame(width: 44, height: 44)
+                        .contentShape(Circle())
+                        .padding(.trailing, 20)
+                    }
+                    
+                    if appState.showCollectionButton {
+                        // Add Collection View button
+                        Button(action: {
+                            appState.openMyCollection = true
+                            appState.showCollectionButton = false
+                            appState.showAddToCollectionButton = false
+                            dismissAction()
+                        }) {
+                            Text("My Collection")
+                                .font(.system(size: 16, weight: .medium))
+                                .foregroundColor(.white)
+                                .padding(.horizontal, 16)
+                                .padding(.vertical, 8)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 20)
+                                        .fill(Color.black.opacity(0.7))
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 20)
+                                                .stroke(Color.blue, lineWidth: 1.5)
+                                        )
+                                )
+                                .shadow(radius: 2)
+                        }
+                        .padding(.trailing, 20)
+                    }
                 }
             }
+            .padding(.top, 40)
+            .frame(height: 84) // Total height including top padding
             Spacer()
         }
         .zIndex(2)
@@ -215,6 +244,8 @@ struct LazyGridGalleryView: View {
             }
             
             appState.openMyCollection = true
+            appState.showPlusButton = true
+            appState.showEllipsisButton = true
             appState.showCollectionButton = false
             appState.showAddToCollectionButton = false
             dismissAction()
@@ -248,7 +279,7 @@ struct LazyGridGalleryView: View {
                     .foregroundColor(.white)
                     .padding(.horizontal, 6)
                     .padding(.vertical, 2)
-
+                
                     .frame(width: .infinity, height: 24)
                     .background(Color.red)
                     .cornerRadius(12)
@@ -263,7 +294,7 @@ struct LazyGridGalleryView: View {
                             isFullScreen = true
                         }
                     }) {
-                        Text("SHOP")
+                        Text("Shop")
                             .font(.system(size: 14, weight: .medium))
                             .foregroundColor(.blue)
                             .frame(width: Self.size / 2, height: 30)
@@ -286,7 +317,7 @@ struct LazyGridGalleryView: View {
                             isFullScreen = true
                         }
                     }) {
-                        Text("VIEW")
+                        Text("View")
                             .font(.system(size: 14, weight: .medium))
                             .foregroundColor(.green)
                             .frame(width: Self.size / 2, height: 30)
@@ -301,15 +332,7 @@ struct LazyGridGalleryView: View {
                 }
                 if payload[index].inCollection {
                     Button(action: {
-                        withAnimation(.easeOut(duration: 0.3)) {
-                            if let index = selectedItem {
-                                // Remove the item from the data source
-                                try? FunkoDatabase.deleteItem(for: payload[index].id)
-                                payload.remove(at: index)
-                                // Reset selection
-                                selectedItem = nil
-                            }
-                        }
+                        showDeleteConfirmation = true
                     }) {
                         Image(systemName: "xmark.circle.fill")
                             .font(.system(size: 22))
@@ -320,7 +343,26 @@ struct LazyGridGalleryView: View {
                     .frame(width: 44, height: 44) // Minimum tappable area
                     .contentShape(Circle()) // Makes entire circle tappable
                     .offset(x: offsetX(index) + Self.size / 2 - 10, y: -Self.size / 2 + 10)
+                    .alert("Delete \(payload[index].attributes.name)?", isPresented: $showDeleteConfirmation) {
+                        Button("Delete", role: .destructive, action: confirmDeletion)
+                        Button("Cancel", role: .cancel) {}
+                    } message: {
+                        Text("This will permanently remove the item from your collection.")
+                    }
                 }
+            }
+        }
+    }
+    
+    private func confirmDeletion() {
+        showDeleteConfirmation = false
+        withAnimation(.easeOut(duration: 0.3)) {
+            if let index = selectedItem {
+                // Remove the item from the data source
+                try? FunkoDatabase.deleteItem(for: payload[index].id)
+                payload.remove(at: index)
+                // Reset selection
+                selectedItem = nil
             }
         }
     }
@@ -346,9 +388,9 @@ struct LazyGridGalleryView: View {
                             .scaledToFit()
                             
                             .clipShape(RoundedRectangle(cornerRadius: 20)) // <-- Same as details view
-//                            .applyConditionalScaling(isScaledToFit: isFullScreen)
+                            //                            .applyConditionalScaling(isScaledToFit: isFullScreen)
                             .frame(width: geometry.size.width, height: geometry.size.height, alignment: .center)
-//                            .clipped()
+                            //                            .clipped()
                             .tag(index)
                             .gesture(
                                 TapGesture()
@@ -374,40 +416,40 @@ struct LazyGridGalleryView: View {
                     }
                 }
                 .background(
-                            ZStack {
-                                // Blur layer with bottom-to-top fade
-                                VisualEffectView(effect: UIBlurEffect(style: .systemUltraThinMaterial))
-                                    .opacity(isFullScreen ? 0 : 1)
-                                    .mask(
-                                        LinearGradient(
-                                            gradient: Gradient(stops: [
-                                                .init(color: .clear, location: 0),
-                                                .init(color: .black, location: 0.4)
-                                            ]),
-                                            startPoint: .top,
-                                            endPoint: .bottom
-                                        )
-                                    )
-                                
-                                // Optional subtle bottom shadow
-//                                Rectangle()
-//                                    .frame(height: 20)
-//                                    .foregroundStyle(
-//                                        LinearGradient(
-//                                            colors: [.black.opacity(0.15), .clear],
-//                                            startPoint: .bottom,
-//                                            endPoint: .top
-//                                        )
-//                                    )
-//                                    .offset(y: 20)
-                            }
-                            .edgesIgnoringSafeArea(.bottom)
-                        )
-
-//                .background(Color.green.edgesIgnoringSafeArea(.all))
+                    ZStack {
+                        // Blur layer with bottom-to-top fade
+                        VisualEffectView(effect: UIBlurEffect(style: .systemUltraThinMaterial))
+                            .opacity(isFullScreen ? 0 : 1)
+                            .mask(
+                                LinearGradient(
+                                    gradient: Gradient(stops: [
+                                        .init(color: .clear, location: 0),
+                                        .init(color: .black, location: 0.4)
+                                    ]),
+                                    startPoint: .top,
+                                    endPoint: .bottom
+                                )
+                            )
+                        
+                        // Optional subtle bottom shadow
+                        //                                Rectangle()
+                        //                                    .frame(height: 20)
+                        //                                    .foregroundStyle(
+                        //                                        LinearGradient(
+                        //                                            colors: [.black.opacity(0.15), .clear],
+                        //                                            startPoint: .bottom,
+                        //                                            endPoint: .top
+                        //                                        )
+                        //                                    )
+                        //                                    .offset(y: 20)
+                    }
+                        .edgesIgnoringSafeArea(.bottom)
+                )
+                
+                //                .background(Color.green.edgesIgnoringSafeArea(.all))
                 .tabViewStyle(PageTabViewStyle(indexDisplayMode: isFullScreen ? .always : .never))
                 .indexViewStyle(PageIndexViewStyle(backgroundDisplayMode: .always))
-//                .offset(y: !isFullScreen ? 400 : 0)  // Half of 300 to maintain visual balance
+                //                .offset(y: !isFullScreen ? 400 : 0)  // Half of 300 to maintain visual balance
                 
                 // Navigation Arrows
                 if galleryImages.count > 1 {
@@ -457,15 +499,16 @@ struct LazyGridGalleryView: View {
                     Button(action: {
                         seeMissingPopsAction(currentItem)
                     }) {
-                        Text("See missing Pops")
-                            .font(.system(size: 16, weight: .semibold))
-                            .foregroundColor(.white)
+                        Text("See missing pops")
+                            .font(.system(size: 14, weight: .medium))
+                            .foregroundColor(.blue)
+                            .frame(height: 30)
                             .padding(.horizontal, 20)
-                            .padding(.vertical, 10)
-                            .background(
-                                Capsule()
-                                    .fill(Color.blue.opacity(0.8))
-                                    .shadow(radius: 3)
+                            .background(Color.black.opacity(0.8))
+                            .cornerRadius(15)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 15)
+                                    .stroke(Color.blue, lineWidth: 1)
                             )
                     }
                     .padding(.top, 10)
@@ -477,7 +520,7 @@ struct LazyGridGalleryView: View {
                 .padding(.horizontal, 20)
             }
         }
-//        .padding(.horizontal, 20)
+        //        .padding(.horizontal, 20)
         .transition(.opacity)
         .onAppear {
             currentImageIndex = 0
@@ -537,51 +580,51 @@ struct LazyGridGalleryView: View {
                     .zIndex(3) // Show above other content
             }
             
-//            VStack {
-                if !isFullScreen {
-                    ScrollView([.horizontal, .vertical], showsIndicators: false) {
-                        LazyVGrid(
-                            columns: gridItems,
-                            alignment: .center,
-                            spacing: Self.spacingBetweenRows
-                        ) {
-                            ForEach(payload.indices, id: \.self) { index in
-                                GeometryReader { proxy in
-                                    gridItemView(for: index, proxy: proxy)
+            //            VStack {
+            if !isFullScreen {
+                ScrollView([.horizontal, .vertical], showsIndicators: false) {
+                    LazyVGrid(
+                        columns: gridItems,
+                        alignment: .center,
+                        spacing: Self.spacingBetweenRows
+                    ) {
+                        ForEach(payload.indices, id: \.self) { index in
+                            GeometryReader { proxy in
+                                gridItemView(for: index, proxy: proxy)
+                            }
+                            .frame(height: Self.size)
+                            .transition(.asymmetric(
+                                insertion: .scale.combined(with: .opacity),
+                                removal: .scale.combined(with: .opacity).combined(with: .move(edge: .trailing))
+                            ))
+                        }
+                    }
+                    .padding(.trailing, Self.size/2) // Add proper padding
+                    .padding(.top, Self.size/2 + 20)
+                    .padding(.bottom, Self.size/2)
+                    .padding(.leading, 20)
+                }
+                .contentShape(Rectangle()) // Make entire scroll view tappable
+                .gesture(
+                    TapGesture()
+                        .onEnded {
+                            if !isFullScreen {
+                                withAnimation(.spring()) {
+                                    selectedItem = nil
                                 }
-                                .frame(height: Self.size)
-                                .transition(.asymmetric(
-                                    insertion: .scale.combined(with: .opacity),
-                                    removal: .scale.combined(with: .opacity).combined(with: .move(edge: .trailing))
-                                ))
                             }
                         }
-                        .padding(.trailing, Self.size/2) // Add proper padding
-                        .padding(.top, Self.size/2 + 20)
-                        .padding(.bottom, Self.size/2)
-                        .padding(.leading, 20)
-                    }
-                    .contentShape(Rectangle()) // Make entire scroll view tappable
-                    .gesture(
-                        TapGesture()
-                            .onEnded {
-                                if !isFullScreen {
-                                    withAnimation(.spring()) {
-                                        selectedItem = nil
-                                    }
-                                }
-                            }
-                    )
-                    .sheet(isPresented: $isShowingImagePicker) {
-                        ImagePicker(selectedImage: $selectedBackgroundImage)
-                    }
+                )
+                .sheet(isPresented: $isShowingImagePicker) {
+                    ImagePicker(selectedImage: $selectedBackgroundImage)
                 }
-                
-                if let selectedItem = selectedItem {
-                    fullScreenView(for: selectedItem)
-                        .offset(y: !isFullScreen ? UIScreen.main.bounds.height*0.5 : 0)  // Half of 300 to maintain visual balance
-                }
-//            }
+            }
+            
+            if let selectedItem = selectedItem {
+                fullScreenView(for: selectedItem)
+                    .offset(y: !isFullScreen ? UIScreen.main.bounds.height*0.5 : 0)  // Half of 300 to maintain visual balance
+            }
+            //            }
         }
         .onAppear {
             if appState.openRelated {

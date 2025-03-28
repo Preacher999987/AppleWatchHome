@@ -79,7 +79,7 @@ class FunkoDatabase {
     static func updateGallery(by id: String, galleryImages: [ImageData]) throws {
         if var item = try? item(by: id) {
             item.attributes.images.gallery = galleryImages
-            try addItem(item)
+            try updateItem(item)
         }
     }
 }

@@ -12,6 +12,7 @@
 		B5CC8439270498D800DFB13B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B5CC8438270498D800DFB13B /* Assets.xcassets */; };
 		B5CC844427049E4600DFB13B /* GridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5CC844327049E4600DFB13B /* GridView.swift */; };
 		B5CC84472704D02E00DFB13B /* AppIcons.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5CC84462704D02E00DFB13B /* AppIcons.swift */; };
+		BB1D1E862D97411F00153BB4 /* BarcodeScannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1D1E852D97411F00153BB4 /* BarcodeScannerView.swift */; };
 		BB2B5B2D2D920752004461C4 /* AsyncImageLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB2B5B2C2D920752004461C4 /* AsyncImageLoader.swift */; };
 		BB2B5B2E2D920A11004461C4 /* FunkoDatabase.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB2B5B272D920638004461C4 /* FunkoDatabase.swift */; };
 		BB2B5B302D93296A004461C4 /* LazyGridViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB2B5B2F2D93296A004461C4 /* LazyGridViewModel.swift */; };
@@ -29,6 +30,7 @@
 		B5CC8438270498D800DFB13B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		B5CC844327049E4600DFB13B /* GridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GridView.swift; sourceTree = "<group>"; };
 		B5CC84462704D02E00DFB13B /* AppIcons.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppIcons.swift; sourceTree = "<group>"; };
+		BB1D1E852D97411F00153BB4 /* BarcodeScannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BarcodeScannerView.swift; sourceTree = "<group>"; };
 		BB2B5B272D920638004461C4 /* FunkoDatabase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FunkoDatabase.swift; sourceTree = "<group>"; };
 		BB2B5B2C2D920752004461C4 /* AsyncImageLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncImageLoader.swift; sourceTree = "<group>"; };
 		BB2B5B2F2D93296A004461C4 /* LazyGridViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LazyGridViewModel.swift; sourceTree = "<group>"; };
@@ -82,6 +84,7 @@
 		B5CC8433270498D700DFB13B /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				BB1D1E842D97411100153BB4 /* BarcodeScanner */,
 				B540F4252715136D0052A111 /* GeometryReader */,
 				B5CC84452704C1C800DFB13B /* Gallery */,
 				BB6232042D9190100048BF67 /* CameraView */,
@@ -108,6 +111,14 @@
 				B5CC844227049E2E00DFB13B /* Grids */,
 			);
 			path = Gallery;
+			sourceTree = "<group>";
+		};
+		BB1D1E842D97411100153BB4 /* BarcodeScanner */ = {
+			isa = PBXGroup;
+			children = (
+				BB1D1E852D97411F00153BB4 /* BarcodeScannerView.swift */,
+			);
+			path = BarcodeScanner;
 			sourceTree = "<group>";
 		};
 		BB2B5B262D920620004461C4 /* Database */ = {
@@ -214,6 +225,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BB1D1E862D97411F00153BB4 /* BarcodeScannerView.swift in Sources */,
 				BB2B5B2D2D920752004461C4 /* AsyncImageLoader.swift in Sources */,
 				BB2B5B302D93296A004461C4 /* LazyGridViewModel.swift in Sources */,
 				BB62320A2D9190810048BF67 /* PhotoPreviewView.swift in Sources */,
