@@ -40,6 +40,21 @@ struct LazyGridGalleryView: View {
     
     var dismissAction: () -> Void
     
+    var dismissActionWrapped: () -> Void {
+        get {
+            return {
+                if isFullScreen {
+                    withAnimation {
+                        isFullScreen = false
+                    }
+                } else {
+                    selectedItem = nil
+                    dismissAction()
+                }
+            }
+        }
+    }
+    
     var seeMissingPopsAction: (Collectible) -> Void
     
     var gridItems = Array(
@@ -72,7 +87,7 @@ struct LazyGridGalleryView: View {
             HStack {
                 // Back Button
                 if appState.showBackButton {
-                    Button(action: dismissAction) {
+                    Button(action: dismissActionWrapped) {
                         Image(systemName: "chevron.left.circle.fill")
                             .font(.system(size: 22))
                             .foregroundColor(.black).opacity(0.8)
@@ -212,7 +227,7 @@ struct LazyGridGalleryView: View {
     private func gridItemView(for index: Int, proxy: GeometryProxy) -> some View {
         ZStack {
             AsyncImageLoader(
-                url: URL(string: payload[index].searchImageUrl),
+                url: viewModel.getGridItemUrl(from: payload[index]),
                 placeholder: Image(.gridItemPlaceholder),
                 grayScale: !payload[index].inCollection
             )
@@ -249,26 +264,38 @@ struct LazyGridGalleryView: View {
                         }
                     }) {
                         Text("SHOP")
-                            .font(.system(size: 14, weight: .bold))
-                            .foregroundColor(.white)
+                            .font(.system(size: 14, weight: .medium))
+                            .foregroundColor(.blue)
                             .frame(width: Self.size / 2, height: 30)
-                            .background(Color.blue).opacity(0.8)
+                            .background(Color.black.opacity(0.8))
                             .cornerRadius(15)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 15)
+                                    .stroke(Color.blue, lineWidth: 1)
+                            )
                     }
                     .offset(x: offsetX(index), y: 0)
                 } else {
                     Button(action: {
+                        // Trigger haptic feedback
+                        let generator = UIImpactFeedbackGenerator(style: .light)
+                        generator.impactOccurred()
+                        
                         withAnimation(.spring()) {
                             selectedItem = index
                             isFullScreen = true
                         }
                     }) {
                         Text("VIEW")
-                            .font(.system(size: 14, weight: .bold))
-                            .foregroundColor(.white)
+                            .font(.system(size: 14, weight: .medium))
+                            .foregroundColor(.green)
                             .frame(width: Self.size / 2, height: 30)
-                            .background(Color.green).opacity(0.8)
+                            .background(Color.black.opacity(0.8))
                             .cornerRadius(15)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 15)
+                                    .stroke(Color.green, lineWidth: 1)
+                            )
                     }
                     .offset(x: offsetX(index), y: 0)
                 }
@@ -285,9 +312,9 @@ struct LazyGridGalleryView: View {
                         }
                     }) {
                         Image(systemName: "xmark.circle.fill")
-                            .font(.system(size: 24))
-                            .foregroundColor(.red)
-                            .background(Color.white)
+                            .font(.system(size: 22))
+                            .foregroundColor(.black).opacity(0.8)
+                            .background(.red)
                             .clipShape(Circle())
                     }
                     .frame(width: 44, height: 44) // Minimum tappable area
@@ -306,52 +333,81 @@ struct LazyGridGalleryView: View {
         return VStack(spacing: 20) {
             // Carousel View
             ZStack {
-                // Background for carousel
-//                Color.black.opacity(0.9).edgesIgnoringSafeArea(.all)
-                
                 // Image Carousel with conditional offset
                 TabView(selection: $currentImageIndex) {
                     ForEach(Array(galleryImages.enumerated()), id: \.offset) { index, imageData in
-                        AsyncImageLoader(
-                            url: URL(string: imageData.url),
-                            placeholder: Image(.gridItemPlaceholder),
-                            grayScale: false
-                        )
-                        .scaledToFit()
-                        .tag(index)
-                        .gesture(
-                            TapGesture()
-                                .onEnded {
-                                    if !isFullScreen {
-                                        withAnimation(.spring()) {
-                                            isFullScreen = true
+                        GeometryReader { geometry in
+                            AsyncImageLoader(
+                                url: URL(string: imageData.url),
+                                placeholder: Image(.gridItemPlaceholder),
+                                grayScale: false
+                            )
+                            //                        .frame(height: !isFullScreen ? 200 : 200)
+                            .scaledToFit()
+                            
+                            .clipShape(RoundedRectangle(cornerRadius: 20)) // <-- Same as details view
+//                            .applyConditionalScaling(isScaledToFit: isFullScreen)
+                            .frame(width: geometry.size.width, height: geometry.size.height, alignment: .center)
+//                            .clipped()
+                            .tag(index)
+                            .gesture(
+                                TapGesture()
+                                    .onEnded {
+                                        if !isFullScreen {
+                                            withAnimation(.spring()) {
+                                                isFullScreen = true
+                                            }
                                         }
                                     }
-                                }
-                                .exclusively(before:
-                                    DragGesture()
+                                    .exclusively(before:
+                                                    DragGesture()
                                         .onEnded { gesture in
                                             if gesture.translation.height > 100 {
                                                 withAnimation(.spring()) {
                                                     isFullScreen = false
                                                 }
                                             }
-                                            else if abs(gesture.translation.width) > 50 {
-                                                withAnimation {
-                                                    currentImageIndex = gesture.translation.width > 0 ?
-                                                        (currentImageIndex - 1 + galleryImages.count) % galleryImages.count :
-                                                        (currentImageIndex + 1) % galleryImages.count
-                                                }
-                                            }
                                         }
-                                )
-                        )
-                        .clipShape(RoundedRectangle(cornerRadius: 20)) // <-- Same as details view
+                                                )
+                            )
+                        }
                     }
                 }
-                .tabViewStyle(PageTabViewStyle(indexDisplayMode: isFullScreen ? .always : .never)) // <-- Show indicators only when fullscreen
+                .background(
+                            ZStack {
+                                // Blur layer with bottom-to-top fade
+                                VisualEffectView(effect: UIBlurEffect(style: .systemUltraThinMaterial))
+                                    .opacity(isFullScreen ? 0 : 1)
+                                    .mask(
+                                        LinearGradient(
+                                            gradient: Gradient(stops: [
+                                                .init(color: .clear, location: 0),
+                                                .init(color: .black, location: 0.4)
+                                            ]),
+                                            startPoint: .top,
+                                            endPoint: .bottom
+                                        )
+                                    )
+                                
+                                // Optional subtle bottom shadow
+//                                Rectangle()
+//                                    .frame(height: 20)
+//                                    .foregroundStyle(
+//                                        LinearGradient(
+//                                            colors: [.black.opacity(0.15), .clear],
+//                                            startPoint: .bottom,
+//                                            endPoint: .top
+//                                        )
+//                                    )
+//                                    .offset(y: 20)
+                            }
+                            .edgesIgnoringSafeArea(.bottom)
+                        )
+
+//                .background(Color.green.edgesIgnoringSafeArea(.all))
+                .tabViewStyle(PageTabViewStyle(indexDisplayMode: isFullScreen ? .always : .never))
                 .indexViewStyle(PageIndexViewStyle(backgroundDisplayMode: .always))
-                .offset(y: !isFullScreen ? 150 : 0)  // Half of 300 to maintain visual balance
+//                .offset(y: !isFullScreen ? 400 : 0)  // Half of 300 to maintain visual balance
                 
                 // Navigation Arrows
                 if galleryImages.count > 1 {
@@ -386,10 +442,10 @@ struct LazyGridGalleryView: View {
                         }
                         .padding(.trailing, 20)
                     }
-                    .offset(y: !isFullScreen ? 300 : 0) // <-- Also offset the navigation buttons
+                    .offset(y: !isFullScreen ? 40 : 0) // <-- Also offset the navigation buttons
                 }
             }
-            .frame(height: !isFullScreen ? 300 : UIScreen.main.bounds.height * 0.6)
+            .frame(height: !isFullScreen ? 500 : 500)
             .matchedGeometryEffect(id: index, in: animationNamespace)
             
             // Details View
@@ -418,12 +474,25 @@ struct LazyGridGalleryView: View {
                 .background(Color.gray.opacity(0.4))
                 .cornerRadius(20)
                 .padding(.bottom, 60)
+                .padding(.horizontal, 20)
             }
         }
-        .padding(.horizontal, 20)
+//        .padding(.horizontal, 20)
         .transition(.opacity)
         .onAppear {
             currentImageIndex = 0
+        }
+    }
+    
+    struct VisualEffectView: UIViewRepresentable {
+        var effect: UIVisualEffect?
+        
+        func makeUIView(context: Context) -> UIVisualEffectView {
+            UIVisualEffectView(effect: effect)
+        }
+        
+        func updateUIView(_ uiView: UIVisualEffectView, context: Context) {
+            uiView.effect = effect
         }
     }
     
@@ -468,7 +537,7 @@ struct LazyGridGalleryView: View {
                     .zIndex(3) // Show above other content
             }
             
-            VStack {
+//            VStack {
                 if !isFullScreen {
                     ScrollView([.horizontal, .vertical], showsIndicators: false) {
                         LazyVGrid(
@@ -510,8 +579,9 @@ struct LazyGridGalleryView: View {
                 
                 if let selectedItem = selectedItem {
                     fullScreenView(for: selectedItem)
+                        .offset(y: !isFullScreen ? UIScreen.main.bounds.height*0.5 : 0)  // Half of 300 to maintain visual balance
                 }
-            }
+//            }
         }
         .onAppear {
             if appState.openRelated {

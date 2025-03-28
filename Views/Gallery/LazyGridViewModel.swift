@@ -11,6 +11,14 @@ import Foundation
 // LazyGridViewModel.swift
 class LazyGridViewModel: ObservableObject {
     @Published var isLoading = false
+    private let baseUrl = "http://192.168.1.17:3000"
+    func getGridItemUrl(from item: Collectible) -> URL? {
+        let stringUrl = !item.searchImageNoBgUrl.isEmpty
+        ? baseUrl + item.searchImageNoBgUrl
+        : item.searchImageUrl
+        
+        return URL(string: stringUrl)
+    }
     
     func getRelated(for itemId: String, completion: @escaping ([Collectible]) -> Void) {
         isLoading = true

@@ -24,7 +24,7 @@
 
 /* Begin PBXFileReference section */
 		B540F426271513860052A111 /* GeometryDemoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeometryDemoView.swift; sourceTree = "<group>"; };
-		B5CC8431270498D700DFB13B /* FunkoCollector.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FunkoCollector.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		B5CC8431270498D700DFB13B /* Fun Kollector.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Fun Kollector.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		B5CC8436270498D700DFB13B /* LazyGridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LazyGridView.swift; sourceTree = "<group>"; };
 		B5CC8438270498D800DFB13B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		B5CC844327049E4600DFB13B /* GridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GridView.swift; sourceTree = "<group>"; };
@@ -74,7 +74,7 @@
 		B5CC8432270498D700DFB13B /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				B5CC8431270498D700DFB13B /* FunkoCollector.app */,
+				B5CC8431270498D700DFB13B /* Fun Kollector.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -147,9 +147,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		B5CC8430270498D700DFB13B /* FunkoCollector */ = {
+		B5CC8430270498D700DFB13B /* Fun Kollector */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = B5CC843F270498D800DFB13B /* Build configuration list for PBXNativeTarget "FunkoCollector" */;
+			buildConfigurationList = B5CC843F270498D800DFB13B /* Build configuration list for PBXNativeTarget "Fun Kollector" */;
 			buildPhases = (
 				B5CC842D270498D700DFB13B /* Sources */,
 				B5CC842E270498D700DFB13B /* Frameworks */,
@@ -159,9 +159,9 @@
 			);
 			dependencies = (
 			);
-			name = FunkoCollector;
+			name = "Fun Kollector";
 			productName = AppleWatchHome;
-			productReference = B5CC8431270498D700DFB13B /* FunkoCollector.app */;
+			productReference = B5CC8431270498D700DFB13B /* Fun Kollector.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -192,7 +192,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				B5CC8430270498D700DFB13B /* FunkoCollector */,
+				B5CC8430270498D700DFB13B /* Fun Kollector */,
 			);
 		};
 /* End PBXProject section */
@@ -429,7 +429,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		B5CC843F270498D800DFB13B /* Build configuration list for PBXNativeTarget "FunkoCollector" */ = {
+		B5CC843F270498D800DFB13B /* Build configuration list for PBXNativeTarget "Fun Kollector" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				B5CC8440270498D800DFB13B /* Debug */,

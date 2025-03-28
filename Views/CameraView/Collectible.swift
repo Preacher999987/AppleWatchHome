@@ -42,10 +42,12 @@ struct CollectibleAttributes: Codable, Hashable {
     struct Images: Codable, Hashable {
         let main: ImageData?
         let search: ImageData?
+        let searchNoBg: ImageData?
         var gallery: [ImageData]?
         
         enum CodingKeys: String, CodingKey {
             case main, search, gallery
+            case searchNoBg = "search_no_bg"
         }
     }
     
@@ -63,6 +65,7 @@ struct Collectible: Codable, Hashable {
     
     // Computed variables
     var searchImageUrl: String { attributes.images.search?.url ?? "" }
+    var searchImageNoBgUrl: String { attributes.images.searchNoBg?.url ?? "" }
     var mainImageUrl: String { attributes.images.main?.url ?? "" }
     var gallery: [ImageData] { attributes.images.gallery ?? [] }
         
