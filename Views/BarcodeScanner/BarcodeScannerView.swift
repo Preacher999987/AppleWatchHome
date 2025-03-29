@@ -52,7 +52,7 @@ struct BarcodeScannerView: View {
         }
         .onChange(of: lastScannedCode) { newValue in
             if !newValue.isEmpty {
-                handleBarcodeFound(newValue)
+//                handleBarcodeFound(newValue)
             }
         }
     }

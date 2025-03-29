@@ -10,7 +10,7 @@ enum SubjectType: String, Codable, Hashable {
 
 struct RelatedSubject: Codable, Hashable {
     let url: String?
-    let name: String
+    let name: String?
     let type: SubjectType?
 }
 
@@ -91,32 +91,25 @@ struct Collectible: Codable, Hashable {
     }
     
     var estimatedValue: String? {
-        // Return formatted _estimatedValue if available
-        if let singleValue = attributes._estimatedValue {
-            // Ensure the value starts with $
-            if singleValue.hasPrefix("$") {
-                return singleValue
-            } else {
-                return "$\(singleValue)"
+        // First try to use estimatedValueRange if valid
+        if let range = attributes.estimatedValueRange?.compactMap({ $0 }), !range.isEmpty {
+            let cleanValues = range.map { $0.components(separatedBy: ".").first ?? $0 }
+            
+            switch cleanValues.count {
+            case 2:
+                return "$\(cleanValues[0]) - $\(cleanValues[1])"
+            case 1:
+                return "$\(cleanValues[0])"
+            default:
+                break // Fall through to _estimatedValue check
             }
         }
         
-        // Check if estimatedValueRange is nil or contains any nulls
-        guard let range = attributes.estimatedValueRange,
-              !range.contains(where: { $0 == nil }) else {
-            return nil
+        // Fall back to _estimatedValue if available
+        if let value = attributes._estimatedValue {
+            return value.hasPrefix("$") ? value : "$\(value)"
         }
         
-        // Process valid range
-        let nonNilRange = range.compactMap { $0 }
-        if nonNilRange.count == 2 {
-            let low = nonNilRange[0].components(separatedBy: ".").first ?? nonNilRange[0]
-            let high = nonNilRange[1].components(separatedBy: ".").first ?? nonNilRange[1]
-            return "$\(low) - $\(high)"
-        } else if let firstValue = nonNilRange.first {
-            let value = firstValue.components(separatedBy: ".").first ?? firstValue
-            return "$\(value)"
-        }
         return nil
     }
     
