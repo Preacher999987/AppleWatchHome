@@ -13,6 +13,10 @@
 		B5CC844427049E4600DFB13B /* GridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5CC844327049E4600DFB13B /* GridView.swift */; };
 		B5CC84472704D02E00DFB13B /* AppIcons.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5CC84462704D02E00DFB13B /* AppIcons.swift */; };
 		BB1D1E862D97411F00153BB4 /* BarcodeScannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1D1E852D97411F00153BB4 /* BarcodeScannerView.swift */; };
+		BB1D1E882D98271500153BB4 /* ViewHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1D1E872D98271000153BB4 /* ViewHelpers.swift */; };
+		BB1D1E8A2D983A5300153BB4 /* LaunchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1D1E892D983A4D00153BB4 /* LaunchView.swift */; };
+		BB1D1E8C2D983AAD00153BB4 /* animated-logo.gif in Resources */ = {isa = PBXBuildFile; fileRef = BB1D1E8B2D983AAD00153BB4 /* animated-logo.gif */; };
+		BB1D1E8E2D98A60300153BB4 /* AIPoweredBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1D1E8D2D98A60300153BB4 /* AIPoweredBadge.swift */; };
 		BB2B5B2D2D920752004461C4 /* AsyncImageLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB2B5B2C2D920752004461C4 /* AsyncImageLoader.swift */; };
 		BB2B5B2E2D920A11004461C4 /* FunkoDatabase.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB2B5B272D920638004461C4 /* FunkoDatabase.swift */; };
 		BB2B5B302D93296A004461C4 /* LazyGridViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB2B5B2F2D93296A004461C4 /* LazyGridViewModel.swift */; };
@@ -31,6 +35,10 @@
 		B5CC844327049E4600DFB13B /* GridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GridView.swift; sourceTree = "<group>"; };
 		B5CC84462704D02E00DFB13B /* AppIcons.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppIcons.swift; sourceTree = "<group>"; };
 		BB1D1E852D97411F00153BB4 /* BarcodeScannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BarcodeScannerView.swift; sourceTree = "<group>"; };
+		BB1D1E872D98271000153BB4 /* ViewHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewHelpers.swift; sourceTree = "<group>"; };
+		BB1D1E892D983A4D00153BB4 /* LaunchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchView.swift; sourceTree = "<group>"; };
+		BB1D1E8B2D983AAD00153BB4 /* animated-logo.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = "animated-logo.gif"; sourceTree = "<group>"; };
+		BB1D1E8D2D98A60300153BB4 /* AIPoweredBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIPoweredBadge.swift; sourceTree = "<group>"; };
 		BB2B5B272D920638004461C4 /* FunkoDatabase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FunkoDatabase.swift; sourceTree = "<group>"; };
 		BB2B5B2C2D920752004461C4 /* AsyncImageLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncImageLoader.swift; sourceTree = "<group>"; };
 		BB2B5B2F2D93296A004461C4 /* LazyGridViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LazyGridViewModel.swift; sourceTree = "<group>"; };
@@ -84,6 +92,8 @@
 		B5CC8433270498D700DFB13B /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				BB1D1E892D983A4D00153BB4 /* LaunchView.swift */,
+				BB1D1E872D98271000153BB4 /* ViewHelpers.swift */,
 				BB1D1E842D97411100153BB4 /* BarcodeScanner */,
 				B540F4252715136D0052A111 /* GeometryReader */,
 				B5CC84452704C1C800DFB13B /* Gallery */,
@@ -133,6 +143,7 @@
 			isa = PBXGroup;
 			children = (
 				BB2B5B342D9354EE004461C4 /* Preview Assets.xcassets */,
+				BB1D1E8B2D983AAD00153BB4 /* animated-logo.gif */,
 			);
 			path = "Preview Assets";
 			sourceTree = "<group>";
@@ -140,6 +151,7 @@
 		BB6232042D9190100048BF67 /* CameraView */ = {
 			isa = PBXGroup;
 			children = (
+				BB1D1E8D2D98A60300153BB4 /* AIPoweredBadge.swift */,
 				BB6232052D91901B0048BF67 /* Collectible.swift */,
 				BB8E39592D8F6F5F00CDC7BB /* CameraView.swift */,
 			);
@@ -214,6 +226,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				BB2B5B352D9354EE004461C4 /* Preview Assets.xcassets in Resources */,
+				BB1D1E8C2D983AAD00153BB4 /* animated-logo.gif in Resources */,
 				B5CC8439270498D800DFB13B /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -227,12 +240,15 @@
 			files = (
 				BB1D1E862D97411F00153BB4 /* BarcodeScannerView.swift in Sources */,
 				BB2B5B2D2D920752004461C4 /* AsyncImageLoader.swift in Sources */,
+				BB1D1E882D98271500153BB4 /* ViewHelpers.swift in Sources */,
+				BB1D1E8A2D983A5300153BB4 /* LaunchView.swift in Sources */,
 				BB2B5B302D93296A004461C4 /* LazyGridViewModel.swift in Sources */,
 				BB62320A2D9190810048BF67 /* PhotoPreviewView.swift in Sources */,
 				B540F427271513860052A111 /* GeometryDemoView.swift in Sources */,
 				B5CC8437270498D700DFB13B /* LazyGridView.swift in Sources */,
 				B5CC844427049E4600DFB13B /* GridView.swift in Sources */,
 				BB8E395A2D8F6F5F00CDC7BB /* CameraView.swift in Sources */,
+				BB1D1E8E2D98A60300153BB4 /* AIPoweredBadge.swift in Sources */,
 				BB6232062D91901B0048BF67 /* Collectible.swift in Sources */,
 				B5CC84472704D02E00DFB13B /* AppIcons.swift in Sources */,
 				BB2B5B2E2D920A11004461C4 /* FunkoDatabase.swift in Sources */,

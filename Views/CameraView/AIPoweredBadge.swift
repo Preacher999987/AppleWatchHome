@@ -1,0 +1,25 @@
+//
+//  AIPoweredBadge.swift
+//  Fun Kollector
+//
+//  Created by Home on 29.03.2025.
+//
+
+import SwiftUI
+
+struct AIPoweredBadge: View {
+    var body: some View {
+        Label {
+            Text("AI-Powered")
+                .font(.system(size: 14, weight: .bold))
+        } icon: {
+            Image(systemName: "sparkles")
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 4)
+        .background(Color(hex: "d3a754").opacity(0.9))
+        .foregroundColor(.white)
+        .cornerRadius(8)
+        .shadow(color: .black.opacity(0.2), radius: 2, x: 0, y: 1)
+    }
+}

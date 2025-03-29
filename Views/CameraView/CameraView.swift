@@ -1,17 +1,6 @@
 import SwiftUI
 import UIKit
 
-// MARK: - Main App
-@main
-struct FunkoCollector: App {
-    var body: some Scene {
-        WindowGroup {
-            ContentView()
-                .environmentObject(AppState())
-        }
-    }
-}
-
 class AppState: ObservableObject {
     @Published var openMyCollection = false
     @Published var openRelated = false
@@ -46,136 +35,297 @@ struct ContentView: View {
     @State private var analysisResult: [Collectible] = []
     @State private var showCamera = false
     @State private var showPhotoPicker = false
-    
-    // Add navigation path if not already present
+    @State private var showBarcodeReader = false
     @State private var navigationPath = NavigationPath()
+    
+    @State private var logoRect: CGRect = .zero
+    
     @EnvironmentObject var appState: AppState
+    
+    private func addNewItemAction (_ action: AddNewItemAction) {
+        switch action {
+        case .barcode:
+            showBarcodeReader = true
+        case .camera:
+            showCamera = true
+        case .photoPicker:
+            showPhotoPicker = true
+        case .manually:
+            break
+        }
+    }
+    
+    func hapticAction(_ action: () -> Void) -> Void {
+        Helpers.hapticFeedback()
+        action()
+    }
     
     var body: some View {
         NavigationStack(path: $navigationPath) {
-            VStack {
+            ZStack {
+                // Background layer
+                Color(.systemGroupedBackground)
+                    .ignoresSafeArea()
+                
+                // Main content
                 if appState.openMyCollection {
-                    LazyGridGalleryView(payload: $analysisResult,
-                                        dismissAction: {
-                        // Reset to initial state when going back
-                        capturedImage = nil
-                        analysisResult = []
-                        appState.showPlusButton = false
-                        appState.showEllipsisButton = false
-                        appState.openMyCollection = false
-                    },
-                                        seeMissingPopsAction: { selectedItem in
-                        appState.openRelated = true
-                        let newPayload = [selectedItem];
-                        navigationPath.append(newPayload)
-                    })
-                    .toolbar(.hidden, for: .navigationBar)
-                    .navigationDestination(for: [Collectible].self) { newPayload in
-                        // Wrap in a view that creates local state
-                        PayloadWrapperView(initialPayload: newPayload) {
-                            LazyGridGalleryView(
-                                payload: $0,  // Now gets a real binding
-                                dismissAction: {
-                                    appState.openRelated = false
-                                    navigationPath.removeLast()
-                                },
-                                seeMissingPopsAction: {_ in })
-                            .toolbar(.hidden, for: .navigationBar) // Hide navigation bar if needed
-                            
-                        }
-                    }
+                    collectionView
                 } else if let image = capturedImage {
                     if !analysisResult.isEmpty {
-                        LazyGridGalleryView(payload: $analysisResult,
-                                            dismissAction: {
-                            // Reset to initial state when going back
-                            capturedImage = nil
-                            
-                            if let result = try? FunkoDatabase.loadItems(), !result.isEmpty {
-                                appState.openMyCollection = true
-                                appState.showPlusButton = true
-                                appState.showEllipsisButton = true
-                                appState.showAddToCollectionButton = false
-                                analysisResult = result
-                            }
-                        }, seeMissingPopsAction: {_ in })
-                        .toolbar(.hidden, for: .navigationBar)
+                        galleryView
                     } else {
-                        PhotoPreviewView(
-                            image: image,
-                            retakeAction: { capturedImage = nil },
-                            onAnalysisComplete: { result in
-                                analysisResult = result
-                            }
-                        )
+                        photoPreviewView(image: image)
                     }
                 } else {
                     VStack(spacing: 20) {
-                        // Take Photo Button
-                        Button(action: {
-                            showCamera = true
-                        }) {
-                            HStack {
-                                Image(systemName: "camera.fill")
-                                Text("Take Photo")
-                            }
-                            .frame(width: 200, height: 44)
-                        }
-                        .buttonStyle(.borderedProminent)
+                        // Logo header
+                        Image("logo-white")
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(height: 60)
+                            .padding(.top, 0)
+                            .padding(.horizontal, 40)
+                            .background(
+                                GeometryReader { geo in
+                                    Color.clear
+                                        .onAppear {
+                                            logoRect = geo.frame(in: .global)
+                                        }
+                                        .onChange(of: geo.frame(in: .global)) { newRect in
+                                            logoRect = newRect
+                                        }
+                                }
+                            )
                         
-                        // Choose from Gallery Button
-                        Button(action: {
-                            showPhotoPicker = true
-                        }) {
-                            HStack {
-                                Image(systemName: "photo.on.rectangle")
-                                Text("Choose from Gallery")
+                        // Main action cards
+                        VStack(spacing: 24) {
+                            // Add Items Section
+                            VStack(spacing: 16) {
+                                Text("ADD NEW ITEMS")
+                                    .font(.subheadline)
+                                    .foregroundColor(.secondary)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    .padding(.leading, 20)
+                                
+                                actionCard(
+                                    systemImage: "camera.fill",
+                                    title: "Scan New Item",
+                                    description: "Take a photo of your collectible to add it to your collection",
+                                    action: {
+                                        hapticAction {
+                                            addNewItemAction(.camera)
+                                        }
+                                    }
+                                )
+                                .overlay(alignment: .topTrailing) {
+                                    AIPoweredBadge()
+                                        .offset(x: -8, y: -8)
+                                }
+                                
+                                actionCard(
+                                    systemImage: "photo.on.rectangle",
+                                    title: "Add From Gallery",
+                                    description: "Select an existing photo of your collectible",
+                                    action: {
+                                        hapticAction {
+                                            addNewItemAction(.photoPicker)
+                                        }
+                                    }
+                                )
+                                .overlay(alignment: .topTrailing) {
+                                        AIPoweredBadge()
+                                            .offset(x: -8, y: -8)
+                                    }
+                                
+                                actionCard(
+                                    systemImage: "barcode.viewfinder",
+                                    title: "Scan Barcode",
+                                    description: "Add items by scanning the barcode on your collectible box",
+                                    action: {
+                                        hapticAction {
+                                            addNewItemAction(.camera)
+                                        }
+                                    }
+                                )
                             }
-                            .frame(width: 200, height: 44)
-                        }
-                        .buttonStyle(.bordered)
-                        
-                        // Show My Collection Button
-                        Button(action: {
-                            // Reset to initial state when going back
-                            capturedImage = nil
+                            .padding(.horizontal)
                             
-                            if let result = try? FunkoDatabase.loadItems(), !result.isEmpty {
-                                analysisResult = result
+                            // View Collection Section
+                            VStack(spacing: 16) {
+                                Text("YOUR COLLECTION")
+                                    .font(.subheadline)
+                                    .foregroundColor(.secondary)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    .padding(.leading, 20)
+                                
+                                actionCard(
+                                    systemImage: "rectangle.stack.fill",
+                                    title: "Go to My Collection",
+                                    description: "Browse and manage your existing collectibles",
+                                    action: {
+                                        hapticAction(loadCollection)
+                                    },
+                                    isPrimary: true
+                                )
                             }
-                            appState.openMyCollection = true
-                            appState.showPlusButton = true
-                            appState.showEllipsisButton = true
-                            appState.showCollectionButton = false
-                            appState.showAddToCollectionButton = false
-                        }) {
-                            HStack {
-                                Image(systemName: "photo.on.rectangle")
-                                Text("My Collection")
-                            }
-                            .frame(width: 200, height: 44)
+                            .padding(.horizontal)
                         }
-                        .buttonStyle(.bordered)
+                        
+                        Spacer()
                     }
                 }
             }
             .sheet(isPresented: $showCamera) {
                 CameraView { image in
-                    appState.showAddToCollectionButton = true
-                    capturedImage = image
-                    analysisResult = []
-                    showCamera = false
+                    handleNewImage(image)
                 }
             }
             .sheet(isPresented: $showPhotoPicker) {
                 PhotoPicker { image in
+                    handleNewImage(image)
+                }
+            }
+            .sheet(isPresented: $showBarcodeReader) {
+                BarcodeScannerView { items in
                     appState.showAddToCollectionButton = true
-                    capturedImage = image
-                    analysisResult = []
-                    showPhotoPicker = false
+                    analysisResult = items
                 }
             }
         }
+    }
+    
+    // MARK: - Subviews
+    
+    private var collectionView: some View {
+        LazyGridGalleryView(
+            initialLogoRect: logoRect,
+            payload: $analysisResult,
+            dismissAction: resetToInitialState,
+            seeMissingPopsAction: { selectedItem in
+                appState.openRelated = true
+                navigationPath.append([selectedItem])
+            },
+            addNewItemAction: addNewItemAction
+        )
+        .navigationDestination(for: [Collectible].self) { newPayload in
+            PayloadWrapperView(initialPayload: newPayload) {
+                LazyGridGalleryView(
+                    initialLogoRect: logoRect,
+                    payload: $0,
+                    dismissAction: {
+                        appState.openRelated = false
+                        navigationPath.removeLast()
+                    },
+                    seeMissingPopsAction: { _ in },
+                    addNewItemAction: addNewItemAction
+                )
+            }
+        }
+    }
+    
+    private var galleryView: some View {
+        LazyGridGalleryView(
+            initialLogoRect: logoRect,
+            payload: $analysisResult,
+            dismissAction: {
+                resetToInitialState()
+                if let result = try? FunkoDatabase.loadItems(), !result.isEmpty {
+                    prepareCollectionView(with: result)
+                }
+            },
+            seeMissingPopsAction: { _ in },
+            addNewItemAction: addNewItemAction
+        )
+    }
+    
+    private func photoPreviewView(image: UIImage) -> some View {
+        PhotoPreviewView(
+            image: image,
+            retakeAction: { capturedImage = nil },
+            onAnalysisComplete: { result in
+                analysisResult = result
+            }
+        )
+    }
+    
+    private func actionCard(
+        systemImage: String,
+        title: String,
+        description: String,
+        action: @escaping () -> Void,
+        isPrimary: Bool = false
+    ) -> some View {
+        Button(action: action) {
+            HStack(spacing: 16) {
+                Image(systemName: systemImage)
+                    .font(.title)
+                    .foregroundColor(Color(hex: "d3a754"))
+                    .frame(width: 44, height: 44)
+                    .background(Color(hex: "d3a754").opacity(0.1))
+                    .clipShape(Circle())
+                
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(title)
+                        .font(.headline)
+                        .foregroundColor(.primary)
+                    
+                    Text(description)
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                }
+                
+                Spacer()
+                
+                Image(systemName: "chevron.right")
+                    .foregroundColor(.secondary)
+            }
+            .padding()
+            .background(
+                isPrimary ? Color(hex: "d3a754").opacity(0.2) : Color(.secondarySystemGroupedBackground)
+            )
+            .cornerRadius(12)
+        }
+        .buttonStyle(.plain)
+    }
+    
+    // MARK: - Actions
+    
+    private func loadCollection() {
+        withAnimation(.easeOut) {
+            if let result = try? FunkoDatabase.loadItems() {
+                analysisResult = result
+            }
+            appState.openMyCollection = true
+            appState.showPlusButton = true
+            appState.showEllipsisButton = true
+            appState.showCollectionButton = false
+            appState.showAddToCollectionButton = false
+        }
+    }
+    
+    private func handleNewImage(_ image: UIImage) {
+        appState.showAddToCollectionButton = true
+        capturedImage = image
+        analysisResult = []
+    }
+    
+    private func resetToInitialState() {
+        capturedImage = nil
+        analysisResult = []
+        showCamera = false
+        showPhotoPicker = false
+        showBarcodeReader = false
+        appState.showPlusButton = false
+        appState.showEllipsisButton = false
+        appState.openMyCollection = false
+    }
+    
+    private func prepareCollectionView(with result: [Collectible]) {
+        analysisResult = result
+        appState.openMyCollection = true
+        appState.showPlusButton = true
+        appState.showEllipsisButton = true
+        appState.showAddToCollectionButton = false
     }
 }
 

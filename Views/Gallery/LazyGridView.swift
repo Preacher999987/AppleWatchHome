@@ -18,8 +18,10 @@ struct LazyGridGalleryView: View {
         }
     } // Track the selected grid item
     @State private var isFullScreen: Bool = false // Track full-screen state
+    
     @State private var selectedBackgroundImage: UIImage? = nil // Store the selected background image
     @State private var isShowingImagePicker: Bool = false // Control the image picker presentation
+    @State private var showEllipsisMenu = false
     
     @State private var showAddToCollectionConfirmation = false
     @State private var isLoadingRelated = false
@@ -29,7 +31,12 @@ struct LazyGridGalleryView: View {
     @State private var showDeleteConfirmation = false
     
     @State private var showAddMenu = false
-    @State private var isPresentingScanner = false
+    
+    @State private var leadingNavigationButtonRect: CGRect = .zero
+    @State private var animateLogo = false
+    let initialLogoRect: CGRect?
+    
+    @State private var showNavigationTitle = false
     
     // Create an instance of the ViewModel
     @StateObject private var viewModel = LazyGridViewModel()
@@ -48,19 +55,31 @@ struct LazyGridGalleryView: View {
     var dismissActionWrapped: () -> Void {
         get {
             return {
+                Helpers.hapticFeedback()
+                
                 if isFullScreen {
                     withAnimation {
                         isFullScreen = false
                     }
+                }
+                else if selectedItem != nil {
+                    withAnimation {
+                        selectedItem = nil
+                    }
                 } else {
-                    selectedItem = nil
-                    dismissAction()
+                    withAnimation {
+                        showNavigationTitle = false
+                        selectedItem = nil
+                        animateLogo = false
+                        dismissAction()
+                    }
                 }
             }
         }
     }
-    
+        
     var seeMissingPopsAction: (Collectible) -> Void
+    var addNewItemAction: (AddNewItemAction) -> Void
     
     var gridItems = Array(
         repeating: GridItem(
@@ -87,151 +106,74 @@ struct LazyGridGalleryView: View {
         }
     }
     
-    private var topButtonsBar: some View {
-        VStack {
-            ZStack {
-                HStack {
-                    // Back Button
-                    if appState.showBackButton {
-                        Button(action: dismissActionWrapped) {
-                            Image(systemName: "chevron.left.circle.fill")
-                                .font(.system(size: 22))
-                                .foregroundColor(.black).opacity(0.8)
-                                .background(Color.blue)
-                                .clipShape(Circle())
-                        }
-                        .frame(width: 44, height: 44)
-                        .contentShape(Circle())
-                        .padding(.leading, 20)
-                        Spacer()
-                    }
-                }
-                
-                // Centered Logo Image
-                Image(.gridItemPlaceholder) // Replace with your actual asset name
-                    .resizable()
-                    .scaledToFit()
-                    .frame(height: 40) // Adjust size as needed
-                
-                HStack {
-                    Spacer()
-                    // Add to Collection Button (new)
-                    if appState.showAddToCollectionButton {
-                        Button(action: {
-                            showAddToCollectionConfirmation = true
-                        }) {
-                            HStack(spacing: 4) {
-                                Image(systemName: "plus.circle.fill")
-                                
-                                Text("Collection")
-                                    .font(.system(size: 14, weight: .medium))
-                                    .transition(.opacity.combined(with: .move(edge: .trailing)))
-                            }
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 8)
-                            .background(
-                                Capsule()
-                                    .fill(Color.black.opacity(0.9))
-                                    .shadow(radius: 2)
-                            )
-                            .foregroundColor(.green)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 15)
-                                    .stroke(Color.green, lineWidth: 1)
-                            )
-                        }
-                        .padding(.trailing, appState.showPlusButton ? 10 : 20)
-                        .alert("Add to Collection", isPresented: $showAddToCollectionConfirmation) {
-                            Button("Add", action: addToCollection)
-                            Button("Cancel", role: .cancel) {}
-                        } message: {
-                            Text("Add these items to your permanent Collection?")
-                        }
-                    }
-                    
-                    // Plus Button
-                    if appState.showPlusButton {
-                        Menu {
-                            Button(action: {
-                                isPresentingScanner = true
-                            }) {
-                                Label("Scan Barcode", systemImage: "barcode.viewfinder")
-                            }
-                            
-                            Button(action: {
-                                // Handle photo addition
-                            }) {
-                                Label("Add by Photo", systemImage: "photo")
-                            }
-                            
-                            Button(action: {
-                                // Handle manual addition
-                            }) {
-                                Label("Add Manually", systemImage: "keyboard")
-                            }
-                        } label: {
-                            Image(systemName: "plus.circle.fill")
-                                .font(.system(size: 24))
-                                .rotationEffect(.degrees(showAddMenu ? 45 : 0))
-                                .animation(.spring(), value: showAddMenu)
-                        }
-                        .menuStyle(BorderlessButtonMenuStyle())
-                        .menuIndicator(.hidden)
-                        .sheet(isPresented: $isPresentingScanner) {
-                            BarcodeScannerView { items in
-                                payload.append(contentsOf: items)
-                            }
-                        }
-                    }
-                    
-                    // Ellipsis Button
-                    if appState.showEllipsisButton {
-                        Button(action: {
-                            isShowingImagePicker = true
-                        }) {
-                            Image(systemName: "ellipsis.circle.fill")
-                                .font(.system(size: 22))
-                                .foregroundColor(.black).opacity(0.8)
-                                .background(Color.gray)
-                                .clipShape(Circle())
-                        }
-                        .frame(width: 44, height: 44)
-                        .contentShape(Circle())
-                        .padding(.trailing, 20)
-                    }
-                    
-                    if appState.showCollectionButton {
-                        // Add Collection View button
-                        Button(action: {
-                            appState.openMyCollection = true
-                            appState.showCollectionButton = false
-                            appState.showAddToCollectionButton = false
-                            dismissAction()
-                        }) {
-                            Text("My Collection")
-                                .font(.system(size: 16, weight: .medium))
-                                .foregroundColor(.white)
-                                .padding(.horizontal, 16)
-                                .padding(.vertical, 8)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 20)
-                                        .fill(Color.black.opacity(0.7))
-                                        .overlay(
-                                            RoundedRectangle(cornerRadius: 20)
-                                                .stroke(Color.blue, lineWidth: 1.5)
-                                        )
-                                )
-                                .shadow(radius: 2)
-                        }
-                        .padding(.trailing, 20)
-                    }
-                }
+    private func addNewItemTapped(_ action: AddNewItemAction) {
+        showAddMenu.toggle()
+        dismissActionWrapped()
+        addNewItemAction(action)
+    }
+    
+    private func addItemButtonDropDownView() -> some View {
+        Menu {
+            Button(action: {
+                addNewItemTapped(.barcode)
+            }) {
+                Label("Scan Barcode", systemImage: "barcode.viewfinder")
             }
-            .padding(.top, 40)
-            .frame(height: 84) // Total height including top padding
-            Spacer()
+            
+            Button(action: {
+                addNewItemTapped(.camera)
+            }) {
+                Label("Take a Photo", systemImage: "camera")
+            }
+            
+            Button(action: {
+                addNewItemTapped(.photoPicker)
+            }) {
+                Label("Add from Gallery", systemImage: "photo")
+            }
+            
+            Button(action: {
+                addNewItemTapped(.manually)
+            }) {
+                Label("Add Manually", systemImage: "keyboard")
+            }
+        } label: {
+            Image(systemName: "plus.circle.fill")
+                .font(.system(size: 22))
+                .rotationEffect(.degrees(showAddMenu ? 90 : 0))
+                .foregroundColor(.black).opacity(0.8)
+                .background(Color(hex: "d3a754"))
+                .clipShape(Circle())
         }
-        .zIndex(2)
+        .menuStyle(BorderlessButtonMenuStyle())
+        .menuIndicator(.hidden)
+    }
+
+    private func ellipsisButtonDropDownView() -> some View {
+        Menu {
+            Button(action: {
+                showEllipsisMenu.toggle()
+                isShowingImagePicker = true
+            }) {
+                Label("Change Wallpaper", systemImage: "photo.fill.on.rectangle.fill")
+            }
+        } label: {
+            Image(systemName: "ellipsis.circle.fill")
+                .font(.system(size: 22))
+                .rotationEffect(.degrees(showEllipsisMenu ? 90 : 0))
+                .foregroundColor(.black).opacity(0.8)
+                .background(.gray)
+                .clipShape(Circle())
+        }
+        .menuStyle(BorderlessButtonMenuStyle())
+        .menuIndicator(.hidden)
+//        .padding(.trailing, 20)
+//        .background(Color.green.opacity(0.3))
+//        .sheet(isPresented: $isPresentingScanner) {
+//            BarcodeScannerView { items in
+//                payload.append(contentsOf: items)
+//            }
+//        }
     }
     
     private func addToCollection() {
@@ -243,17 +185,16 @@ struct LazyGridGalleryView: View {
                 try FunkoDatabase.addItem(item)
             }
             
+            dismissActionWrapped()
             appState.openMyCollection = true
             appState.showPlusButton = true
             appState.showEllipsisButton = true
             appState.showCollectionButton = false
             appState.showAddToCollectionButton = false
-            dismissAction()
         } catch {
             print("Error saving to Collection:", error.localizedDescription)
         }
     }
-    
     
     private func gridItemView(for index: Int, proxy: GeometryProxy) -> some View {
         ZStack {
@@ -281,7 +222,7 @@ struct LazyGridGalleryView: View {
                     .padding(.vertical, 2)
                 
                     .frame(width: .infinity, height: 24)
-                    .background(Color.red)
+                    .background(.red)
                     .cornerRadius(12)
                     .offset(x: offsetX(index) + Self.size / 4 - 10, y: -Self.size / 2 + 10)
             }
@@ -289,6 +230,7 @@ struct LazyGridGalleryView: View {
             if selectedItem == index {
                 if !payload[index].inCollection {
                     Button(action: {
+                        Helpers.hapticFeedback()
                         withAnimation(.spring()) {
                             selectedItem = index
                             isFullScreen = true
@@ -296,22 +238,20 @@ struct LazyGridGalleryView: View {
                     }) {
                         Text("Shop")
                             .font(.system(size: 14, weight: .medium))
-                            .foregroundColor(.blue)
-                            .frame(width: Self.size / 2, height: 30)
-                            .background(Color.black.opacity(0.8))
+                            .foregroundColor(Color(hex: "d3a754"))
+                            .padding(.horizontal, 18)
+                            .padding(.vertical, 8)
+                            .background(.black.opacity(0.5))
                             .cornerRadius(15)
                             .overlay(
                                 RoundedRectangle(cornerRadius: 15)
-                                    .stroke(Color.blue, lineWidth: 1)
+                                    .stroke(Color(hex: "d3a754"), lineWidth: 2)
                             )
                     }
                     .offset(x: offsetX(index), y: 0)
                 } else {
                     Button(action: {
-                        // Trigger haptic feedback
-                        let generator = UIImpactFeedbackGenerator(style: .light)
-                        generator.impactOccurred()
-                        
+                        Helpers.hapticFeedback()
                         withAnimation(.spring()) {
                             selectedItem = index
                             isFullScreen = true
@@ -320,12 +260,13 @@ struct LazyGridGalleryView: View {
                         Text("View")
                             .font(.system(size: 14, weight: .medium))
                             .foregroundColor(.green)
-                            .frame(width: Self.size / 2, height: 30)
-                            .background(Color.black.opacity(0.8))
+                            .padding(.horizontal, 18)
+                            .padding(.vertical, 8)
+                            .background(Color.black.opacity(0.5))
                             .cornerRadius(15)
                             .overlay(
                                 RoundedRectangle(cornerRadius: 15)
-                                    .stroke(Color.green, lineWidth: 1)
+                                    .stroke(.green, lineWidth: 2)
                             )
                     }
                     .offset(x: offsetX(index), y: 0)
@@ -463,7 +404,7 @@ struct LazyGridGalleryView: View {
                                 .font(.system(size: 30))
                                 .foregroundColor(.white)
                                 .opacity(0.8)
-                                .background(Color.black.opacity(0.5))
+                                .background(.black.opacity(0.5))
                                 .clipShape(Circle())
                         }
                         .padding(.leading, 20)
@@ -479,7 +420,7 @@ struct LazyGridGalleryView: View {
                                 .font(.system(size: 30))
                                 .foregroundColor(.white)
                                 .opacity(0.8)
-                                .background(Color.black.opacity(0.5))
+                                .background(.black.opacity(0.5))
                                 .clipShape(Circle())
                         }
                         .padding(.trailing, 20)
@@ -500,21 +441,21 @@ struct LazyGridGalleryView: View {
                         seeMissingPopsAction(currentItem)
                     }) {
                         Text("See missing pops")
-                            .font(.system(size: 14, weight: .medium))
-                            .foregroundColor(.blue)
-                            .frame(height: 30)
-                            .padding(.horizontal, 20)
-                            .background(Color.black.opacity(0.8))
+                            .font(.system(size: 16, weight: .medium))
+                            .foregroundColor(Color(hex: "d3a754"))
+                            .padding(.horizontal, 18)
+                            .padding(.vertical, 8)
+                            .background(.black.opacity(0.3))
                             .cornerRadius(15)
                             .overlay(
                                 RoundedRectangle(cornerRadius: 15)
-                                    .stroke(Color.blue, lineWidth: 1)
+                                    .stroke(Color(hex: "d3a754"), lineWidth: 2)
                             )
                     }
                     .padding(.top, 10)
                 }
                 .padding(.vertical, 20)
-                .background(Color.gray.opacity(0.4))
+                .background(.gray.opacity(0.4))
                 .cornerRadius(20)
                 .padding(.bottom, 60)
                 .padding(.horizontal, 20)
@@ -550,7 +491,7 @@ struct LazyGridGalleryView: View {
         }
         .layoutPriority(1)
         .padding(.vertical, 20)
-        .background(Color.gray.opacity(0.4))
+        .background(.gray.opacity(0.4))
         .cornerRadius(20)
         .padding(.bottom, 60)
     }
@@ -571,7 +512,23 @@ struct LazyGridGalleryView: View {
     var body: some View {
         ZStack {
             backgroundView
-            topButtonsBar
+            // Animated logo transition
+            if !appState.openRelated {
+                Image("logo-white")
+                    .resizable()
+                    .background(content: {
+                        //                        Color.gray
+                    })
+                    .aspectRatio(contentMode: .fit)
+                    .frame(height: animateLogo ? 30 : initialLogoRect?.height ?? 200)
+                    .position(
+                        x: animateLogo ? UIScreen.main.bounds.midX : initialLogoRect?.midX ?? 0,
+                        // TODO: Replace hardcoded Y-position offset with dynamic layout calculation
+                        // Issue: Using topBarLogoRect.midY - 40 is fragile
+                        // Solution: Use alignment guides or proper view hierarchy for positioning
+                        y: animateLogo ? leadingNavigationButtonRect.midY - 40 : (initialLogoRect?.midY ?? 0) - 40
+                    )
+            }
             
             if isLoadingRelated {
                 ProgressView()
@@ -580,7 +537,6 @@ struct LazyGridGalleryView: View {
                     .zIndex(3) // Show above other content
             }
             
-            //            VStack {
             if !isFullScreen {
                 ScrollView([.horizontal, .vertical], showsIndicators: false) {
                     LazyVGrid(
@@ -599,7 +555,7 @@ struct LazyGridGalleryView: View {
                             ))
                         }
                     }
-                    .padding(.trailing, Self.size/2) // Add proper padding
+                    .padding(.trailing, Self.size/2 + 20) // Add proper padding
                     .padding(.top, Self.size/2 + 20)
                     .padding(.bottom, Self.size/2)
                     .padding(.leading, 20)
@@ -624,12 +580,138 @@ struct LazyGridGalleryView: View {
                 fullScreenView(for: selectedItem)
                     .offset(y: !isFullScreen ? UIScreen.main.bounds.height*0.5 : 0)  // Half of 300 to maintain visual balance
             }
-            //            }
         }
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) { leadingNavigationButton }
+            ToolbarItem(placement: .navigationBarTrailing) { trailingNavigationButtons }
+            ToolbarItem(placement: .principal) {
+                Text(navigationTitle)
+                    .font(.system(size: 18, weight: .bold)) // Semi-bold, size 16
+                    .foregroundColor(Color(hex: "d3a754")) // Your hex color
+//                    .textCase(.uppercase) // Uppercase text
+                    .kerning(0.5) // Slight letter spacing for better readability
+            }
+        }
+        .toolbarBackground(.hidden, for: .navigationBar)
+        .navigationBarBackButtonHidden(true)  // Hides the back button
+        .navigationBarTitleDisplayMode(.inline)
+//        .navigationTitle(navigationTitle)
         .onAppear {
             if appState.openRelated {
+                showNavigationTitle = true
                 loadRelatedItems()
             }
+        }
+    }
+    
+    // MARK: - Toolbar Components
+    
+    private var navigationTitle: String {
+        showNavigationTitle ? (payload.first?.subject ?? "") : ""
+    }
+    
+    private var leadingNavigationButton: some View {
+        Group {
+            if appState.showBackButton {
+                Button(action: dismissActionWrapped) {
+                        let iconName = appState.openRelated || isFullScreen || selectedItem != nil
+                        ? "chevron.left.circle.fill"
+                        : "house.circle.fill"
+                        // System icon version
+                        Image(systemName: iconName)
+                            .font(.system(size: 22))
+                            .foregroundColor(.black).opacity(0.8)
+                            .background(Color(hex: "d3a754"))
+                            .clipShape(Circle())
+                }
+                .frame(width: 44, height: 44)
+                .contentShape(Circle())
+            }
+        }
+        .background(
+            GeometryReader { geo in
+                Color.clear
+                    .onAppear {
+                        leadingNavigationButtonRect = geo.frame(in: .global)
+                        if initialLogoRect != nil {
+                            withAnimation(.bouncy(duration: 0.5)){
+                                animateLogo = true
+                            }
+                        }
+                    }
+            }
+        )
+    }
+
+    private var trailingNavigationButtons: some View {
+        HStack(spacing: 12) {
+            if appState.showAddToCollectionButton {
+                addToCollectionButton
+            }
+            
+            if appState.showPlusButton {
+                addItemButtonDropDownView()
+            }
+            
+            if appState.showEllipsisButton {
+                ellipsisButtonDropDownView()
+            }
+            
+            if appState.showCollectionButton {
+                myCollectionButton
+            }
+        }
+    }
+
+    // MARK: - Button Components
+
+    private var addToCollectionButton: some View {
+        Button(action: { showAddToCollectionConfirmation = true }) {
+            HStack(spacing: 4) {
+                Image(systemName: "plus.circle.fill")
+                Text("Collection")
+                    .font(.system(size: 14, weight: .medium))
+            }
+            .padding(.horizontal, 8)
+            .padding(.vertical, 4)
+            .background(
+                Capsule()
+                    .fill(.black.opacity(0.5))
+                    .shadow(radius: 2)
+            )
+            .foregroundColor(.green)
+            .overlay(
+                Capsule()
+                    .stroke(.green, lineWidth: 2)
+            )
+        }
+        .alert("Add found items to Collection", isPresented: $showAddToCollectionConfirmation) {
+            Button("Add", action: addToCollection)
+            Button("Cancel", role: .cancel) {}
+        }
+    }
+
+    private var myCollectionButton: some View {
+        Button(action: {
+            appState.openMyCollection = true
+            appState.showCollectionButton = false
+            appState.showAddToCollectionButton = false
+            dismissAction()
+        }) {
+            Text("My Collection")
+                .font(.system(size: 14, weight: .medium))
+                .foregroundColor(.white)
+                .padding(.horizontal, 18)
+                .padding(.vertical, 4)
+                .background(
+                    RoundedRectangle(cornerRadius: 20)
+                        .fill(.black.opacity(0.5))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 20)
+                                .stroke(Color(hex: "d3a754"), lineWidth: 1.5)
+                        )
+                )
+                .shadow(radius: 2)
         }
     }
     
@@ -810,7 +892,7 @@ struct Axes: View {
                 
                 path.addLine(to: CGPoint(x: geometry.frame(in: .global).midX, y: geometry.frame(in: .global).minY - 60))
             }
-            .stroke(Color.blue, lineWidth: 3)
+            .stroke(.blue, lineWidth: 3)
         }
     }
 }

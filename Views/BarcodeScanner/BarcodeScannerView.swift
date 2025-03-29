@@ -39,7 +39,7 @@ struct BarcodeScannerView: View {
                     .scaleEffect(2)
                     .progressViewStyle(CircularProgressViewStyle(tint: .white))
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .background(Color.black.opacity(0.7))
+                    .background(.black.opacity(0.7))
             }
         }
         .alert("Scan Error", isPresented: $showError) {

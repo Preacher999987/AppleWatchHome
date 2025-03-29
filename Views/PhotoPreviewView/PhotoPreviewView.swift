@@ -33,7 +33,7 @@ struct PhotoPreviewView: View {
                     Button(action: retakeAction) {
                         Text("Retake")
                             .padding()
-                            .background(Color.red)
+                            .background(.red)
                             .foregroundColor(.white)
                             .cornerRadius(10)
                     }
@@ -53,7 +53,7 @@ struct PhotoPreviewView: View {
                     }) {
                         Text("Analyze")
                             .padding()
-                            .background(Color.green)
+                            .background(.green)
                             .foregroundColor(.white)
                             .cornerRadius(10)
                     }
@@ -66,7 +66,7 @@ struct PhotoPreviewView: View {
                     ProgressView()
                         .scaleEffect(2)
                         .padding()
-                        .background(Color.black.opacity(0.8))
+                        .background(.black.opacity(0.8))
                         .cornerRadius(10)
                 }
             }
