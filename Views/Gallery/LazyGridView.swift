@@ -176,6 +176,11 @@ struct LazyGridGalleryView: View {
         Menu {
             Button(action: {
                 showEllipsisMenu.toggle()
+                if isFullScreen {
+                    withAnimation {
+                        isFullScreen = false
+                    }
+                }
                 isShowingImagePicker = true
             }) {
                 Label("Change Wallpaper", systemImage: "photo.fill.on.rectangle.fill")
@@ -479,7 +484,7 @@ struct LazyGridGalleryView: View {
                     .padding(.top, 10)
                 }
                 .padding(.vertical, 20)
-                .background(.gray.opacity(0.4))
+                .background(.gray.opacity(0.8))
                 .cornerRadius(20)
                 .padding(.bottom, 60)
                 .padding(.horizontal, 20)
