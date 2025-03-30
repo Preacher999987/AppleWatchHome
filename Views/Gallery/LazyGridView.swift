@@ -76,7 +76,7 @@ struct LazyGridGalleryView: View {
     var dismissActionWrapped: () -> Void {
         get {
             return {
-                Helpers.hapticFeedback()
+//                Helpers.hapticFeedback()
                 
                 if isFullScreen {
                     withAnimation {
@@ -528,7 +528,7 @@ struct LazyGridGalleryView: View {
     private func detailRow(title: String, value: String) -> some View {
         HStack {
             Text(title)
-                .font(.subheadline)
+                .font(.headline)
                 .foregroundColor(.white)
             Spacer()
             Text(value)
@@ -651,7 +651,7 @@ struct LazyGridGalleryView: View {
         Group {
             if appState.showBackButton {
                 Button(action: dismissActionWrapped) {
-                        let iconName = appState.openRelated || isFullScreen || selectedItem != nil
+                    let iconName = appState.openRelated || appState.showAddToCollectionButton || isFullScreen || selectedItem != nil
                         ? "chevron.left.circle.fill"
                         : "house.circle.fill"
                         // System icon version

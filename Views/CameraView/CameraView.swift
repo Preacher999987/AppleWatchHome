@@ -236,7 +236,7 @@ struct ContentView: View {
                 }
             },
             seeMissingPopsAction: { _ in },
-            addNewItemAction: addNewItemAction
+            addNewItemAction: { _ in }
         )
     }
     
