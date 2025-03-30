@@ -70,12 +70,14 @@ struct ContentView: View {
                 // Main content
                 if appState.openMyCollection {
                     collectionView
-                } else if let image = capturedImage {
+                } else if let image = capturedImage { // <-- Camera/Gallery image selected
                     if !analysisResult.isEmpty {
-                        galleryView
+                        galleryView // <-- Camera/Gallery image analysis succeeded, show in Gallery Grid View
                     } else {
-                        photoPreviewView(image: image)
+                        photoPreviewView(image: image) // <-- Send image at PreviewView
                     }
+                } else if !analysisResult.isEmpty { // <-- Barcode Reader succeeded
+                    galleryView
                 } else {
                     VStack(spacing: 20) {
                         // Logo header
@@ -143,7 +145,7 @@ struct ContentView: View {
                                     description: "Add items by scanning the barcode on your collectible box",
                                     action: {
                                         hapticAction {
-                                            addNewItemAction(.camera)
+                                            addNewItemAction(.barcode)
                                         }
                                     }
                                 )
