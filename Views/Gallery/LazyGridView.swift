@@ -54,17 +54,18 @@ struct LazyGridGalleryView: View {
 
     private var backgroundView: some View {
         Group {
-            if let backgroundImage = selectedBackgroundImage {
-                Image(uiImage: backgroundImage)
-                    .resizable()
-                    .scaledToFill()
-                    .edgesIgnoringSafeArea([.all])
-            } else {
-                Image("background-image-1")
-                    .resizable()
-                    .scaledToFill()
-                    .edgesIgnoringSafeArea([.all])
-            }
+            let backgroundImage = selectedBackgroundImage.map { Image(uiImage: $0) }
+                ?? Image("background-image-1")
+            
+            backgroundImage
+                .resizable()
+                .scaledToFill()
+                .frame(
+                    width: UIScreen.main.bounds.width,
+                    height: UIScreen.main.bounds.height
+                )
+                .clipped()
+                .ignoresSafeArea()
         }
     }
     
@@ -627,7 +628,6 @@ struct LazyGridGalleryView: View {
         .toolbarBackground(.hidden, for: .navigationBar)
         .navigationBarBackButtonHidden(true)  // Hides the back button
         .navigationBarTitleDisplayMode(.inline)
-//        .navigationTitle(navigationTitle)
         .onAppear {
             if appState.openRelated {
                 showNavigationTitle = true
