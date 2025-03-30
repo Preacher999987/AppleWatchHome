@@ -48,6 +48,26 @@ struct LazyGridGalleryView: View {
     private static let spacingBetweenRows: CGFloat = 12
     private static let totalColumns: Int = 4
     
+    private var disablePlusButton: Bool {
+        appState.openRelated || isFullScreen
+    }
+
+    private var backgroundView: some View {
+        Group {
+            if let backgroundImage = selectedBackgroundImage {
+                Image(uiImage: backgroundImage)
+                    .resizable()
+                    .scaledToFill()
+                    .edgesIgnoringSafeArea([.all])
+            } else {
+                Image("background-image-1")
+                    .resizable()
+                    .scaledToFill()
+                    .edgesIgnoringSafeArea([.all])
+            }
+        }
+    }
+    
     @Binding var payload: [Collectible]
     
     var dismissAction: () -> Void
@@ -69,7 +89,6 @@ struct LazyGridGalleryView: View {
                 } else {
                     withAnimation {
                         showNavigationTitle = false
-                        selectedItem = nil
                         animateLogo = false
                         dismissAction()
                     }
@@ -90,26 +109,27 @@ struct LazyGridGalleryView: View {
         count: totalColumns
     )
     
-    private var backgroundView: some View {
-        Group {
-            if let backgroundImage = selectedBackgroundImage {
-                Image(uiImage: backgroundImage)
-                    .resizable()
-                    .scaledToFill()
-                    .edgesIgnoringSafeArea([.all])
-            } else {
-                Image("background-image-1")
-                    .resizable()
-                    .scaledToFill()
-                    .edgesIgnoringSafeArea([.all])
-            }
-        }
-    }
-    
     private func addNewItemTapped(_ action: AddNewItemAction) {
+        /* TODO: BUTTON ROTATION ISSUE
+         * Component: Add item button
+         * Expected: 45° rotation on toggle
+         * Current behavior: No visual rotation
+         * Verified:
+         * - State changes properly (showAddMenu)
+         * - rotationEffect modifier exists
+         * - Animation wrapper present
+         * Investigation needed:
+         * - Is view identity preserved?
+         * - Any animation modifiers higher in hierarchy?
+         * - Try explicit animation trigger
+         */
         showAddMenu.toggle()
-        dismissActionWrapped()
-        addNewItemAction(action)
+        selectedItem = nil
+        isFullScreen = false
+        withAnimation() {
+            dismissAction()
+            addNewItemAction(action)
+        }
     }
     
     private func addItemButtonDropDownView() -> some View {
@@ -141,12 +161,14 @@ struct LazyGridGalleryView: View {
             Image(systemName: "plus.circle.fill")
                 .font(.system(size: 22))
                 .rotationEffect(.degrees(showAddMenu ? 90 : 0))
-                .foregroundColor(.black).opacity(0.8)
-                .background(Color(hex: "d3a754"))
+                .foregroundColor(.black.opacity(0.8)) // Change color when disabled
+                .background(disablePlusButton ? .gray.opacity(0.5) : Color(hex: "d3a754")) // Adjust background
                 .clipShape(Circle())
+                .opacity(disablePlusButton ? 0.7 : 1.0) // Reduce opacity when disabled
         }
         .menuStyle(BorderlessButtonMenuStyle())
         .menuIndicator(.hidden)
+        .disabled(appState.openRelated)
     }
 
     private func ellipsisButtonDropDownView() -> some View {
@@ -186,6 +208,7 @@ struct LazyGridGalleryView: View {
             }
             
             dismissActionWrapped()
+            
             appState.openMyCollection = true
             appState.showPlusButton = true
             appState.showEllipsisButton = true
@@ -514,6 +537,14 @@ struct LazyGridGalleryView: View {
             backgroundView
             // Animated logo transition
             if !appState.openRelated {
+                // TODO: Negative frame coordinates detected in leadingNavigationButtonRect
+                // when navigating to LazyGridView after "Add All" action.
+                // Symptom: Logo animation moves off-screen during transition
+                // Potential causes:
+                // - Safe area insets not accounted for
+                // - Navigation occurs before frame calculation completes
+                // - Coordinate space mismatch (global vs local)
+                // Temporary workaround: position hardcoded
                 Image("logo-white")
                     .resizable()
                     .background(content: {
@@ -526,7 +557,8 @@ struct LazyGridGalleryView: View {
                         // TODO: Replace hardcoded Y-position offset with dynamic layout calculation
                         // Issue: Using topBarLogoRect.midY - 40 is fragile
                         // Solution: Use alignment guides or proper view hierarchy for positioning
-                        y: animateLogo ? leadingNavigationButtonRect.midY - 40 : (initialLogoRect?.midY ?? 0) - 40
+//                        y: animateLogo ? leadingNavigationButtonRect.midY - 40 : (initialLogoRect?.midY ?? 0) - 40
+                        y: animateLogo ? 40 : (initialLogoRect?.midY ?? 0) - 40
                     )
             }
             
@@ -586,7 +618,7 @@ struct LazyGridGalleryView: View {
             ToolbarItem(placement: .navigationBarTrailing) { trailingNavigationButtons }
             ToolbarItem(placement: .principal) {
                 Text(navigationTitle)
-                    .font(.system(size: 18, weight: .bold)) // Semi-bold, size 16
+                    .font(.system(size: 16, weight: .bold)) // Semi-bold, size 16
                     .foregroundColor(Color(hex: "d3a754")) // Your hex color
 //                    .textCase(.uppercase) // Uppercase text
                     .kerning(0.5) // Slight letter spacing for better readability
@@ -668,12 +700,12 @@ struct LazyGridGalleryView: View {
     private var addToCollectionButton: some View {
         Button(action: { showAddToCollectionConfirmation = true }) {
             HStack(spacing: 4) {
-                Image(systemName: "plus.circle.fill")
-                Text("Collection")
+//                Image(systemName: "plus.circle.fill")
+                Text("Add All")
                     .font(.system(size: 14, weight: .medium))
             }
-            .padding(.horizontal, 8)
-            .padding(.vertical, 4)
+            .padding(.horizontal, 18)
+            .padding(.vertical, 8)
             .background(
                 Capsule()
                     .fill(.black.opacity(0.5))

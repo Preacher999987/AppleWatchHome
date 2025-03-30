@@ -4,8 +4,8 @@ import UIKit
 class AppState: ObservableObject {
     @Published var openMyCollection = false
     @Published var openRelated = false
-    // Button visibility settings
     
+    // Toolbar's navigationBar items visibility settings
     @Published var showCollectionButton = false
     @Published var showBackButton = true
     @Published var showAddToCollectionButton = false
