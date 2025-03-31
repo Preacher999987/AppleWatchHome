@@ -83,6 +83,24 @@ struct CollectibleAttributes: Codable, Hashable {
             estimatedValueRange = nil
         }
     }
+    
+    init(images: Images,
+             name: String,
+             _estimatedValue: String? = nil,
+             estimatedValueRange: [String?]? = nil,
+             relatedSubjects: [RelatedSubject]? = nil,
+             dateFrom: String? = nil,
+             productionStatus: [String]? = nil,
+             refNumber: String? = nil) {
+            self.images = images
+            self.name = name
+            self._estimatedValue = _estimatedValue
+            self.estimatedValueRange = estimatedValueRange
+            self.relatedSubjects = relatedSubjects
+            self.dateFrom = dateFrom
+            self.productionStatus = productionStatus
+            self.refNumber = refNumber
+        }
 }
 
 struct Collectible: Codable, Hashable {
@@ -140,6 +158,12 @@ struct Collectible: Codable, Hashable {
         id = try container.decode(String.self, forKey: .id)
         attributes = try container.decode(CollectibleAttributes.self, forKey: .attributes)
         inCollection = (try? container.decode(Bool.self, forKey: .inCollection)) ?? true
+    }
+    
+    init(id: String, attributes: CollectibleAttributes, inCollection: Bool) {
+        self.id = id
+        self.attributes = attributes
+        self.inCollection = inCollection
     }
     
     enum CodingKeys: String, CodingKey {

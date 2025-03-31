@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="23605" systemVersion="24D70" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithSwiftData="YES" userDefinedModelVersionIdentifier="">
+    <entity name="CollectibleEntity" representedClassName="CollectibleEntity" syncable="YES" codeGenerationType="class">
+        <attribute name="attrDateFrom" optional="YES" attributeType="String"/>
+        <attribute name="attrEstimatedValue" optional="YES" attributeType="String"/>
+        <attribute name="attrName" optional="YES" attributeType="String"/>
+        <attribute name="attrRefNumber" optional="YES" attributeType="String"/>
+        <attribute name="estimatedValueRange" optional="YES" attributeType="Binary"/>
+        <attribute name="galleryImages" optional="YES" attributeType="Binary"/>
+        <attribute name="id" optional="YES" attributeType="String"/>
+        <attribute name="inCollection" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="mainImageInsensitive" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="mainImageNudity" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="mainImageUrl" optional="YES" attributeType="String"/>
+        <attribute name="productionStatus" optional="YES" attributeType="Binary"/>
+        <attribute name="relatedSubjects" optional="YES" attributeType="Binary"/>
+        <attribute name="searchImageInsensitive" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="searchImageNudity" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="searchImageUrl" optional="YES" attributeType="String"/>
+        <attribute name="searchNoBgImageInsensitive" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="searchNoBgImageNudity" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="searchNoBgImageUrl" optional="YES" attributeType="String"/>
+    </entity>
+</model>

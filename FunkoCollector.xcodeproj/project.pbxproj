@@ -19,13 +19,14 @@
 		BB1D1E8E2D98A60300153BB4 /* AIPoweredBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1D1E8D2D98A60300153BB4 /* AIPoweredBadge.swift */; };
 		BB1D1E912D9A00C000153BB4 /* ModelHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1D1E902D9A001200153BB4 /* ModelHelpers.swift */; };
 		BB2B5B2D2D920752004461C4 /* AsyncImageLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB2B5B2C2D920752004461C4 /* AsyncImageLoader.swift */; };
-		BB2B5B2E2D920A11004461C4 /* FunkoDatabase.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB2B5B272D920638004461C4 /* FunkoDatabase.swift */; };
+		BB2B5B2E2D920A11004461C4 /* FunkoRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB2B5B272D920638004461C4 /* FunkoRepository.swift */; };
 		BB2B5B302D93296A004461C4 /* LazyGridViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB2B5B2F2D93296A004461C4 /* LazyGridViewModel.swift */; };
 		BB2B5B352D9354EE004461C4 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BB2B5B342D9354EE004461C4 /* Preview Assets.xcassets */; };
 		BB6232062D91901B0048BF67 /* Collectible.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB6232052D91901B0048BF67 /* Collectible.swift */; };
 		BB6232082D9190480048BF67 /* PhotoPreviewViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB6232072D9190480048BF67 /* PhotoPreviewViewModel.swift */; };
 		BB62320A2D9190810048BF67 /* PhotoPreviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB6232092D9190810048BF67 /* PhotoPreviewView.swift */; };
 		BB8E395A2D8F6F5F00CDC7BB /* CameraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB8E39592D8F6F5F00CDC7BB /* CameraView.swift */; };
+		BBBBF6392D9B100D008CE85F /* FunkoModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = BBBBF6372D9B100D008CE85F /* FunkoModel.xcdatamodeld */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -41,7 +42,7 @@
 		BB1D1E8B2D983AAD00153BB4 /* animated-logo.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = "animated-logo.gif"; sourceTree = "<group>"; };
 		BB1D1E8D2D98A60300153BB4 /* AIPoweredBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIPoweredBadge.swift; sourceTree = "<group>"; };
 		BB1D1E902D9A001200153BB4 /* ModelHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelHelpers.swift; sourceTree = "<group>"; };
-		BB2B5B272D920638004461C4 /* FunkoDatabase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FunkoDatabase.swift; sourceTree = "<group>"; };
+		BB2B5B272D920638004461C4 /* FunkoRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FunkoRepository.swift; sourceTree = "<group>"; };
 		BB2B5B2C2D920752004461C4 /* AsyncImageLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncImageLoader.swift; sourceTree = "<group>"; };
 		BB2B5B2F2D93296A004461C4 /* LazyGridViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LazyGridViewModel.swift; sourceTree = "<group>"; };
 		BB2B5B342D9354EE004461C4 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
@@ -50,6 +51,7 @@
 		BB6232092D9190810048BF67 /* PhotoPreviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoPreviewView.swift; sourceTree = "<group>"; };
 		BB8E39592D8F6F5F00CDC7BB /* CameraView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraView.swift; sourceTree = "<group>"; };
 		BB8E395B2D8F847A00CDC7BB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		BBBBF6382D9B100D008CE85F /* FunkoModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = FunkoModel.xcdatamodel; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -75,7 +77,7 @@
 			isa = PBXGroup;
 			children = (
 				BB1D1E8F2D99FFF300153BB4 /* Utilities */,
-				BB2B5B262D920620004461C4 /* Database */,
+				BBBBF63A2D9B10A3008CE85F /* Models */,
 				B5CC8433270498D700DFB13B /* Views */,
 				B5CC8432270498D700DFB13B /* Products */,
 				BB8E395B2D8F847A00CDC7BB /* Info.plist */,
@@ -142,12 +144,13 @@
 			path = Utilities;
 			sourceTree = "<group>";
 		};
-		BB2B5B262D920620004461C4 /* Database */ = {
+		BB2B5B262D920620004461C4 /* CoreData */ = {
 			isa = PBXGroup;
 			children = (
-				BB2B5B272D920638004461C4 /* FunkoDatabase.swift */,
+				BB2B5B272D920638004461C4 /* FunkoRepository.swift */,
+				BBBBF6372D9B100D008CE85F /* FunkoModel.xcdatamodeld */,
 			);
-			path = Database;
+			path = CoreData;
 			sourceTree = "<group>";
 		};
 		BB2B5B362D935503004461C4 /* Preview Assets */ = {
@@ -163,7 +166,6 @@
 			isa = PBXGroup;
 			children = (
 				BB1D1E8D2D98A60300153BB4 /* AIPoweredBadge.swift */,
-				BB6232052D91901B0048BF67 /* Collectible.swift */,
 				BB8E39592D8F6F5F00CDC7BB /* CameraView.swift */,
 			);
 			path = CameraView;
@@ -176,6 +178,15 @@
 				BB6232072D9190480048BF67 /* PhotoPreviewViewModel.swift */,
 			);
 			path = PhotoPreviewView;
+			sourceTree = "<group>";
+		};
+		BBBBF63A2D9B10A3008CE85F /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				BB2B5B262D920620004461C4 /* CoreData */,
+				BB6232052D91901B0048BF67 /* Collectible.swift */,
+			);
+			path = Models;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -253,6 +264,7 @@
 				BB1D1E912D9A00C000153BB4 /* ModelHelpers.swift in Sources */,
 				BB2B5B2D2D920752004461C4 /* AsyncImageLoader.swift in Sources */,
 				BB1D1E882D98271500153BB4 /* ViewHelpers.swift in Sources */,
+				BBBBF6392D9B100D008CE85F /* FunkoModel.xcdatamodeld in Sources */,
 				BB1D1E8A2D983A5300153BB4 /* LaunchView.swift in Sources */,
 				BB2B5B302D93296A004461C4 /* LazyGridViewModel.swift in Sources */,
 				BB62320A2D9190810048BF67 /* PhotoPreviewView.swift in Sources */,
@@ -263,7 +275,7 @@
 				BB1D1E8E2D98A60300153BB4 /* AIPoweredBadge.swift in Sources */,
 				BB6232062D91901B0048BF67 /* Collectible.swift in Sources */,
 				B5CC84472704D02E00DFB13B /* AppIcons.swift in Sources */,
-				BB2B5B2E2D920A11004461C4 /* FunkoDatabase.swift in Sources */,
+				BB2B5B2E2D920A11004461C4 /* FunkoRepository.swift in Sources */,
 				BB6232082D9190480048BF67 /* PhotoPreviewViewModel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -479,6 +491,19 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCVersionGroup section */
+		BBBBF6372D9B100D008CE85F /* FunkoModel.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				BBBBF6382D9B100D008CE85F /* FunkoModel.xcdatamodel */,
+			);
+			currentVersion = BBBBF6382D9B100D008CE85F /* FunkoModel.xcdatamodel */;
+			path = FunkoModel.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
 	};
 	rootObject = B5CC8429270498D700DFB13B /* Project object */;
 }

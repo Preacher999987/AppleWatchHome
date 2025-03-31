@@ -38,6 +38,17 @@ struct LazyGridGalleryView: View {
     
     @State private var showNavigationTitle = false
     
+    // Manual Entry View States
+    @State private var showManualEntryView = false
+    private enum Field: Hashable {
+        case name, reference, series, barcode
+    }
+    @FocusState private var focusedField: Field?
+    @State private var manualEntryName = ""
+    @State private var manualEntryReference = ""
+    @State private var manualEntrySeries = ""
+    @State private var manualEntryBarcode = ""
+    
     // Create an instance of the ViewModel
     @StateObject private var viewModel = LazyGridViewModel()
     
@@ -241,7 +252,8 @@ struct LazyGridGalleryView: View {
             }
             
             Button(action: {
-                addNewItemTapped(.manually)
+//                addNewItemTapped(.manually)
+                showManualEntryView = true
             }) {
                 Label("Add Manually", systemImage: "keyboard")
             }
@@ -297,7 +309,7 @@ struct LazyGridGalleryView: View {
         do {
             // Add all current payload items to Collection
             try payload.forEach { item in
-                try FunkoDatabase.addItem(item)
+                try FunkoRepository.addItem(item)
             }
             
             dismissActionWrapped()
@@ -416,7 +428,7 @@ struct LazyGridGalleryView: View {
         withAnimation(.easeOut(duration: 0.3)) {
             if let index = selectedItem {
                 // Remove the item from the data source
-                try? FunkoDatabase.deleteItem(for: payload[index].id)
+                try? FunkoRepository.deleteItem(for: payload[index].id)
                 payload.remove(at: index)
                 // Reset selection
                 selectedItem = nil
@@ -686,7 +698,7 @@ struct LazyGridGalleryView: View {
             updatedItem.attributes.relatedSubjects?.append(newSubject)
         }
         
-        try? FunkoDatabase.updateItem(updatedItem)
+        try? FunkoRepository.updateItem(updatedItem)
         payload[index] = updatedItem
         seeMissingPopsAction(updatedItem)
     }
@@ -777,6 +789,8 @@ struct LazyGridGalleryView: View {
                     informationFooter
                 }
             }
+            
+            manualEntryView
         }
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) { leadingNavigationButton }
@@ -855,6 +869,98 @@ struct LazyGridGalleryView: View {
             
             if appState.showCollectionButton {
                 myCollectionButton
+            }
+        }
+    }
+    
+    private var manualEntryView: some View {
+        Group {
+            if showManualEntryView {
+                ZStack {
+                    // Background dimming
+                    Color.black.opacity(0.7)
+                        .ignoresSafeArea()
+                        .onTapGesture { showManualEntryView = false }
+                    
+                    // Content card
+                    VStack(spacing: 20) {
+                        // Header with close button
+                        HStack {
+                            Text("Add New Item")
+                                .font(.title2.weight(.bold))
+                                .foregroundColor(.white)
+                            
+                            Spacer()
+                            
+                            Button {
+                                showManualEntryView = false
+                            } label: {
+                                Image(systemName: "xmark.circle.fill")
+                                    .font(.title2)
+                                    .foregroundColor(.white)
+                            }
+                        }
+                        .padding(.horizontal, 20)
+                        .padding(.top, 20)
+                        
+                        // Form fields
+                        VStack(spacing: 16) {
+                            TextField("Name", text: $manualEntryName)
+                                .textFieldStyle(.roundedBorder)
+                                .submitLabel(.next)
+                                .focused($focusedField, equals: .name)
+                            
+                            TextField("Reference #", text: $manualEntryReference)
+                                .textFieldStyle(.roundedBorder)
+                                .submitLabel(.next)
+                                .focused($focusedField, equals: .reference)
+                                .keyboardType(.numberPad)
+                            
+                            TextField("Series", text: $manualEntrySeries)
+                                .textFieldStyle(.roundedBorder)
+                                .submitLabel(.next)
+                                .focused($focusedField, equals: .series)
+                            
+                            TextField("Barcode (UPC)", text: $manualEntryBarcode)
+                                .textFieldStyle(.roundedBorder)
+                                .submitLabel(.done)
+                                .focused($focusedField, equals: .barcode)
+                                .keyboardType(.numberPad)
+                        }
+                        .padding(.horizontal, 20)
+                        
+                        // Action buttons
+                        HStack(spacing: 20) {
+                            Button("Cancel") {
+                                showManualEntryView = false
+                            }
+                            .buttonStyle(.bordered)
+                            .tint(.gray)
+                            
+                            Button("Search") {
+                                // Handle search action
+                                //TODO: -
+                            }
+                            .buttonStyle(.borderedProminent)
+                            .tint(.appPrimary)
+                            .disabled(manualEntryName.isEmpty)
+                        }
+                        .padding(.bottom, 20)
+                    }
+                    .background(
+                        ZStack {
+                            VisualEffectView(effect: UIBlurEffect(style: .systemUltraThinMaterialDark))
+                            Color.black.opacity(0.2)
+                        }
+                        .cornerRadius(20)
+                    )
+                    .frame(width: 320)
+                    .onAppear {
+                        // Auto-focus first field when appears
+                        focusedField = .name
+                    }
+                }
+                .zIndex(10)
             }
         }
     }
@@ -948,7 +1054,7 @@ struct LazyGridGalleryView: View {
                         payload[selectedIndex].id == currentItemId {
                         
                         do {
-                            try FunkoDatabase.updateGallery(by: currentItemId, galleryImages: images)
+                            try FunkoRepository.updateGallery(by: currentItemId, galleryImages: images)
                             payload[selectedIndex].attributes.images.gallery = images
                             print("Successfully updated gallery for item: \(payload[selectedIndex].attributes.name)")
                         } catch {
@@ -972,7 +1078,7 @@ struct LazyGridGalleryView: View {
                 isLoadingRelated = false
                 
                 // Process new items with inCollection flag
-                let myCollection = (try? FunkoDatabase.loadItems()) ?? []
+                let myCollection = (try? FunkoRepository.loadItems()) ?? []
                 let newItems = items.compactMap { newItem -> Collectible? in
                     // Skip duplicates
                     guard !payload.contains(where: { $0.id == newItem.id }) else {

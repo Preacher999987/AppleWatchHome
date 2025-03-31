@@ -219,7 +219,7 @@ struct ContentView: View {
             payload: $analysisResult,
             dismissAction: {
                 resetToInitialState()
-                if let result = try? FunkoDatabase.loadItems(), !result.isEmpty {
+                if let result = try? FunkoRepository.loadItems(), !result.isEmpty {
                     prepareCollectionView(with: result)
                 }
             },
@@ -282,7 +282,7 @@ struct ContentView: View {
     
     private func loadCollection() {
         withAnimation(.easeOut) {
-            if let result = try? FunkoDatabase.loadItems() {
+            if let result = try? FunkoRepository.loadItems() {
                 analysisResult = result
             }
             appState.openMyCollection = true
