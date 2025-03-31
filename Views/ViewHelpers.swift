@@ -14,3 +14,11 @@ struct Helpers {
         generator.impactOccurred()
     }
 }
+
+extension UIDevice {
+    static var isiPhoneSE: Bool {
+        let screenHeight = UIScreen.main.nativeBounds.height
+        // iPhone SE (1st gen): 1136, iPhone SE (2nd/3rd gen): 1334
+        return screenHeight == 1136 || screenHeight == 1334
+    }
+}

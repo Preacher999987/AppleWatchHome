@@ -69,6 +69,10 @@ struct LazyGridGalleryView: View {
         }
     }
     
+    private var logoTopPadding: CGFloat {
+        UIDevice.isiPhoneSE ? 6 : 40
+    }
+    
     private var informationFooter: some View {
         Group {
             if appState.showAddToCollectionButton && !isFullScreen && !payload.isEmpty {
@@ -90,8 +94,14 @@ struct LazyGridGalleryView: View {
                 .foregroundColor(.white)
                 .padding()
                 .background(
-                    RoundedRectangle(cornerRadius: 16, style: .continuous)
-                        .fill(Color(.systemGray6).opacity(0.9))
+                    ZStack {
+                        // Blur effect with vibrancy
+                        VisualEffectView(effect: UIBlurEffect(style: .systemUltraThinMaterialDark))
+                        
+                        // Subtle dark overlay for better contrast
+                        Color.black.opacity(0.2)
+                    }
+                        .cornerRadius(20)
                 )
                 .padding(.horizontal, 16)
                 .padding(.bottom, 60) // Adjusted bottom padding
@@ -102,7 +112,7 @@ struct LazyGridGalleryView: View {
     
     private var interactiveTutorial: some View {
         Group {
-            if appState.showSearchResultsInteractiveTutorial {
+            if appState.showAddToCollectionButton && !payload.isEmpty && appState.showSearchResultsInteractiveTutorial {
                 ZStack {
                     Color.black.opacity(0.7)
                         .ignoresSafeArea()
@@ -130,8 +140,14 @@ struct LazyGridGalleryView: View {
                         .padding(.bottom, 16)
                     }
                     .background(
-                        RoundedRectangle(cornerRadius: 20)
-                            .fill(Color(.systemGray6))
+                        ZStack {
+                            // Blur effect with vibrancy
+                            VisualEffectView(effect: UIBlurEffect(style: .systemUltraThinMaterialDark))
+                            
+                            // Subtle dark overlay for better contrast
+                            Color.black.opacity(0.2)
+                        }
+                            .cornerRadius(20)
                     )
                     .padding(60)
                 }
@@ -513,24 +529,31 @@ struct LazyGridGalleryView: View {
                 .offset(y: !isFullScreen ? 40 : 0)
             }
         }
-            .frame(height: !isFullScreen ? 500 : 500)
+            .frame(height: UIScreen.main.bounds.height*0.6)
             .matchedGeometryEffect(id: index, in: animationNamespace)
         
         // Details View
         let detailsView = VStack(spacing: 10) {
             detailRow(title: "ITEM:", value: currentItem.attributes.name)
-            detailRow(title: "VALUE:", value: currentItem.estimatedValue ?? "N/A")
-            detailRow(title: "RELEASE:", value: currentItem.attributes.dateFrom ?? "N/A")
+            detailRow(title: "VALUE:", value: currentItem.estimatedValue ?? "-")
+            detailRow(title: "RELEASE:", value: currentItem.attributes.dateFrom ?? "-")
             detailRow(
                 title: "STATUS:",
-                value: currentItem.attributes.productionStatus?.joined(separator: ", ") ?? "N/A"
+                value: {
+                    let statusText = currentItem.attributes.productionStatus?
+                        .joined(separator: ", ")
+                        .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+                    
+                    return !statusText.isEmpty ? statusText : "-"
+                }()
             )
-            detailRow(title: "REFERENCE #:", value: currentItem.attributes.refNumber ?? "N/A")
             
-            let series = currentItem.subject.isEmpty ? currentItem.subject : "N/A"
+            detailRow(title: "REF #:", value: currentItem.attributes.refNumber ?? "-")
+            
+            let series = !currentItem.subject.isEmpty ? currentItem.subject : "-"
             detailRow(title: "SERIES:", value: series)
             
-            if !appState.showAddToCollectionButton || !appState.openRelated {
+            if !appState.showAddToCollectionButton && !appState.openRelated {
                 viewRelatedButton(currentItem)
             }
         }
@@ -695,7 +718,7 @@ struct LazyGridGalleryView: View {
                         // Issue: Using topBarLogoRect.midY - 40 is fragile
                         // Solution: Use alignment guides or proper view hierarchy for positioning
                         //                        y: animateLogo ? leadingNavigationButtonRect.midY - 40 : (initialLogoRect?.midY ?? 0) - 40
-                        y: animateLogo ? 40 : (initialLogoRect?.midY ?? 0) - 40
+                        y: animateLogo ? logoTopPadding : (initialLogoRect?.midY ?? 0) - logoTopPadding
                     )
             }
             
@@ -846,7 +869,7 @@ struct LazyGridGalleryView: View {
                 Text("(\(payload.count))")
                     .font(.system(size: 12, weight: .bold))
             }
-            .padding(.horizontal, 18)
+            .padding(.horizontal, 12)
             .padding(.vertical, 8)
             .background(
                 Capsule()
