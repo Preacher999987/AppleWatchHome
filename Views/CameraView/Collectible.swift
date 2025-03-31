@@ -6,11 +6,12 @@ struct Details: Codable, Hashable {
 
 enum SubjectType: String, Codable, Hashable {
     case aiClassified = "ai_classified"
+    case userSelectionPrimary = "user_selection_primary"
 }
 
 struct RelatedSubject: Codable, Hashable {
-    let url: String?
-    let name: String?
+    var url: String?
+    var name: String?
     let type: SubjectType?
 }
 
@@ -29,7 +30,10 @@ struct CollectibleAttributes: Codable, Hashable {
     let name: String
     var _estimatedValue: String? // New property
     var estimatedValueRange: [String?]? // Updated to handle nulls
-    let relatedSubjects: [RelatedSubject]?
+    var relatedSubjects: [RelatedSubject]?
+    var dateFrom: String?
+    var productionStatus: [String]?
+    var refNumber: String?
     
     struct Images: Codable, Hashable {
         let main: ImageData?
@@ -48,6 +52,9 @@ struct CollectibleAttributes: Codable, Hashable {
         case _estimatedValue = "estimated_value"
         case estimatedValueRange = "estimated_value_range"
         case relatedSubjects = "related_subjects"
+        case dateFrom = "date_from"
+        case productionStatus = "production_status"
+        case refNumber = "ref_number"
     }
     
     init(from decoder: Decoder) throws {
@@ -56,6 +63,9 @@ struct CollectibleAttributes: Codable, Hashable {
         name = try container.decode(String.self, forKey: .name)
         _estimatedValue = try container.decodeIfPresent(String.self, forKey: ._estimatedValue)
         relatedSubjects = try container.decodeIfPresent([RelatedSubject].self, forKey: .relatedSubjects)
+        dateFrom = try container.decodeIfPresent(String.self, forKey: .dateFrom)
+        productionStatus = try container.decodeIfPresent([String].self, forKey: .productionStatus)
+        refNumber = try container.decodeIfPresent(String.self, forKey: .refNumber)
         
         // Handle null values in estimatedValueRange
         if var rangeContainer = try? container.nestedUnkeyedContainer(forKey: .estimatedValueRange) {
@@ -87,7 +97,19 @@ struct Collectible: Codable, Hashable {
     var gallery: [ImageData] { attributes.images.gallery ?? [] }
     
     var subject: String {
-        attributes.relatedSubjects?.first(where: { $0.type == .aiClassified })?.name ?? ""
+        attributes.relatedSubjects?
+            .first(where:
+                    { $0.type == .aiClassified })?
+            .name ?? ""
+    }
+    
+    var querySubject: String? {
+        if (!subject.isEmpty) { return subject }
+        
+        return attributes.relatedSubjects?
+            .first(where:
+                    { $0.type == .userSelectionPrimary })?
+            .name ?? nil
     }
     
     var estimatedValue: String? {

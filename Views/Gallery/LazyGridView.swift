@@ -51,11 +51,11 @@ struct LazyGridGalleryView: View {
     private var disablePlusButton: Bool {
         appState.openRelated || isFullScreen
     }
-
+    
     private var backgroundView: some View {
         Group {
             let backgroundImage = selectedBackgroundImage.map { Image(uiImage: $0) }
-                ?? Image("background-image-1")
+            ?? Image("background-image-1")
             
             backgroundImage
                 .resizable()
@@ -69,6 +69,77 @@ struct LazyGridGalleryView: View {
         }
     }
     
+    private var informationFooter: some View {
+        Group {
+            if appState.showAddToCollectionButton && !isFullScreen && !payload.isEmpty {
+                VStack(spacing: 8) {
+                    Text("\(payload.count) items found")
+                        .font(.headline.weight(.medium))
+                    Text("Tap items to remove unwanted ones")
+                        .font(.subheadline)
+                    
+                    Button(action: { showAddToCollectionConfirmation = true }) {
+                        Text("Add All to Collection")
+                            .font(.headline.weight(.semibold))
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 10)
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .tint(.appPrimary)
+                }
+                .foregroundColor(.white)
+                .padding()
+                .background(
+                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                        .fill(Color(.systemGray6).opacity(0.9))
+                )
+                .padding(.horizontal, 16)
+                .padding(.bottom, 60) // Adjusted bottom padding
+                .frame(maxWidth: .infinity)
+            }
+        }
+    }
+    
+    private var interactiveTutorial: some View {
+        Group {
+            if appState.showSearchResultsInteractiveTutorial {
+                ZStack {
+                    Color.black.opacity(0.7)
+                        .ignoresSafeArea()
+                        .onTapGesture { appState.showSearchResultsInteractiveTutorial = false }
+                    
+                    VStack(spacing: 20) {
+                        VStack(spacing: 8) {
+                            Image(systemName: "checklist")
+                                .font(.largeTitle)
+                            Text("Review Your Results")
+                                .font(.title3.weight(.bold))
+                            Text("Tap items to remove ones you don't want, then press 'Add All' to save the remaining items")
+                                .multilineTextAlignment(.center)
+                                .fixedSize(horizontal: false, vertical: true) // Allow vertical expansion
+                                .padding(.horizontal, 16)
+                        }
+                        .padding(16)
+                        .foregroundColor(.white)
+                        Button("Got It!") {
+                            appState.showSearchResultsInteractiveTutorial = false
+                        }
+                        .buttonStyle(.automatic)
+                        .font(.headline)
+                        .tint(.appPrimary)
+                        .padding(.bottom, 16)
+                    }
+                    .background(
+                        RoundedRectangle(cornerRadius: 20)
+                            .fill(Color(.systemGray6))
+                    )
+                    .padding(60)
+                }
+                .zIndex(10)
+            }
+        }
+    }
+    
     @Binding var payload: [Collectible]
     
     var dismissAction: () -> Void
@@ -76,7 +147,7 @@ struct LazyGridGalleryView: View {
     var dismissActionWrapped: () -> Void {
         get {
             return {
-//                Helpers.hapticFeedback()
+                //                Helpers.hapticFeedback()
                 
                 if isFullScreen {
                     withAnimation {
@@ -97,7 +168,7 @@ struct LazyGridGalleryView: View {
             }
         }
     }
-        
+    
     var seeMissingPopsAction: (Collectible) -> Void
     var addNewItemAction: (AddNewItemAction) -> Void
     
@@ -163,7 +234,7 @@ struct LazyGridGalleryView: View {
                 .font(.system(size: 22))
                 .rotationEffect(.degrees(showAddMenu ? 90 : 0))
                 .foregroundColor(.black.opacity(0.8)) // Change color when disabled
-                .background(disablePlusButton ? .gray.opacity(0.5) : Color(hex: "d3a754")) // Adjust background
+                .background(disablePlusButton ? .gray.opacity(0.5) : .appPrimary) // Adjust background
                 .clipShape(Circle())
                 .opacity(disablePlusButton ? 0.7 : 1.0) // Reduce opacity when disabled
         }
@@ -171,7 +242,7 @@ struct LazyGridGalleryView: View {
         .menuIndicator(.hidden)
         .disabled(appState.openRelated)
     }
-
+    
     private func ellipsisButtonDropDownView() -> some View {
         Menu {
             Button(action: {
@@ -195,13 +266,13 @@ struct LazyGridGalleryView: View {
         }
         .menuStyle(BorderlessButtonMenuStyle())
         .menuIndicator(.hidden)
-//        .padding(.trailing, 20)
-//        .background(Color.green.opacity(0.3))
-//        .sheet(isPresented: $isPresentingScanner) {
-//            BarcodeScannerView { items in
-//                payload.append(contentsOf: items)
-//            }
-//        }
+        //        .padding(.trailing, 20)
+        //        .background(Color.green.opacity(0.3))
+        //        .sheet(isPresented: $isPresentingScanner) {
+        //            BarcodeScannerView { items in
+        //                payload.append(contentsOf: items)
+        //            }
+        //        }
     }
     
     private func addToCollection() {
@@ -267,14 +338,14 @@ struct LazyGridGalleryView: View {
                     }) {
                         Text("Shop")
                             .font(.system(size: 14, weight: .medium))
-                            .foregroundColor(Color(hex: "d3a754"))
+                            .foregroundColor(.appPrimary)
                             .padding(.horizontal, 18)
                             .padding(.vertical, 8)
                             .background(.black.opacity(0.5))
                             .cornerRadius(15)
                             .overlay(
                                 RoundedRectangle(cornerRadius: 15)
-                                    .stroke(Color(hex: "d3a754"), lineWidth: 2)
+                                    .stroke(Color.appPrimary, lineWidth: 2)
                             )
                     }
                     .offset(x: offsetX(index), y: 0)
@@ -336,166 +407,160 @@ struct LazyGridGalleryView: View {
             }
         }
     }
+    // State for showing subject selection menu
+    @State private var showSubjectMenu = false
     
     private func fullScreenView(for index: Int) -> some View {
         // Get the current item from payload
         let currentItem = payload[index]
         let galleryImages = currentItem.attributes.images.gallery ?? []
         
-        return VStack(spacing: 20) {
-            // Carousel View
-            ZStack {
-                // Image Carousel with conditional offset
-                TabView(selection: $currentImageIndex) {
-                    ForEach(Array(galleryImages.enumerated()), id: \.offset) { index, imageData in
-                        GeometryReader { geometry in
-                            AsyncImageLoader(
-                                url: URL(string: imageData.url),
-                                placeholder: Image(.gridItemPlaceholder),
-                                grayScale: false
-                            )
-                            //                        .frame(height: !isFullScreen ? 200 : 200)
-                            .scaledToFit()
-                            
-                            .clipShape(RoundedRectangle(cornerRadius: 20)) // <-- Same as details view
-                            //                            .applyConditionalScaling(isScaledToFit: isFullScreen)
-                            .frame(width: geometry.size.width, height: geometry.size.height, alignment: .center)
-                            //                            .clipped()
-                            .tag(index)
-                            .gesture(
-                                TapGesture()
-                                    .onEnded {
-                                        if !isFullScreen {
+        // Carousel View
+        let carouselView = ZStack {
+            // Image Carousel with conditional offset
+            TabView(selection: $currentImageIndex) {
+                ForEach(Array(galleryImages.enumerated()), id: \.offset) { index, imageData in
+                    GeometryReader { geometry in
+                        AsyncImageLoader(
+                            url: URL(string: imageData.url),
+                            placeholder: Image(.gridItemPlaceholder),
+                            grayScale: false
+                        )
+                        .scaledToFit()
+                        .clipShape(RoundedRectangle(cornerRadius: 20))
+                        .frame(width: geometry.size.width, height: geometry.size.height, alignment: .center)
+                        .tag(index)
+                        .gesture(
+                            TapGesture()
+                                .onEnded {
+                                    withAnimation(.spring()) {
+                                        isFullScreen.toggle()
+                                    }
+                                }
+                                .exclusively(before: DragGesture()
+                                    .onEnded { gesture in
+                                        if gesture.translation.height > 50 { // Swipe Down
+                                            withAnimation(.spring()) {
+                                                if !isFullScreen { // Hide Carousel Preview on Swipe Down
+                                                    selectedItem = nil
+                                                }
+                                                isFullScreen = false // Collapse fullscreen Carousel on Swipe Down
+                                            }
+                                        } else if gesture.translation.height < -50 { // Swipe Up
                                             withAnimation(.spring()) {
                                                 isFullScreen = true
                                             }
                                         }
                                     }
-                                    .exclusively(before:
-                                                    DragGesture()
-                                        .onEnded { gesture in
-                                            if gesture.translation.height > 100 {
-                                                withAnimation(.spring()) {
-                                                    isFullScreen = false
-                                                }
-                                            }
-                                        }
-                                                )
-                            )
-                        }
-                    }
-                }
-                .background(
-                    ZStack {
-                        // Blur layer with bottom-to-top fade
-                        VisualEffectView(effect: UIBlurEffect(style: .systemUltraThinMaterial))
-                            .opacity(isFullScreen ? 0 : 1)
-                            .mask(
-                                LinearGradient(
-                                    gradient: Gradient(stops: [
-                                        .init(color: .clear, location: 0),
-                                        .init(color: .black, location: 0.4)
-                                    ]),
-                                    startPoint: .top,
-                                    endPoint: .bottom
                                 )
-                            )
-                        
-                        // Optional subtle bottom shadow
-                        //                                Rectangle()
-                        //                                    .frame(height: 20)
-                        //                                    .foregroundStyle(
-                        //                                        LinearGradient(
-                        //                                            colors: [.black.opacity(0.15), .clear],
-                        //                                            startPoint: .bottom,
-                        //                                            endPoint: .top
-                        //                                        )
-                        //                                    )
-                        //                                    .offset(y: 20)
+                        )
                     }
-                        .edgesIgnoringSafeArea(.bottom)
-                )
-                
-                //                .background(Color.green.edgesIgnoringSafeArea(.all))
-                .tabViewStyle(PageTabViewStyle(indexDisplayMode: isFullScreen ? .always : .never))
-                .indexViewStyle(PageIndexViewStyle(backgroundDisplayMode: .always))
-                //                .offset(y: !isFullScreen ? 400 : 0)  // Half of 300 to maintain visual balance
-                
-                // Navigation Arrows
-                if galleryImages.count > 1 {
-                    HStack {
-                        Button(action: {
-                            withAnimation {
-                                currentImageIndex = (currentImageIndex - 1 + galleryImages.count) % galleryImages.count
-                            }
-                        }) {
-                            Image(systemName: "chevron.left.circle.fill")
-                                .font(.system(size: 30))
-                                .foregroundColor(.white)
-                                .opacity(0.8)
-                                .background(.black.opacity(0.5))
-                                .clipShape(Circle())
-                        }
-                        .padding(.leading, 20)
-                        
-                        Spacer()
-                        
-                        Button(action: {
-                            withAnimation {
-                                currentImageIndex = (currentImageIndex + 1) % galleryImages.count
-                            }
-                        }) {
-                            Image(systemName: "chevron.right.circle.fill")
-                                .font(.system(size: 30))
-                                .foregroundColor(.white)
-                                .opacity(0.8)
-                                .background(.black.opacity(0.5))
-                                .clipShape(Circle())
-                        }
-                        .padding(.trailing, 20)
-                    }
-                    .offset(y: !isFullScreen ? 40 : 0) // <-- Also offset the navigation buttons
                 }
             }
-            .frame(height: !isFullScreen ? 500 : 500)
-            .matchedGeometryEffect(id: index, in: animationNamespace)
+            .background(
+                ZStack {
+                    VisualEffectView(effect: UIBlurEffect(style: .systemUltraThinMaterial))
+                        .opacity(isFullScreen ? 0 : 1)
+                        .mask(
+                            LinearGradient(
+                                gradient: Gradient(stops: [
+                                    .init(color: .clear, location: 0),
+                                    .init(color: .black, location: 0.4)
+                                ]),
+                                startPoint: .top,
+                                endPoint: .bottom
+                            )
+                        )
+                }
+                    .edgesIgnoringSafeArea(.bottom)
+            )
+            .tabViewStyle(PageTabViewStyle(indexDisplayMode: isFullScreen ? .always : .never))
+            .indexViewStyle(PageIndexViewStyle(backgroundDisplayMode: .always))
             
-            // Details View
-            if isFullScreen {
-                VStack(spacing: 10) {
-                    detailRow(title: "ITEM:", value: currentItem.attributes.name)
-                    detailRow(title: "VALUE:", value: currentItem.estimatedValue ?? "N/A")
+            // Navigation Arrows
+            if galleryImages.count > 1 {
+                HStack {
+                    Button(action: {
+                        withAnimation {
+                            currentImageIndex = (currentImageIndex - 1 + galleryImages.count) % galleryImages.count
+                        }
+                    }) {
+                        Image(systemName: "chevron.left.circle.fill")
+                            .font(.system(size: 30))
+                            .foregroundColor(.white)
+                            .opacity(0.8)
+                            .background(.black.opacity(0.5))
+                            .clipShape(Circle())
+                    }
+                    .padding(.leading, 20)
+                    
+                    Spacer()
                     
                     Button(action: {
-                        seeMissingPopsAction(currentItem)
+                        withAnimation {
+                            currentImageIndex = (currentImageIndex + 1) % galleryImages.count
+                        }
                     }) {
-                        Text("See missing pops")
-                            .font(.system(size: 16, weight: .medium))
-                            .foregroundColor(Color(hex: "d3a754"))
-                            .padding(.horizontal, 18)
-                            .padding(.vertical, 8)
-                            .background(.black.opacity(0.3))
-                            .cornerRadius(15)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 15)
-                                    .stroke(Color(hex: "d3a754"), lineWidth: 2)
-                            )
+                        Image(systemName: "chevron.right.circle.fill")
+                            .font(.system(size: 30))
+                            .foregroundColor(.white)
+                            .opacity(0.8)
+                            .background(.black.opacity(0.5))
+                            .clipShape(Circle())
                     }
-                    .padding(.top, 10)
+                    .padding(.trailing, 20)
                 }
-                .padding(.vertical, 20)
-                .background(.gray.opacity(0.8))
-                .cornerRadius(20)
-                .padding(.bottom, 60)
-                .padding(.horizontal, 20)
+                .offset(y: !isFullScreen ? 40 : 0)
             }
         }
-        //        .padding(.horizontal, 20)
+            .frame(height: !isFullScreen ? 500 : 500)
+            .matchedGeometryEffect(id: index, in: animationNamespace)
+        
+        // Details View
+        let detailsView = VStack(spacing: 10) {
+            detailRow(title: "ITEM:", value: currentItem.attributes.name)
+            detailRow(title: "VALUE:", value: currentItem.estimatedValue ?? "N/A")
+            detailRow(title: "RELEASE:", value: currentItem.attributes.dateFrom ?? "N/A")
+            detailRow(
+                title: "STATUS:",
+                value: currentItem.attributes.productionStatus?.joined(separator: ", ") ?? "N/A"
+            )
+            detailRow(title: "REFERENCE #:", value: currentItem.attributes.refNumber ?? "N/A")
+            
+            let series = currentItem.subject.isEmpty ? currentItem.subject : "N/A"
+            detailRow(title: "SERIES:", value: series)
+            
+            if !appState.showAddToCollectionButton || !appState.openRelated {
+                viewRelatedButton(currentItem)
+            }
+        }
+            .padding(.vertical, 20)
+            .background(
+                ZStack {
+                    // Blur effect with vibrancy
+                    VisualEffectView(effect: UIBlurEffect(style: .systemUltraThinMaterialDark))
+                    
+                    // Subtle dark overlay for better contrast
+                    Color.black.opacity(0.2)
+                }
+                    .cornerRadius(20)
+            )
+            .cornerRadius(20)
+            .padding(.bottom, 60)
+            .padding(.horizontal, 20)
+        
+        return VStack(spacing: 20) {
+            carouselView
+            if isFullScreen {
+                detailsView
+            }
+        }
         .transition(.opacity)
         .onAppear {
             currentImageIndex = 0
         }
     }
+    
     
     struct VisualEffectView: UIViewRepresentable {
         var effect: UIVisualEffect?
@@ -507,22 +572,6 @@ struct LazyGridGalleryView: View {
         func updateUIView(_ uiView: UIVisualEffectView, context: Context) {
             uiView.effect = effect
         }
-    }
-    
-    private var detailsView: some View {
-        VStack(spacing: 10) {
-            detailRow(title: "TYPE:", value: "Pop!")
-            detailRow(title: "RELEASE:", value: "2024")
-            detailRow(title: "STATUS:", value: "Vaulted")
-            detailRow(title: "ITEM #:", value: "1604")
-            detailRow(title: "SERIES:", value: "Arcane - League of Legends")
-            detailRow(title: "ESTIMATED PRICE", value: "£35")
-        }
-        .layoutPriority(1)
-        .padding(.vertical, 20)
-        .background(.gray.opacity(0.4))
-        .cornerRadius(20)
-        .padding(.bottom, 60)
     }
     
     private func detailRow(title: String, value: String) -> some View {
@@ -538,9 +587,91 @@ struct LazyGridGalleryView: View {
         .padding(.horizontal, 20)
     }
     
+    private func viewRelatedButton(_ currentItem: Collectible) -> some View {
+        Group {
+            let relatedSubjects = (currentItem.attributes.relatedSubjects ?? [])
+                .filter {
+                    $0.name?.isEmpty == false &&
+                    $0.type != .userSelectionPrimary
+                }
+            
+            if currentItem.subject.isEmpty {
+                // Menu version when subject is empty
+                Menu {
+                    Section {
+                        ForEach(relatedSubjects, id: \.name) { subject in
+                            Button(action: {
+                                handleSubjectSelection(subject, for: currentItem)
+                            }) {
+                                Label(subject.name ?? "Untitled", systemImage: "magnifyingglass")
+                            }
+                        }
+                    } header: {
+                        Text("Choose a Category")
+                            .font(.title)
+                            .foregroundColor(.primary)
+                    }
+                } label: {
+                    menuButtonLabel
+                }
+                .menuStyle(BorderlessButtonMenuStyle())
+                .menuIndicator(.hidden)
+            } else {
+                // Regular button when subject exists
+                Button(action: {
+                    seeMissingPopsAction(currentItem)
+                }) {
+                    menuButtonLabel
+                }
+            }
+        }
+    }
+
+    // Extracted button label for consistency
+    private var menuButtonLabel: some View {
+        Text("See More in This Series")
+            .font(.system(size: 16, weight: .medium))
+            .foregroundColor(.appPrimary)
+            .padding(.horizontal, 18)
+            .padding(.vertical, 8)
+            .background(Color.black.opacity(0.3))
+            .cornerRadius(15)
+            .overlay(
+                RoundedRectangle(cornerRadius: 15)
+                    .stroke(Color.appPrimary, lineWidth: 2)
+            )
+    }
+
+    // Extracted subject selection logic
+    private func handleSubjectSelection(_ subject: RelatedSubject, for currentItem: Collectible) {
+        guard let index = payload.firstIndex(where: { $0.id == currentItem.id }) else { return }
+        
+        var updatedItem = currentItem
+        
+        if let existingIndex = updatedItem.attributes.relatedSubjects?
+            .firstIndex(where: { $0.type == .userSelectionPrimary }) {
+            // Update existing
+            updatedItem.attributes.relatedSubjects?[existingIndex].name = subject.name
+            updatedItem.attributes.relatedSubjects?[existingIndex].url = subject.url
+        } else {
+            // Add new
+            let newSubject = RelatedSubject(
+                url: subject.url,
+                name: subject.name,
+                type: .userSelectionPrimary
+            )
+            updatedItem.attributes.relatedSubjects?.append(newSubject)
+        }
+        
+        try? FunkoDatabase.updateItem(updatedItem)
+        payload[index] = updatedItem
+        seeMissingPopsAction(updatedItem)
+    }
+    
     var body: some View {
         ZStack {
             backgroundView
+            interactiveTutorial
             // Animated logo transition
             if !appState.openRelated {
                 // TODO: Negative frame coordinates detected in leadingNavigationButtonRect
@@ -563,7 +694,7 @@ struct LazyGridGalleryView: View {
                         // TODO: Replace hardcoded Y-position offset with dynamic layout calculation
                         // Issue: Using topBarLogoRect.midY - 40 is fragile
                         // Solution: Use alignment guides or proper view hierarchy for positioning
-//                        y: animateLogo ? leadingNavigationButtonRect.midY - 40 : (initialLogoRect?.midY ?? 0) - 40
+                        //                        y: animateLogo ? leadingNavigationButtonRect.midY - 40 : (initialLogoRect?.midY ?? 0) - 40
                         y: animateLogo ? 40 : (initialLogoRect?.midY ?? 0) - 40
                     )
             }
@@ -617,6 +748,11 @@ struct LazyGridGalleryView: View {
             if let selectedItem = selectedItem {
                 fullScreenView(for: selectedItem)
                     .offset(y: !isFullScreen ? UIScreen.main.bounds.height*0.5 : 0)  // Half of 300 to maintain visual balance
+            } else {
+                VStack {
+                    Spacer()
+                    informationFooter
+                }
             }
         }
         .toolbar {
@@ -625,8 +761,8 @@ struct LazyGridGalleryView: View {
             ToolbarItem(placement: .principal) {
                 Text(navigationTitle)
                     .font(.system(size: 16, weight: .bold)) // Semi-bold, size 16
-                    .foregroundColor(Color(hex: "d3a754")) // Your hex color
-//                    .textCase(.uppercase) // Uppercase text
+                    .foregroundColor(.appPrimary) // Your hex color
+                //                    .textCase(.uppercase) // Uppercase text
                     .kerning(0.5) // Slight letter spacing for better readability
             }
         }
@@ -652,14 +788,14 @@ struct LazyGridGalleryView: View {
             if appState.showBackButton {
                 Button(action: dismissActionWrapped) {
                     let iconName = appState.openRelated || appState.showAddToCollectionButton || isFullScreen || selectedItem != nil
-                        ? "chevron.left.circle.fill"
-                        : "house.circle.fill"
-                        // System icon version
-                        Image(systemName: iconName)
-                            .font(.system(size: 22))
-                            .foregroundColor(.black).opacity(0.8)
-                            .background(Color(hex: "d3a754"))
-                            .clipShape(Circle())
+                    ? "chevron.left.circle.fill"
+                    : "house.circle.fill"
+                    // System icon version
+                    Image(systemName: iconName)
+                        .font(.system(size: 22))
+                        .foregroundColor(.black).opacity(0.8)
+                        .background(Color.appPrimary)
+                        .clipShape(Circle())
                 }
                 .frame(width: 44, height: 44)
                 .contentShape(Circle())
@@ -679,7 +815,7 @@ struct LazyGridGalleryView: View {
             }
         )
     }
-
+    
     private var trailingNavigationButtons: some View {
         HStack(spacing: 12) {
             if appState.showAddToCollectionButton {
@@ -699,15 +835,16 @@ struct LazyGridGalleryView: View {
             }
         }
     }
-
+    
     // MARK: - Button Components
-
+    
     private var addToCollectionButton: some View {
         Button(action: { showAddToCollectionConfirmation = true }) {
             HStack(spacing: 4) {
-//                Image(systemName: "plus.circle.fill")
                 Text("Add All")
                     .font(.system(size: 14, weight: .medium))
+                Text("(\(payload.count))")
+                    .font(.system(size: 12, weight: .bold))
             }
             .padding(.horizontal, 18)
             .padding(.vertical, 8)
@@ -716,18 +853,20 @@ struct LazyGridGalleryView: View {
                     .fill(.black.opacity(0.5))
                     .shadow(radius: 2)
             )
-            .foregroundColor(.green)
+            .foregroundColor(.appPrimary)
             .overlay(
                 Capsule()
-                    .stroke(.green, lineWidth: 2)
+                    .stroke(Color.appPrimary, lineWidth: 2)
             )
         }
-        .alert("Add found items to Collection", isPresented: $showAddToCollectionConfirmation) {
-            Button("Add", action: addToCollection)
+        .alert("Add \(payload.count) items to your collection?", isPresented: $showAddToCollectionConfirmation) {
+            Button("Add All", action: addToCollection)
             Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("Only remaining items will be added. Remove any you don't want first.")
         }
     }
-
+    
     private var myCollectionButton: some View {
         Button(action: {
             appState.openMyCollection = true
@@ -745,7 +884,7 @@ struct LazyGridGalleryView: View {
                         .fill(.black.opacity(0.5))
                         .overlay(
                             RoundedRectangle(cornerRadius: 20)
-                                .stroke(Color(hex: "d3a754"), lineWidth: 1.5)
+                                .stroke(Color.appPrimary, lineWidth: 1.5)
                         )
                 )
                 .shadow(radius: 2)
@@ -763,17 +902,37 @@ struct LazyGridGalleryView: View {
             return
         }
         
-        let currentItemid = payload[selectedIndex].id
+        let currentItemId = payload[selectedIndex].id
         
-        viewModel.getGalleryImages(for: currentItemid) { result in
+        viewModel.getGalleryImages(for: currentItemId) { result in
             DispatchQueue.main.async {
+                // Safety check 1: Verify selected index still exists
+                guard selectedIndex < payload.count else {
+                    print("Item index out of bounds after async return")
+                    return
+                }
+                
+                // Safety check 2: Verify same item still exists at this index
+                guard payload[selectedIndex].id == currentItemId else {
+                    print("Item at index \(selectedIndex) was replaced")
+                    return
+                }
+                
                 switch result {
                 case .success(let images):
-                    // Update the selected item in the database
-                    try? FunkoDatabase.updateGallery(by: currentItemid, galleryImages: images)
-                    payload[selectedIndex].attributes.images.gallery = images
+                    // Final safety check before modification
+                    if selectedIndex < payload.count &&
+                        payload[selectedIndex].id == currentItemId {
+                        
+                        do {
+                            try FunkoDatabase.updateGallery(by: currentItemId, galleryImages: images)
+                            payload[selectedIndex].attributes.images.gallery = images
+                            print("Successfully updated gallery for item: \(payload[selectedIndex].attributes.name)")
+                        } catch {
+                            print("Failed to update database: \(error.localizedDescription)")
+                        }
+                    }
                     
-                    print("Successfully updated gallery for item: \(payload[selectedIndex].attributes.name)")
                 case .failure(let error):
                     print("Failed to load details: \(error.localizedDescription)")
                 }

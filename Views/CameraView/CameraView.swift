@@ -1,18 +1,6 @@
 import SwiftUI
 import UIKit
 
-class AppState: ObservableObject {
-    @Published var openMyCollection = false
-    @Published var openRelated = false
-    
-    // Toolbar's navigationBar items visibility settings
-    @Published var showCollectionButton = false
-    @Published var showBackButton = true
-    @Published var showAddToCollectionButton = false
-    @Published var showPlusButton = false
-    @Published var showEllipsisButton = false
-}
-
 struct PayloadWrapperView<Content: View>: View {
     @State private var localPayload: [Collectible]
     let content: (Binding<[Collectible]>) -> Content
@@ -261,9 +249,9 @@ struct ContentView: View {
             HStack(spacing: 16) {
                 Image(systemName: systemImage)
                     .font(.title)
-                    .foregroundColor(Color(hex: "d3a754"))
+                    .foregroundColor(.appPrimary)
                     .frame(width: 44, height: 44)
-                    .background(Color(hex: "d3a754").opacity(0.1))
+                    .background(.opacity(0.1))
                     .clipShape(Circle())
                 
                 VStack(alignment: .leading, spacing: 4) {
@@ -283,7 +271,7 @@ struct ContentView: View {
             }
             .padding()
             .background(
-                isPrimary ? Color(hex: "d3a754").opacity(0.2) : Color(.secondarySystemGroupedBackground)
+                isPrimary ? .appPrimary.opacity(0.2) : Color(.secondarySystemGroupedBackground)
             )
             .cornerRadius(12)
         }

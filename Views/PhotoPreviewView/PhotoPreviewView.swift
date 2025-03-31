@@ -31,42 +31,76 @@ struct PhotoPreviewView: View {
                 .ignoresSafeArea()
                 .overlay(Color.black.opacity(0.3))
             
-            // Action Buttons - Now matching actionCard style
+            // Main Content Stack
             VStack {
                 Spacer()
                 
-                VStack(spacing: 16) {
-                    actionCard(
-                        systemImage: "arrow.uturn.backward.circle.fill",
-                        title: "Retake Photo",
-                        description: "Capture a new image of your collectible",
-                        color: .red,
-                        action: retakeAction
+                // Enhanced AI Analysis Button
+                Button(action: {
+                    isLoading = true
+                    viewModel.analyzePhoto(image: image) { result in
+                        handleAnalysisResult(result)
+                    }
+                }) {
+                    HStack(spacing: 12) {
+                        Image(systemName: "sparkles")
+                            .font(.body.weight(.medium))
+                            .foregroundColor(.appPrimary)
+                            .frame(width: 24, height: 24)
+                            .background(Circle().fill(Color.white.opacity(0.2)))
+                        
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(isLoading ? "Analyzing..." : "AI Analysis")
+                                .font(.system(size: 18, weight: .semibold))
+                                .foregroundColor(.white)
+                            
+                            Text("Identify collectible using computer vision")
+                                .font(.subheadline)
+                                .foregroundColor(.white.opacity(0.8))
+                        }
+                    }
+                    .padding(.vertical, 12)
+                    .padding(.horizontal, 16)
+                    .background(.black.opacity(0.6))
+                    .cornerRadius(20)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 20)
+                            .stroke(Color.appPrimary, lineWidth: 2)
                     )
-                    
-                    actionCard(
-                        systemImage: "sparkles",
-                        title: isLoading ? "Analyzing..." : "AI Analysis",
-                        description: "Identify collectible using computer vision",
-                        color: .green,
-                        action: {
-                            isLoading = true
-                            viewModel.analyzePhoto(image: image) { result in
-                                handleAnalysisResult(result)
-                            }
-                        },
-                        isPrimary: true
-                    )
-                    .disabled(isLoading)
                 }
-                .padding(.horizontal, 60)
-                .padding(.bottom, 40)
+                .disabled(isLoading)
+                .padding(.horizontal, 40) // Matches retake button's leading padding
+                .padding(.bottom, 24)
+                
+                // Retake Button
+                HStack {
+                    Button(action: retakeAction) {
+                        HStack(spacing: 12) {
+                            Image(systemName: "arrow.uturn.backward")
+                                .font(.body.weight(.medium))
+                                .foregroundColor(.red)
+                                .frame(width: 24, height: 24)
+                                .background(Circle().fill(Color.white.opacity(0.2)))
+                            
+                            Text("Retake Photo")
+                                .font(.subheadline.weight(.medium))
+                                .foregroundColor(.white)
+                        }
+                        .padding(.vertical, 10)
+                        .padding(.horizontal, 16)
+                        .background(Color.black.opacity(0.25))
+                        .cornerRadius(20)
+                    }
+                    Spacer()
+                }
+                .padding(.leading, 40)
+                .padding(.bottom, 30)
             }
             
             if isLoading {
                 ProgressView()
                     .scaleEffect(2)
-                    .progressViewStyle(CircularProgressViewStyle(tint: Color(hex: "d3a754")))
+                    .progressViewStyle(CircularProgressViewStyle(tint: .appPrimary))
             }
         }
         .alert("Analysis Error", isPresented: $showError) {
@@ -90,7 +124,6 @@ struct PhotoPreviewView: View {
     }
     
     // MARK: - Action Card Component
-    
     private func actionCard(
         systemImage: String,
         title: String,
@@ -110,7 +143,7 @@ struct PhotoPreviewView: View {
                 
                 VStack(alignment: .leading, spacing: 4) {
                     Text(title)
-                        .font(.headline)
+                        .font(.system(size: 18, weight: .semibold)) // Larger text
                         .foregroundColor(.white)
                     
                     Text(description)
@@ -119,17 +152,10 @@ struct PhotoPreviewView: View {
                 }
                 
                 Spacer()
-                
-//                Image(systemName: "chevron.right")
-//                    .foregroundColor(color)
             }
             .padding()
-            .background(isPrimary ? Color(hex: "d3a754").opacity(0.7) : Color(.secondarySystemGroupedBackground).opacity(0.9))
+            .background(isPrimary ? .appPrimary.opacity(0.7) : Color(.secondarySystemGroupedBackground).opacity(0.9))
             .cornerRadius(12)
-//            .overlay(
-//                RoundedRectangle(cornerRadius: 12)
-//                    .stroke(color.opacity(0.3), lineWidth: 2)
-//            )
         }
         .buttonStyle(.plain)
     }

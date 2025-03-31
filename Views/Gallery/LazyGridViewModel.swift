@@ -24,7 +24,7 @@ class LazyGridViewModel: ObservableObject {
         isLoading = true
         
         guard let relatedSubject = try? FunkoDatabase.item(by: itemId),
-              let encodedQuery = relatedSubject.subject.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) else {
+              let encodedQuery = relatedSubject.querySubject?.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) else {
             isLoading = false
             completion([]) // Return empty array on failure
             return

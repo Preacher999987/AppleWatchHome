@@ -17,6 +17,7 @@
 		BB1D1E8A2D983A5300153BB4 /* LaunchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1D1E892D983A4D00153BB4 /* LaunchView.swift */; };
 		BB1D1E8C2D983AAD00153BB4 /* animated-logo.gif in Resources */ = {isa = PBXBuildFile; fileRef = BB1D1E8B2D983AAD00153BB4 /* animated-logo.gif */; };
 		BB1D1E8E2D98A60300153BB4 /* AIPoweredBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1D1E8D2D98A60300153BB4 /* AIPoweredBadge.swift */; };
+		BB1D1E912D9A00C000153BB4 /* ModelHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1D1E902D9A001200153BB4 /* ModelHelpers.swift */; };
 		BB2B5B2D2D920752004461C4 /* AsyncImageLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB2B5B2C2D920752004461C4 /* AsyncImageLoader.swift */; };
 		BB2B5B2E2D920A11004461C4 /* FunkoDatabase.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB2B5B272D920638004461C4 /* FunkoDatabase.swift */; };
 		BB2B5B302D93296A004461C4 /* LazyGridViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB2B5B2F2D93296A004461C4 /* LazyGridViewModel.swift */; };
@@ -39,6 +40,7 @@
 		BB1D1E892D983A4D00153BB4 /* LaunchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchView.swift; sourceTree = "<group>"; };
 		BB1D1E8B2D983AAD00153BB4 /* animated-logo.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = "animated-logo.gif"; sourceTree = "<group>"; };
 		BB1D1E8D2D98A60300153BB4 /* AIPoweredBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIPoweredBadge.swift; sourceTree = "<group>"; };
+		BB1D1E902D9A001200153BB4 /* ModelHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelHelpers.swift; sourceTree = "<group>"; };
 		BB2B5B272D920638004461C4 /* FunkoDatabase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FunkoDatabase.swift; sourceTree = "<group>"; };
 		BB2B5B2C2D920752004461C4 /* AsyncImageLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncImageLoader.swift; sourceTree = "<group>"; };
 		BB2B5B2F2D93296A004461C4 /* LazyGridViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LazyGridViewModel.swift; sourceTree = "<group>"; };
@@ -72,6 +74,7 @@
 		B5CC8428270498D700DFB13B = {
 			isa = PBXGroup;
 			children = (
+				BB1D1E8F2D99FFF300153BB4 /* Utilities */,
 				BB2B5B262D920620004461C4 /* Database */,
 				B5CC8433270498D700DFB13B /* Views */,
 				B5CC8432270498D700DFB13B /* Products */,
@@ -129,6 +132,14 @@
 				BB1D1E852D97411F00153BB4 /* BarcodeScannerView.swift */,
 			);
 			path = BarcodeScanner;
+			sourceTree = "<group>";
+		};
+		BB1D1E8F2D99FFF300153BB4 /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				BB1D1E902D9A001200153BB4 /* ModelHelpers.swift */,
+			);
+			path = Utilities;
 			sourceTree = "<group>";
 		};
 		BB2B5B262D920620004461C4 /* Database */ = {
@@ -239,6 +250,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				BB1D1E862D97411F00153BB4 /* BarcodeScannerView.swift in Sources */,
+				BB1D1E912D9A00C000153BB4 /* ModelHelpers.swift in Sources */,
 				BB2B5B2D2D920752004461C4 /* AsyncImageLoader.swift in Sources */,
 				BB1D1E882D98271500153BB4 /* ViewHelpers.swift in Sources */,
 				BB1D1E8A2D983A5300153BB4 /* LaunchView.swift in Sources */,
