@@ -11,7 +11,7 @@ import SwiftUI
 struct FunkoCollector: App {
     var body: some Scene {
         WindowGroup {
-            HomeView()
+            LaunchView()
                 .environmentObject(AppState())
         }
     }
@@ -19,17 +19,29 @@ struct FunkoCollector: App {
 
 struct LaunchView: View {
     @State private var isActive = false
+    @State private var showPremiumUnlockView = false
     @EnvironmentObject var appState: AppState
     
     var body: some View {
         Group {
             if isActive {
+                if KeychainHelper.hasValidToken() {
                     HomeView()
+                } else {
+                    WelcomeView(continueAction: {
+                        withAnimation {
+                            showPremiumUnlockView = true
+                        }
+                    })
+                    .presentationDetents([.medium, .large])
+                    .fullScreenCover(isPresented: $showPremiumUnlockView) {
+                        PremiumUnlockView()
+                            .environmentObject(appState)
+                    }
+                }
             } else {
                 GIFView(gifName: "animated-logo") {
-                    withAnimation(.easeInOut(duration: 0.3)) {
-                        isActive = true
-                    }
+                    isActive = true
                 }
             }
         }

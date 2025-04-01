@@ -55,3 +55,4 @@ extension Color {
 enum AddNewItemAction {
     case camera, manually, barcode, photoPicker
 }
+

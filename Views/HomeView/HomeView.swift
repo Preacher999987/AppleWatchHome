@@ -44,7 +44,7 @@ struct HomeView: View {
     }
     
     func hapticAction(_ action: () -> Void) -> Void {
-        Helpers.hapticFeedback()
+        ViewHelpers.hapticFeedback()
         action()
     }
     

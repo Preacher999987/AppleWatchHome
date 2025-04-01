@@ -8,7 +8,7 @@
 import UIKit
 import SwiftUI
 
-struct Helpers {
+struct ViewHelpers {
     static func hapticFeedback() {
         let generator = UIImpactFeedbackGenerator(style: .soft)
         generator.impactOccurred()

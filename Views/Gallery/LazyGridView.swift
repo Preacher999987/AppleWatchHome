@@ -358,7 +358,7 @@ struct LazyGridGalleryView: View {
             if selectedItem == index {
                 if !payload[index].inCollection {
                     Button(action: {
-                        Helpers.hapticFeedback()
+                        ViewHelpers.hapticFeedback()
                         withAnimation(.spring()) {
                             selectedItem = index
                             isFullScreen = true
@@ -379,7 +379,7 @@ struct LazyGridGalleryView: View {
                     .offset(x: offsetX(index), y: 0)
                 } else {
                     Button(action: {
-                        Helpers.hapticFeedback()
+                        ViewHelpers.hapticFeedback()
                         withAnimation(.spring()) {
                             selectedItem = index
                             isFullScreen = true
