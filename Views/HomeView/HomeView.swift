@@ -67,101 +67,108 @@ struct HomeView: View {
                 } else if !analysisResult.isEmpty { // <-- Barcode Reader succeeded
                     galleryView
                 } else {
-                    VStack(spacing: 20) {
-                        // Logo header
-                        Image("logo-white")
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(height: 60)
-                            .padding(.top, 0)
-                            .padding(.horizontal, 40)
-                            .background(
-                                GeometryReader { geo in
-                                    Color.clear
-                                        .onAppear {
-                                            logoRect = geo.frame(in: .global)
-                                        }
-                                        .onChange(of: geo.frame(in: .global)) { newRect in
-                                            logoRect = newRect
-                                        }
-                                }
-                            )
-                        
-                        // Main action cards
-                        VStack(spacing: 24) {
-                            // Add Items Section
-                            VStack(spacing: 16) {
-                                Text("ADD NEW ITEMS")
-                                    .font(.subheadline)
-                                    .foregroundColor(.secondary)
-                                    .frame(maxWidth: .infinity, alignment: .leading)
-                                    .padding(.leading, 20)
-                                
-                                actionCard(
-                                    systemImage: "camera.fill",
-                                    title: "Scan New Item",
-                                    description: "Take a photo of your collectible to add it to your collection",
-                                    action: {
-                                        hapticAction {
-                                            addNewItemAction(.camera)
-                                        }
+                    ZStack(alignment: .topTrailing) {
+                        VStack(spacing: 20) {
+                            
+                            // Logo header
+                            Image("logo-white")
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .frame(height: 60)
+                                .padding(.top, 40)
+                                .padding(.horizontal, 60)
+                                .background(
+                                    GeometryReader { geo in
+                                        Color.clear
+                                            .onAppear {
+                                                logoRect = geo.frame(in: .global)
+                                            }
+                                            .onChange(of: geo.frame(in: .global)) { newRect in
+                                                logoRect = newRect
+                                            }
                                     }
                                 )
-                                .overlay(alignment: .topTrailing) {
-                                    AIPoweredBadge()
-                                        .offset(x: -8, y: -8)
-                                }
-                                
-                                actionCard(
-                                    systemImage: "photo.on.rectangle",
-                                    title: "Add From Gallery",
-                                    description: "Select an existing photo of your collectible",
-                                    action: {
-                                        hapticAction {
-                                            addNewItemAction(.photoPicker)
+                            
+                            // Main action cards
+                            VStack(spacing: 24) {
+                                // Add Items Section
+                                VStack(spacing: 16) {
+                                    Text("ADD NEW ITEMS")
+                                        .font(.subheadline)
+                                        .foregroundColor(.secondary)
+                                        .frame(maxWidth: .infinity, alignment: .leading)
+                                        .padding(.leading, 20)
+                                    
+                                    actionCard(
+                                        systemImage: "camera.fill",
+                                        title: "Scan New Item",
+                                        description: "Take a photo of your collectible to add it to your collection",
+                                        action: {
+                                            hapticAction {
+                                                addNewItemAction(.camera)
+                                            }
                                         }
-                                    }
-                                )
-                                .overlay(alignment: .topTrailing) {
+                                    )
+                                    .overlay(alignment: .topTrailing) {
                                         AIPoweredBadge()
                                             .offset(x: -8, y: -8)
                                     }
-                                
-                                actionCard(
-                                    systemImage: "barcode.viewfinder",
-                                    title: "Scan Barcode",
-                                    description: "Add items by scanning the barcode on your collectible box",
-                                    action: {
-                                        hapticAction {
-                                            addNewItemAction(.barcode)
+                                    
+                                    actionCard(
+                                        systemImage: "photo.on.rectangle",
+                                        title: "Add From Gallery",
+                                        description: "Select an existing photo of your collectible",
+                                        action: {
+                                            hapticAction {
+                                                addNewItemAction(.photoPicker)
+                                            }
                                         }
+                                    )
+                                    .overlay(alignment: .topTrailing) {
+                                        AIPoweredBadge()
+                                            .offset(x: -8, y: -8)
                                     }
-                                )
-                            }
-                            .padding(.horizontal)
-                            
-                            // View Collection Section
-                            VStack(spacing: 16) {
-                                Text("YOUR COLLECTION")
-                                    .font(.subheadline)
-                                    .foregroundColor(.secondary)
-                                    .frame(maxWidth: .infinity, alignment: .leading)
-                                    .padding(.leading, 20)
+                                    
+                                    actionCard(
+                                        systemImage: "barcode.viewfinder",
+                                        title: "Scan Barcode",
+                                        description: "Add items by scanning the barcode on your collectible box",
+                                        action: {
+                                            hapticAction {
+                                                addNewItemAction(.barcode)
+                                            }
+                                        }
+                                    )
+                                }
+                                .padding(.horizontal)
                                 
-                                actionCard(
-                                    systemImage: "rectangle.stack.fill",
-                                    title: "Go to My Collection",
-                                    description: "Browse and manage your existing collectibles",
-                                    action: {
-                                        hapticAction(loadCollection)
-                                    },
-                                    isPrimary: true
-                                )
+                                // View Collection Section
+                                VStack(spacing: 16) {
+                                    Text("YOUR COLLECTION")
+                                        .font(.subheadline)
+                                        .foregroundColor(.secondary)
+                                        .frame(maxWidth: .infinity, alignment: .leading)
+                                        .padding(.leading, 20)
+                                    
+                                    actionCard(
+                                        systemImage: "rectangle.stack.fill",
+                                        title: "Go to My Collection",
+                                        description: "Browse and manage your existing collectibles",
+                                        action: {
+                                            hapticAction(loadCollection)
+                                        },
+                                        isPrimary: true
+                                    )
+                                }
+                                .padding(.horizontal)
                             }
-                            .padding(.horizontal)
+                            
+                            Spacer()
                         }
                         
-                        Spacer()
+                        userProfileButton
+                            .padding(.trailing, 14)
+                            .padding(.top, 10)
                     }
                 }
             }
@@ -226,6 +233,37 @@ struct HomeView: View {
             seeMissingPopsAction: { _ in },
             addNewItemAction: { _ in }
         )
+        .sheet(isPresented: $appState.showAuthView) {
+            AuthView()
+                .environmentObject(appState)
+        }
+    }
+    
+    private var userProfileButton: some View {
+        Group {
+            if KeychainHelper.hasValidToken() {
+                Menu {
+                    Button(role: .destructive, action: {
+                        KeychainHelper.logout()
+                        resetToInitialState()
+                    }) {
+                        Label("Sign Out", systemImage: "rectangle.portrait.and.arrow.right")
+                    }
+                } label: {
+                    Image(systemName: "person.circle.fill")
+                        .font(.system(size: 32))
+                        .foregroundColor(.appPrimary)
+                }
+            } else {
+                Button(action: {
+                    appState.showAuthView = true
+                }) {
+                    Text("Sign In")
+                        .font(.headline.weight(.semibold))
+                        .foregroundColor(.appPrimary)
+                }
+            }
+        }
     }
     
     private func photoPreviewView(image: UIImage) -> some View {
@@ -281,6 +319,11 @@ struct HomeView: View {
     // MARK: - Actions
     
     private func loadCollection() {
+        guard KeychainHelper.hasValidToken() else {
+            appState.showAuthView = true
+            return
+        }
+        
         withAnimation(.easeOut) {
             if let result = try? FunkoRepository.loadItems() {
                 analysisResult = result
@@ -308,6 +351,8 @@ struct HomeView: View {
         appState.showPlusButton = false
         appState.showEllipsisButton = false
         appState.openMyCollection = false
+        // Show HomeView as Root View
+        appState.showHomeView = true
     }
     
     private func prepareCollectionView(with result: [Collectible]) {

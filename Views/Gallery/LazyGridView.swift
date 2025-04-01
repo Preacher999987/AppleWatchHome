@@ -93,7 +93,7 @@ struct LazyGridGalleryView: View {
                     Text("Tap items to remove unwanted ones")
                         .font(.subheadline)
                     
-                    Button(action: { showAddToCollectionConfirmation = true }) {
+                    Button(action: addToCollectionButtonTapped) {
                         Text("Add All to Collection")
                             .font(.headline.weight(.semibold))
                             .frame(maxWidth: .infinity)
@@ -320,6 +320,7 @@ struct LazyGridGalleryView: View {
             appState.showCollectionButton = false
             appState.showAddToCollectionButton = false
         } catch {
+            //TODO: -
             print("Error saving to Collection:", error.localizedDescription)
         }
     }
@@ -968,7 +969,7 @@ struct LazyGridGalleryView: View {
     // MARK: - Button Components
     
     private var addToCollectionButton: some View {
-        Button(action: { showAddToCollectionConfirmation = true }) {
+        Button(action: addToCollectionButtonTapped) {
             HStack(spacing: 4) {
                 Text("Add All")
                     .font(.system(size: 14, weight: .medium))
@@ -1017,6 +1018,16 @@ struct LazyGridGalleryView: View {
                         )
                 )
                 .shadow(radius: 2)
+        }
+    }
+    
+    private func addToCollectionButtonTapped() {
+        // Check if user is logged in
+        if KeychainHelper.hasValidToken() {
+            // Existing collection saving logic
+            showAddToCollectionConfirmation = true
+        } else {
+            appState.showAuthView = true
         }
     }
     

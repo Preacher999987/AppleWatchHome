@@ -71,3 +71,15 @@ extension UIImage {
         return delay
     }
 }
+
+class NavigationCoordinator: ObservableObject {
+    @Published var path = NavigationPath()
+    
+    func popToRoot() {
+        path.removeLast(path.count)
+    }
+    
+    func push(_ route: String) {
+        path.append(route)
+    }
+}

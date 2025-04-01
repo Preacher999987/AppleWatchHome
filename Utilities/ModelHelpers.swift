@@ -9,7 +9,7 @@ import SwiftUI
 import SwiftUI
 
 class AppState: ObservableObject {
-    @Published var openMyCollection = false
+    @Published var openMyCollection = false 
     @Published var openRelated = false
     
     // Toolbar's navigationBar items visibility settings
@@ -18,6 +18,10 @@ class AppState: ObservableObject {
     @Published var showAddToCollectionButton = false
     @Published var showPlusButton = false
     @Published var showEllipsisButton = false
+    
+    @Published var showHomeView = false
+    
+    @Published var showAuthView = false
     
     @AppStorage("showSearchResultsInteractiveTutorial")
     var showSearchResultsInteractiveTutorial: Bool = true

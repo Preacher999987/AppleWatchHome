@@ -27,7 +27,7 @@ struct FeatureCarouselCard: View {
                     .fontWeight(.semibold)
                 
                 Text(description)
-                    .font(.subheadline)
+                    .font(.headline)
                     .foregroundColor(.secondary)
                     .multilineTextAlignment(.center)
             }

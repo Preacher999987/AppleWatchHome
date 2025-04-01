@@ -12,6 +12,9 @@ struct PremiumUnlockView: View {
     @StateObject private var viewModel = PremiumUnlockViewModel()
     @State private var selectedPlanIndex: Int = 0
     @State private var currentCarouselIndex: Int = 0
+    @State private var showCloseButton = false
+    
+    @EnvironmentObject var appState: AppState
     
     var body: some View {
         ZStack {
@@ -19,17 +22,20 @@ struct PremiumUnlockView: View {
                 .ignoresSafeArea()
             
             VStack(spacing: 0) {
-                // Close button (top-right)
-                HStack {
-                    Spacer()
-                    Button(action: {
-                        viewModel.showExitConfirmation = true
-                    }) {
-                        Image(systemName: "xmark")
-                            .font(.body.weight(.medium))
-                            .foregroundColor(.secondary)
-                            .padding(20)
+                // Close button (top-right) - conditionally shown
+                if showCloseButton {
+                    HStack {
+                        Spacer()
+                        Button(action: {
+                            viewModel.showExitConfirmation = true
+                        }) {
+                            Image(systemName: "xmark")
+                                .font(.body.weight(.medium))
+                                .foregroundColor(.secondary)
+                                .padding(20)
+                        }
                     }
+                    .transition(.opacity) // Smooth fade-in animation
                 }
                 
                 // Carousel takes remaining space after other content
@@ -72,7 +78,7 @@ struct PremiumUnlockView: View {
                                 .fontWeight(.semibold)
                             
                             Text("Discover full functionality with premium")
-                                .font(.subheadline)
+                                .font(.headline)
                                 .foregroundColor(.secondary)
                         }
                         .multilineTextAlignment(.center)
@@ -100,19 +106,20 @@ struct PremiumUnlockView: View {
                             .padding(.horizontal, 16)
                             
                             Text("7 days free, then \(viewModel.premiumPlans[selectedPlanIndex].price) per year")
-                                .font(.caption)
+                                .font(.headline)
                                 .foregroundColor(.secondary)
                                 .padding(.top, 4)
                             
                             Button(action: {
-                                // Handle trial subscription
+                                    // Handle trial subscription
+                                viewModel.startFreeTrial()
                             }) {
                                 HStack(spacing: 8) {
                                     Image(systemName: "crown.fill")
                                         .font(.subheadline)
                                     
-                                    Text("Start Trial")
-                                        .font(.subheadline.weight(.semibold))
+                                    Text("Start Free Trial")
+                                        .font(.headline.weight(.semibold))
                                 }
                                 .foregroundColor(.white)
                                 .frame(maxWidth: .infinity)
@@ -164,6 +171,12 @@ struct PremiumUnlockView: View {
         }
         .onAppear {
             selectedPlanIndex = viewModel.premiumPlans.firstIndex(where: { $0.isMostPopular }) ?? 0
+            // Show close button after 5 seconds
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                withAnimation {
+                    showCloseButton = true
+                }
+            }
         }
     }
     
@@ -191,13 +204,12 @@ struct PremiumUnlockView: View {
                     Button(action: {
                         viewModel.startFreeTrial()
                         viewModel.showExitConfirmation = false
-                        dismiss()
                     }) {
                         HStack(spacing: 8) {
                             Image(systemName: "crown.fill")
                                 .font(.subheadline)
                             
-                            Text("Start Trial")
+                            Text("Start Free Trial")
                                 .font(.subheadline.weight(.semibold))
                         }
                     }
@@ -206,6 +218,7 @@ struct PremiumUnlockView: View {
                     
                     Button("Not Now") {
                         viewModel.showExitConfirmation = false
+                        appState.showHomeView = true
                         dismiss()
                     }
 //                    .buttonStyle(.bordered)

@@ -38,6 +38,9 @@
 		BBBBF6502D9C19D1008CE85F /* PremiumUnlockViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBBBF64F2D9C19D1008CE85F /* PremiumUnlockViewModel.swift */; };
 		BBBBF6522D9C19D3008CE85F /* PremiumUnlockView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBBBF6512D9C19D3008CE85F /* PremiumUnlockView.swift */; };
 		BBBBF6542D9C1A30008CE85F /* PremiumUnlockCards.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBBBF6532D9C1A30008CE85F /* PremiumUnlockCards.swift */; };
+		BBBBF6572D9C58BF008CE85F /* AuthViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBBBF6562D9C58BF008CE85F /* AuthViewModel.swift */; };
+		BBBBF6592D9C58CF008CE85F /* AuthView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBBBF6582D9C58CF008CE85F /* AuthView.swift */; };
+		BBBBF65B2D9C7A33008CE85F /* SuccessCheckmarkView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBBBF65A2D9C7A33008CE85F /* SuccessCheckmarkView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -74,6 +77,9 @@
 		BBBBF64F2D9C19D1008CE85F /* PremiumUnlockViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PremiumUnlockViewModel.swift; sourceTree = "<group>"; };
 		BBBBF6512D9C19D3008CE85F /* PremiumUnlockView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PremiumUnlockView.swift; sourceTree = "<group>"; };
 		BBBBF6532D9C1A30008CE85F /* PremiumUnlockCards.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PremiumUnlockCards.swift; sourceTree = "<group>"; };
+		BBBBF6562D9C58BF008CE85F /* AuthViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthViewModel.swift; sourceTree = "<group>"; };
+		BBBBF6582D9C58CF008CE85F /* AuthView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthView.swift; sourceTree = "<group>"; };
+		BBBBF65A2D9C7A33008CE85F /* SuccessCheckmarkView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuccessCheckmarkView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -119,6 +125,7 @@
 		B5CC8433270498D700DFB13B /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				BBBBF6552D9C58B8008CE85F /* AuthView */,
 				BBBBF64E2D9C19C5008CE85F /* PremiumUnlockView */,
 				BBBBF6432D9C10CA008CE85F /* WelcomeView */,
 				BB1D1E892D983A4D00153BB4 /* LaunchView.swift */,
@@ -218,6 +225,7 @@
 		BBBBF63D2D9C0BAA008CE85F /* Misc */ = {
 			isa = PBXGroup;
 			children = (
+				BBBBF65A2D9C7A33008CE85F /* SuccessCheckmarkView.swift */,
 				BBBBF64C2D9C12D2008CE85F /* DarkModeHelper.swift */,
 				BBBBF63B2D9C0B66008CE85F /* GIFView.swift */,
 				BB1D1E872D98271000153BB4 /* ViewHelpers.swift */,
@@ -252,6 +260,15 @@
 				BBBBF64F2D9C19D1008CE85F /* PremiumUnlockViewModel.swift */,
 			);
 			path = PremiumUnlockView;
+			sourceTree = "<group>";
+		};
+		BBBBF6552D9C58B8008CE85F /* AuthView */ = {
+			isa = PBXGroup;
+			children = (
+				BBBBF6582D9C58CF008CE85F /* AuthView.swift */,
+				BBBBF6562D9C58BF008CE85F /* AuthViewModel.swift */,
+			);
+			path = AuthView;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -340,6 +357,7 @@
 				B5CC844427049E4600DFB13B /* GridView.swift in Sources */,
 				BB8E395A2D8F6F5F00CDC7BB /* HomeView.swift in Sources */,
 				BBBBF6452D9C10D2008CE85F /* WelcomeView.swift in Sources */,
+				BBBBF65B2D9C7A33008CE85F /* SuccessCheckmarkView.swift in Sources */,
 				BB1D1E8E2D98A60300153BB4 /* AIPoweredBadge.swift in Sources */,
 				BBBBF6542D9C1A30008CE85F /* PremiumUnlockCards.swift in Sources */,
 				BBBBF63F2D9C0F19008CE85F /* PhotoPicker.swift in Sources */,
@@ -349,7 +367,9 @@
 				BB6232062D91901B0048BF67 /* Collectible.swift in Sources */,
 				B5CC84472704D02E00DFB13B /* AppIcons.swift in Sources */,
 				BBBBF64D2D9C12D2008CE85F /* DarkModeHelper.swift in Sources */,
+				BBBBF6572D9C58BF008CE85F /* AuthViewModel.swift in Sources */,
 				BB2B5B2E2D920A11004461C4 /* FunkoRepository.swift in Sources */,
+				BBBBF6592D9C58CF008CE85F /* AuthView.swift in Sources */,
 				BBBBF64B2D9C1279008CE85F /* Testimonial.swift in Sources */,
 				BBBBF6492D9C11D7008CE85F /* KeychainHelper.swift in Sources */,
 				BB6232082D9190480048BF67 /* PhotoPreviewViewModel.swift in Sources */,
@@ -499,7 +519,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 17;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -531,7 +551,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 17;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

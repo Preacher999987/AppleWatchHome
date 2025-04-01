@@ -85,7 +85,7 @@ struct WelcomeView: View {
                                 .frame(maxWidth: .infinity)
 //                                .frame(height: 80)
                                 .padding(.horizontal, horizontalPadding)
-                                .colorInvertIfLight()
+//                                .colorInvertIfLight()
                             
                             Text("The smart way to catalog and manage your Pop! collection")
                                 .font(.title3)
@@ -135,7 +135,7 @@ struct WelcomeView: View {
                             
                             Button(action: continueAction) {
                                 Text("Browse Collection")
-                                    .font(.subheadline)
+                                    .font(.headline)
                                     .foregroundColor(.appPrimary)
                             }
                             .padding(.bottom, 20)

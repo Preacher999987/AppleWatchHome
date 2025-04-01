@@ -17,7 +17,7 @@ class KeychainHelper {
         return false
     }
     
-    static func save(service: String, account: String, token: String) -> Bool {
+    static func save(service: String = "funko-auth", account: String = "current-user", token: String) -> Bool {
         guard let data = token.data(using: .utf8) else { return false }
         
         let query: [CFString: Any] = [
@@ -32,7 +32,7 @@ class KeychainHelper {
         return status == errSecSuccess
     }
     
-    static func read(service: String, account: String) -> String? {
+    static func read(service: String = "funko-auth", account: String = "current-user") -> String? {
         let query: [CFString: Any] = [
             kSecClass: kSecClassGenericPassword,
             kSecAttrService: service,
@@ -62,5 +62,17 @@ class KeychainHelper {
         
         let status = SecItemDelete(query as CFDictionary)
         return status == errSecSuccess
+    }
+    
+    static func logout() {
+        // Remove auth token
+        let tokenQuery: [CFString: Any] = [
+            kSecClass: kSecClassGenericPassword,
+            kSecAttrAccount: "current-user"
+        ]
+        SecItemDelete(tokenQuery as CFDictionary)
+        
+        // Remove any other user-related keychain items
+        // ...
     }
 }
