@@ -25,8 +25,11 @@
 		BB6232062D91901B0048BF67 /* Collectible.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB6232052D91901B0048BF67 /* Collectible.swift */; };
 		BB6232082D9190480048BF67 /* PhotoPreviewViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB6232072D9190480048BF67 /* PhotoPreviewViewModel.swift */; };
 		BB62320A2D9190810048BF67 /* PhotoPreviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB6232092D9190810048BF67 /* PhotoPreviewView.swift */; };
-		BB8E395A2D8F6F5F00CDC7BB /* CameraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB8E39592D8F6F5F00CDC7BB /* CameraView.swift */; };
+		BB8E395A2D8F6F5F00CDC7BB /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB8E39592D8F6F5F00CDC7BB /* HomeView.swift */; };
 		BBBBF6392D9B100D008CE85F /* FunkoModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = BBBBF6372D9B100D008CE85F /* FunkoModel.xcdatamodeld */; };
+		BBBBF63C2D9C0B66008CE85F /* GIFView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBBBF63B2D9C0B66008CE85F /* GIFView.swift */; };
+		BBBBF63F2D9C0F19008CE85F /* PhotoPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBBBF63E2D9C0F19008CE85F /* PhotoPicker.swift */; };
+		BBBBF6412D9C0F58008CE85F /* CameraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBBBF6402D9C0F58008CE85F /* CameraView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -49,9 +52,12 @@
 		BB6232052D91901B0048BF67 /* Collectible.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Collectible.swift; sourceTree = "<group>"; };
 		BB6232072D9190480048BF67 /* PhotoPreviewViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoPreviewViewModel.swift; sourceTree = "<group>"; };
 		BB6232092D9190810048BF67 /* PhotoPreviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoPreviewView.swift; sourceTree = "<group>"; };
-		BB8E39592D8F6F5F00CDC7BB /* CameraView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraView.swift; sourceTree = "<group>"; };
+		BB8E39592D8F6F5F00CDC7BB /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		BB8E395B2D8F847A00CDC7BB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		BBBBF6382D9B100D008CE85F /* FunkoModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = FunkoModel.xcdatamodel; sourceTree = "<group>"; };
+		BBBBF63B2D9C0B66008CE85F /* GIFView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GIFView.swift; sourceTree = "<group>"; };
+		BBBBF63E2D9C0F19008CE85F /* PhotoPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoPicker.swift; sourceTree = "<group>"; };
+		BBBBF6402D9C0F58008CE85F /* CameraView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -98,11 +104,12 @@
 			isa = PBXGroup;
 			children = (
 				BB1D1E892D983A4D00153BB4 /* LaunchView.swift */,
-				BB1D1E872D98271000153BB4 /* ViewHelpers.swift */,
 				BB1D1E842D97411100153BB4 /* BarcodeScanner */,
-				B540F4252715136D0052A111 /* GeometryReader */,
-				B5CC84452704C1C800DFB13B /* Gallery */,
 				BB6232042D9190100048BF67 /* CameraView */,
+				B5CC84452704C1C800DFB13B /* Gallery */,
+				B540F4252715136D0052A111 /* GeometryReader */,
+				BBBBF6422D9C0F86008CE85F /* HomeView */,
+				BBBBF63D2D9C0BAA008CE85F /* Misc */,
 				BB62320B2D9190B80048BF67 /* PhotoPreviewView */,
 			);
 			path = Views;
@@ -165,8 +172,8 @@
 		BB6232042D9190100048BF67 /* CameraView */ = {
 			isa = PBXGroup;
 			children = (
-				BB1D1E8D2D98A60300153BB4 /* AIPoweredBadge.swift */,
-				BB8E39592D8F6F5F00CDC7BB /* CameraView.swift */,
+				BBBBF6402D9C0F58008CE85F /* CameraView.swift */,
+				BBBBF63E2D9C0F19008CE85F /* PhotoPicker.swift */,
 			);
 			path = CameraView;
 			sourceTree = "<group>";
@@ -187,6 +194,24 @@
 				BB6232052D91901B0048BF67 /* Collectible.swift */,
 			);
 			path = Models;
+			sourceTree = "<group>";
+		};
+		BBBBF63D2D9C0BAA008CE85F /* Misc */ = {
+			isa = PBXGroup;
+			children = (
+				BBBBF63B2D9C0B66008CE85F /* GIFView.swift */,
+				BB1D1E872D98271000153BB4 /* ViewHelpers.swift */,
+			);
+			path = Misc;
+			sourceTree = "<group>";
+		};
+		BBBBF6422D9C0F86008CE85F /* HomeView */ = {
+			isa = PBXGroup;
+			children = (
+				BB8E39592D8F6F5F00CDC7BB /* HomeView.swift */,
+				BB1D1E8D2D98A60300153BB4 /* AIPoweredBadge.swift */,
+			);
+			path = HomeView;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -263,6 +288,7 @@
 				BB1D1E862D97411F00153BB4 /* BarcodeScannerView.swift in Sources */,
 				BB1D1E912D9A00C000153BB4 /* ModelHelpers.swift in Sources */,
 				BB2B5B2D2D920752004461C4 /* AsyncImageLoader.swift in Sources */,
+				BBBBF6412D9C0F58008CE85F /* CameraView.swift in Sources */,
 				BB1D1E882D98271500153BB4 /* ViewHelpers.swift in Sources */,
 				BBBBF6392D9B100D008CE85F /* FunkoModel.xcdatamodeld in Sources */,
 				BB1D1E8A2D983A5300153BB4 /* LaunchView.swift in Sources */,
@@ -271,8 +297,10 @@
 				B540F427271513860052A111 /* GeometryDemoView.swift in Sources */,
 				B5CC8437270498D700DFB13B /* LazyGridView.swift in Sources */,
 				B5CC844427049E4600DFB13B /* GridView.swift in Sources */,
-				BB8E395A2D8F6F5F00CDC7BB /* CameraView.swift in Sources */,
+				BB8E395A2D8F6F5F00CDC7BB /* HomeView.swift in Sources */,
 				BB1D1E8E2D98A60300153BB4 /* AIPoweredBadge.swift in Sources */,
+				BBBBF63F2D9C0F19008CE85F /* PhotoPicker.swift in Sources */,
+				BBBBF63C2D9C0B66008CE85F /* GIFView.swift in Sources */,
 				BB6232062D91901B0048BF67 /* Collectible.swift in Sources */,
 				B5CC84472704D02E00DFB13B /* AppIcons.swift in Sources */,
 				BB2B5B2E2D920A11004461C4 /* FunkoRepository.swift in Sources */,

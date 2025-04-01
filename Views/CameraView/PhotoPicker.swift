@@ -1,5 +1,5 @@
 //
-//  CameraView.swift
+//  PhotoPicker.swift
 //  Fun Kollector
 //
 //  Created by Home on 01.04.2025.
@@ -7,41 +7,35 @@
 
 import SwiftUI
 
-// MARK: - Camera View
-struct CameraView: UIViewControllerRepresentable {
-    let onPhotoCaptured: (UIImage) -> Void
+// MARK: - Photo Picker
+struct PhotoPicker: UIViewControllerRepresentable {
+    var completion: (UIImage) -> Void
     
     func makeUIViewController(context: Context) -> UIImagePickerController {
         let picker = UIImagePickerController()
+        picker.sourceType = .photoLibrary
         picker.delegate = context.coordinator
-        picker.sourceType = .camera
-        
-        // Check if the device supports the desired camera mode
-        if UIImagePickerController.isCameraDeviceAvailable(.rear) {
-            picker.cameraDevice = .rear
-        } else {
-            print("Rear camera not available. Falling back to default.")
-        }
-        
+        picker.allowsEditing = false
         return picker
     }
     
     func updateUIViewController(_ uiViewController: UIImagePickerController, context: Context) {}
     
     func makeCoordinator() -> Coordinator {
-        Coordinator(self)
+        Coordinator(completion: completion)
     }
     
     class Coordinator: NSObject, UINavigationControllerDelegate, UIImagePickerControllerDelegate {
-        let parent: CameraView
+        var completion: (UIImage) -> Void
         
-        init(_ parent: CameraView) {
-            self.parent = parent
+        init(completion: @escaping (UIImage) -> Void) {
+            self.completion = completion
         }
         
-        func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+        func imagePickerController(_ picker: UIImagePickerController,
+                                   didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
             if let image = info[.originalImage] as? UIImage {
-                parent.onPhotoCaptured(image)
+                completion(image)
             }
             picker.dismiss(animated: true)
         }
