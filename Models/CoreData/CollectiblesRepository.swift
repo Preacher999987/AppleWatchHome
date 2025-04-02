@@ -5,10 +5,9 @@
 //  Created by Home on 24.03.2025.
 //
 
-import Foundation
 import CoreData
 
-class FunkoRepository {
+class CollectiblesRepository {
     private static let persistentContainer: NSPersistentContainer = {
         let container = NSPersistentContainer(name: "FunkoModel")
         container.loadPersistentStores { description, error in
