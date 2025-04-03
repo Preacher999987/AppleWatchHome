@@ -15,13 +15,11 @@
 		BB1D1E862D97411F00153BB4 /* BarcodeScannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1D1E852D97411F00153BB4 /* BarcodeScannerView.swift */; };
 		BB1D1E882D98271500153BB4 /* ViewHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1D1E872D98271000153BB4 /* ViewHelpers.swift */; };
 		BB1D1E8A2D983A5300153BB4 /* LaunchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1D1E892D983A4D00153BB4 /* LaunchView.swift */; };
-		BB1D1E8C2D983AAD00153BB4 /* animated-logo.gif in Resources */ = {isa = PBXBuildFile; fileRef = BB1D1E8B2D983AAD00153BB4 /* animated-logo.gif */; };
 		BB1D1E8E2D98A60300153BB4 /* AIPoweredBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1D1E8D2D98A60300153BB4 /* AIPoweredBadge.swift */; };
 		BB1D1E912D9A00C000153BB4 /* ModelHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1D1E902D9A001200153BB4 /* ModelHelpers.swift */; };
 		BB2B5B2D2D920752004461C4 /* AsyncImageLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB2B5B2C2D920752004461C4 /* AsyncImageLoader.swift */; };
-		BB2B5B2E2D920A11004461C4 /* FunkoRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB2B5B272D920638004461C4 /* FunkoRepository.swift */; };
+		BB2B5B2E2D920A11004461C4 /* CollectiblesRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB2B5B272D920638004461C4 /* CollectiblesRepository.swift */; };
 		BB2B5B302D93296A004461C4 /* LazyGridViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB2B5B2F2D93296A004461C4 /* LazyGridViewModel.swift */; };
-		BB2B5B352D9354EE004461C4 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BB2B5B342D9354EE004461C4 /* Preview Assets.xcassets */; };
 		BB6232062D91901B0048BF67 /* Collectible.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB6232052D91901B0048BF67 /* Collectible.swift */; };
 		BB6232082D9190480048BF67 /* PhotoPreviewViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB6232072D9190480048BF67 /* PhotoPreviewViewModel.swift */; };
 		BB62320A2D9190810048BF67 /* PhotoPreviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB6232092D9190810048BF67 /* PhotoPreviewView.swift */; };
@@ -41,11 +39,21 @@
 		BBBBF6572D9C58BF008CE85F /* AuthViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBBBF6562D9C58BF008CE85F /* AuthViewModel.swift */; };
 		BBBBF6592D9C58CF008CE85F /* AuthView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBBBF6582D9C58CF008CE85F /* AuthView.swift */; };
 		BBBBF65B2D9C7A33008CE85F /* SuccessCheckmarkView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBBBF65A2D9C7A33008CE85F /* SuccessCheckmarkView.swift */; };
+		BBBBF65F2D9D948C008CE85F /* UserProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBBBF65E2D9D948C008CE85F /* UserProfile.swift */; };
+		BBBBF6612D9D9597008CE85F /* UserProfileRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBBBF65C2D9D9385008CE85F /* UserProfileRepository.swift */; };
+		BBBBF6642D9D96A9008CE85F /* BaseRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBBBF6632D9D96A6008CE85F /* BaseRepository.swift */; };
+		BBBBF6662D9DA3CD008CE85F /* ProfileInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBBBF6652D9DA3CD008CE85F /* ProfileInfoView.swift */; };
+		BBBBF6682D9DA648008CE85F /* ProfileInfoViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBBBF6672D9DA648008CE85F /* ProfileInfoViewModel.swift */; };
+		BBBBF66B2D9DB053008CE85F /* ProfileImagePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBBBF66A2D9DB053008CE85F /* ProfileImagePicker.swift */; };
+		BBBBF66E2D9DD4A3008CE85F /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = BBBBF66D2D9DD4A3008CE85F /* GoogleSignIn */; };
+		BBBBF6702D9DD4A3008CE85F /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = BBBBF66F2D9DD4A3008CE85F /* GoogleSignInSwift */; };
+		BBBBF6722D9DD9E2008CE85F /* animated-logo.gif in Resources */ = {isa = PBXBuildFile; fileRef = BBBBF6712D9DD9E2008CE85F /* animated-logo.gif */; };
+		BBBBF6762D9E10CF008CE85F /* AuthResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBBBF6752D9E10CF008CE85F /* AuthResponse.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		B540F426271513860052A111 /* GeometryDemoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeometryDemoView.swift; sourceTree = "<group>"; };
-		B5CC8431270498D700DFB13B /* Fun Kollector.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Fun Kollector.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		B5CC8431270498D700DFB13B /* FunKollector.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FunKollector.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B5CC8436270498D700DFB13B /* LazyGridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LazyGridView.swift; sourceTree = "<group>"; };
 		B5CC8438270498D800DFB13B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		B5CC844327049E4600DFB13B /* GridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GridView.swift; sourceTree = "<group>"; };
@@ -53,18 +61,15 @@
 		BB1D1E852D97411F00153BB4 /* BarcodeScannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BarcodeScannerView.swift; sourceTree = "<group>"; };
 		BB1D1E872D98271000153BB4 /* ViewHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewHelpers.swift; sourceTree = "<group>"; };
 		BB1D1E892D983A4D00153BB4 /* LaunchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchView.swift; sourceTree = "<group>"; };
-		BB1D1E8B2D983AAD00153BB4 /* animated-logo.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = "animated-logo.gif"; sourceTree = "<group>"; };
 		BB1D1E8D2D98A60300153BB4 /* AIPoweredBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIPoweredBadge.swift; sourceTree = "<group>"; };
 		BB1D1E902D9A001200153BB4 /* ModelHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelHelpers.swift; sourceTree = "<group>"; };
-		BB2B5B272D920638004461C4 /* FunkoRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FunkoRepository.swift; sourceTree = "<group>"; };
+		BB2B5B272D920638004461C4 /* CollectiblesRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectiblesRepository.swift; sourceTree = "<group>"; };
 		BB2B5B2C2D920752004461C4 /* AsyncImageLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncImageLoader.swift; sourceTree = "<group>"; };
 		BB2B5B2F2D93296A004461C4 /* LazyGridViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LazyGridViewModel.swift; sourceTree = "<group>"; };
-		BB2B5B342D9354EE004461C4 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		BB6232052D91901B0048BF67 /* Collectible.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Collectible.swift; sourceTree = "<group>"; };
 		BB6232072D9190480048BF67 /* PhotoPreviewViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoPreviewViewModel.swift; sourceTree = "<group>"; };
 		BB6232092D9190810048BF67 /* PhotoPreviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoPreviewView.swift; sourceTree = "<group>"; };
 		BB8E39592D8F6F5F00CDC7BB /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
-		BB8E395B2D8F847A00CDC7BB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		BBBBF6382D9B100D008CE85F /* FunkoModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = FunkoModel.xcdatamodel; sourceTree = "<group>"; };
 		BBBBF63B2D9C0B66008CE85F /* GIFView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GIFView.swift; sourceTree = "<group>"; };
 		BBBBF63E2D9C0F19008CE85F /* PhotoPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoPicker.swift; sourceTree = "<group>"; };
@@ -80,6 +85,14 @@
 		BBBBF6562D9C58BF008CE85F /* AuthViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthViewModel.swift; sourceTree = "<group>"; };
 		BBBBF6582D9C58CF008CE85F /* AuthView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthView.swift; sourceTree = "<group>"; };
 		BBBBF65A2D9C7A33008CE85F /* SuccessCheckmarkView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuccessCheckmarkView.swift; sourceTree = "<group>"; };
+		BBBBF65C2D9D9385008CE85F /* UserProfileRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileRepository.swift; sourceTree = "<group>"; };
+		BBBBF65E2D9D948C008CE85F /* UserProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfile.swift; sourceTree = "<group>"; };
+		BBBBF6632D9D96A6008CE85F /* BaseRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseRepository.swift; sourceTree = "<group>"; };
+		BBBBF6652D9DA3CD008CE85F /* ProfileInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileInfoView.swift; sourceTree = "<group>"; };
+		BBBBF6672D9DA648008CE85F /* ProfileInfoViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileInfoViewModel.swift; sourceTree = "<group>"; };
+		BBBBF66A2D9DB053008CE85F /* ProfileImagePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileImagePicker.swift; sourceTree = "<group>"; };
+		BBBBF6712D9DD9E2008CE85F /* animated-logo.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = "animated-logo.gif"; sourceTree = "<group>"; };
+		BBBBF6752D9E10CF008CE85F /* AuthResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthResponse.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -87,6 +100,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BBBBF66E2D9DD4A3008CE85F /* GoogleSignIn in Frameworks */,
+				BBBBF6702D9DD4A3008CE85F /* GoogleSignInSwift in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -108,16 +123,15 @@
 				BBBBF63A2D9B10A3008CE85F /* Models */,
 				B5CC8433270498D700DFB13B /* Views */,
 				B5CC8432270498D700DFB13B /* Products */,
-				BB8E395B2D8F847A00CDC7BB /* Info.plist */,
 				B5CC8438270498D800DFB13B /* Assets.xcassets */,
-				BB2B5B362D935503004461C4 /* Preview Assets */,
+				BBBBF6712D9DD9E2008CE85F /* animated-logo.gif */,
 			);
 			sourceTree = "<group>";
 		};
 		B5CC8432270498D700DFB13B /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				B5CC8431270498D700DFB13B /* Fun Kollector.app */,
+				B5CC8431270498D700DFB13B /* FunKollector.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -136,6 +150,7 @@
 				BBBBF6422D9C0F86008CE85F /* HomeView */,
 				BBBBF63D2D9C0BAA008CE85F /* Misc */,
 				BB62320B2D9190B80048BF67 /* PhotoPreviewView */,
+				BBBBF6692D9DA64E008CE85F /* ProfileInfoView */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -180,19 +195,10 @@
 		BB2B5B262D920620004461C4 /* CoreData */ = {
 			isa = PBXGroup;
 			children = (
-				BB2B5B272D920638004461C4 /* FunkoRepository.swift */,
+				BBBBF6622D9D9684008CE85F /* Repositories */,
 				BBBBF6372D9B100D008CE85F /* FunkoModel.xcdatamodeld */,
 			);
 			path = CoreData;
-			sourceTree = "<group>";
-		};
-		BB2B5B362D935503004461C4 /* Preview Assets */ = {
-			isa = PBXGroup;
-			children = (
-				BB2B5B342D9354EE004461C4 /* Preview Assets.xcassets */,
-				BB1D1E8B2D983AAD00153BB4 /* animated-logo.gif */,
-			);
-			path = "Preview Assets";
 			sourceTree = "<group>";
 		};
 		BB6232042D9190100048BF67 /* CameraView */ = {
@@ -217,7 +223,7 @@
 			isa = PBXGroup;
 			children = (
 				BB2B5B262D920620004461C4 /* CoreData */,
-				BB6232052D91901B0048BF67 /* Collectible.swift */,
+				BBBBF6602D9D94A6008CE85F /* Entities */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -271,12 +277,42 @@
 			path = AuthView;
 			sourceTree = "<group>";
 		};
+		BBBBF6602D9D94A6008CE85F /* Entities */ = {
+			isa = PBXGroup;
+			children = (
+				BBBBF6752D9E10CF008CE85F /* AuthResponse.swift */,
+				BB6232052D91901B0048BF67 /* Collectible.swift */,
+				BBBBF65E2D9D948C008CE85F /* UserProfile.swift */,
+			);
+			path = Entities;
+			sourceTree = "<group>";
+		};
+		BBBBF6622D9D9684008CE85F /* Repositories */ = {
+			isa = PBXGroup;
+			children = (
+				BBBBF6632D9D96A6008CE85F /* BaseRepository.swift */,
+				BBBBF65C2D9D9385008CE85F /* UserProfileRepository.swift */,
+				BB2B5B272D920638004461C4 /* CollectiblesRepository.swift */,
+			);
+			path = Repositories;
+			sourceTree = "<group>";
+		};
+		BBBBF6692D9DA64E008CE85F /* ProfileInfoView */ = {
+			isa = PBXGroup;
+			children = (
+				BBBBF66A2D9DB053008CE85F /* ProfileImagePicker.swift */,
+				BBBBF6672D9DA648008CE85F /* ProfileInfoViewModel.swift */,
+				BBBBF6652D9DA3CD008CE85F /* ProfileInfoView.swift */,
+			);
+			path = ProfileInfoView;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		B5CC8430270498D700DFB13B /* Fun Kollector */ = {
+		B5CC8430270498D700DFB13B /* FunKollector */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = B5CC843F270498D800DFB13B /* Build configuration list for PBXNativeTarget "Fun Kollector" */;
+			buildConfigurationList = B5CC843F270498D800DFB13B /* Build configuration list for PBXNativeTarget "FunKollector" */;
 			buildPhases = (
 				B5CC842D270498D700DFB13B /* Sources */,
 				B5CC842E270498D700DFB13B /* Frameworks */,
@@ -286,9 +322,9 @@
 			);
 			dependencies = (
 			);
-			name = "Fun Kollector";
+			name = FunKollector;
 			productName = AppleWatchHome;
-			productReference = B5CC8431270498D700DFB13B /* Fun Kollector.app */;
+			productReference = B5CC8431270498D700DFB13B /* FunKollector.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -306,7 +342,7 @@
 					};
 				};
 			};
-			buildConfigurationList = B5CC842C270498D700DFB13B /* Build configuration list for PBXProject "FunkoCollector" */;
+			buildConfigurationList = B5CC842C270498D700DFB13B /* Build configuration list for PBXProject "FunKollector" */;
 			compatibilityVersion = "Xcode 13.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -315,11 +351,14 @@
 				Base,
 			);
 			mainGroup = B5CC8428270498D700DFB13B;
+			packageReferences = (
+				BBBBF66C2D9DD4A3008CE85F /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
+			);
 			productRefGroup = B5CC8432270498D700DFB13B /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				B5CC8430270498D700DFB13B /* Fun Kollector */,
+				B5CC8430270498D700DFB13B /* FunKollector */,
 			);
 		};
 /* End PBXProject section */
@@ -329,8 +368,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				BB2B5B352D9354EE004461C4 /* Preview Assets.xcassets in Resources */,
-				BB1D1E8C2D983AAD00153BB4 /* animated-logo.gif in Resources */,
+				BBBBF6722D9DD9E2008CE85F /* animated-logo.gif in Resources */,
 				B5CC8439270498D800DFB13B /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -346,11 +384,13 @@
 				BB1D1E912D9A00C000153BB4 /* ModelHelpers.swift in Sources */,
 				BB2B5B2D2D920752004461C4 /* AsyncImageLoader.swift in Sources */,
 				BBBBF6412D9C0F58008CE85F /* CameraView.swift in Sources */,
+				BBBBF6682D9DA648008CE85F /* ProfileInfoViewModel.swift in Sources */,
 				BB1D1E882D98271500153BB4 /* ViewHelpers.swift in Sources */,
 				BBBBF6392D9B100D008CE85F /* FunkoModel.xcdatamodeld in Sources */,
 				BB1D1E8A2D983A5300153BB4 /* LaunchView.swift in Sources */,
 				BBBBF6472D9C10E2008CE85F /* WelcomeFeatureCard.swift in Sources */,
 				BB2B5B302D93296A004461C4 /* LazyGridViewModel.swift in Sources */,
+				BBBBF6762D9E10CF008CE85F /* AuthResponse.swift in Sources */,
 				BB62320A2D9190810048BF67 /* PhotoPreviewView.swift in Sources */,
 				B540F427271513860052A111 /* GeometryDemoView.swift in Sources */,
 				B5CC8437270498D700DFB13B /* LazyGridView.swift in Sources */,
@@ -364,13 +404,18 @@
 				BBBBF63C2D9C0B66008CE85F /* GIFView.swift in Sources */,
 				BBBBF6502D9C19D1008CE85F /* PremiumUnlockViewModel.swift in Sources */,
 				BBBBF6522D9C19D3008CE85F /* PremiumUnlockView.swift in Sources */,
+				BBBBF6662D9DA3CD008CE85F /* ProfileInfoView.swift in Sources */,
 				BB6232062D91901B0048BF67 /* Collectible.swift in Sources */,
 				B5CC84472704D02E00DFB13B /* AppIcons.swift in Sources */,
+				BBBBF6642D9D96A9008CE85F /* BaseRepository.swift in Sources */,
 				BBBBF64D2D9C12D2008CE85F /* DarkModeHelper.swift in Sources */,
 				BBBBF6572D9C58BF008CE85F /* AuthViewModel.swift in Sources */,
-				BB2B5B2E2D920A11004461C4 /* FunkoRepository.swift in Sources */,
+				BBBBF66B2D9DB053008CE85F /* ProfileImagePicker.swift in Sources */,
+				BB2B5B2E2D920A11004461C4 /* CollectiblesRepository.swift in Sources */,
 				BBBBF6592D9C58CF008CE85F /* AuthView.swift in Sources */,
+				BBBBF65F2D9D948C008CE85F /* UserProfile.swift in Sources */,
 				BBBBF64B2D9C1279008CE85F /* Testimonial.swift in Sources */,
+				BBBBF6612D9D9597008CE85F /* UserProfileRepository.swift in Sources */,
 				BBBBF6492D9C11D7008CE85F /* KeychainHelper.swift in Sources */,
 				BB6232082D9190480048BF67 /* PhotoPreviewViewModel.swift in Sources */,
 			);
@@ -508,7 +553,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"Preview Assets\"";
+				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = KUK9NFG3B7;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -525,7 +570,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.swiftandtips.FunkoCollector;
+				PRODUCT_BUNDLE_IDENTIFIER = com.swipeless.FunKollector;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -540,7 +585,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"Preview Assets\"";
+				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = KUK9NFG3B7;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -557,7 +602,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.swiftandtips.FunkoCollector;
+				PRODUCT_BUNDLE_IDENTIFIER = com.swipeless.FunKollector;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -568,7 +613,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		B5CC842C270498D700DFB13B /* Build configuration list for PBXProject "FunkoCollector" */ = {
+		B5CC842C270498D700DFB13B /* Build configuration list for PBXProject "FunKollector" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				B5CC843D270498D800DFB13B /* Debug */,
@@ -577,7 +622,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		B5CC843F270498D800DFB13B /* Build configuration list for PBXNativeTarget "Fun Kollector" */ = {
+		B5CC843F270498D800DFB13B /* Build configuration list for PBXNativeTarget "FunKollector" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				B5CC8440270498D800DFB13B /* Debug */,
@@ -587,6 +632,30 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		BBBBF66C2D9DD4A3008CE85F /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/google/GoogleSignIn-iOS";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 8.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		BBBBF66D2D9DD4A3008CE85F /* GoogleSignIn */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = BBBBF66C2D9DD4A3008CE85F /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
+			productName = GoogleSignIn;
+		};
+		BBBBF66F2D9DD4A3008CE85F /* GoogleSignInSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = BBBBF66C2D9DD4A3008CE85F /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
+			productName = GoogleSignInSwift;
+		};
+/* End XCSwiftPackageProductDependency section */
 
 /* Begin XCVersionGroup section */
 		BBBBF6372D9B100D008CE85F /* FunkoModel.xcdatamodeld */ = {

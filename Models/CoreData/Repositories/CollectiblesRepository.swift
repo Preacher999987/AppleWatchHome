@@ -7,29 +7,7 @@
 
 import CoreData
 
-class CollectiblesRepository {
-    private static let persistentContainer: NSPersistentContainer = {
-        let container = NSPersistentContainer(name: "FunkoModel")
-        container.loadPersistentStores { description, error in
-            if let error = error {
-                fatalError("Unable to load persistent stores: \(error)")
-            }
-        }
-        return container
-    }()
-    
-    private static var context: NSManagedObjectContext {
-        return persistentContainer.viewContext
-    }
-    
-    // MARK: - CoreData Operations
-    
-    private static func saveContext() throws {
-        if context.hasChanges {
-            try context.save()
-        }
-    }
-    
+class CollectiblesRepository: BaseRepository {    
     // MARK: - CRUD Operations
     
     static func loadItems() throws -> [Collectible] {

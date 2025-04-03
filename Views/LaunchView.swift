@@ -6,6 +6,8 @@
 //
 
 import SwiftUI
+import GoogleSignIn
+
 // MARK: - Main App
 @main
 struct FunkoCollector: App {
@@ -15,6 +17,14 @@ struct FunkoCollector: App {
         WindowGroup {
             LaunchView()
                 .environmentObject(AppState())
+                .onOpenURL { url in
+                          GIDSignIn.sharedInstance.handle(url)
+                        }
+                .onAppear {
+                          GIDSignIn.sharedInstance.restorePreviousSignIn { user, error in
+                            // Check if `user` exists; otherwise, do something with `error`
+                          }
+                        }
         }
         .environmentObject(navCoordinator)
     }

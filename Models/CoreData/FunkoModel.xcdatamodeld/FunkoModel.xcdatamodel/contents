@@ -21,4 +21,13 @@
         <attribute name="searchNoBgImageNudity" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="searchNoBgImageUrl" optional="YES" attributeType="String"/>
     </entity>
+    <entity name="UserProfileEntity" representedClassName="UserProfileEntity" syncable="YES" codeGenerationType="class">
+        <attribute name="email" optional="YES" attributeType="String"/>
+        <attribute name="lastUpdated" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="profileImageData" optional="YES" attributeType="Binary"/>
+        <attribute name="profilePicture" optional="YES" attributeType="String"/>
+        <attribute name="referralCode" optional="YES" attributeType="String"/>
+        <attribute name="uid" optional="YES" attributeType="String"/>
+        <attribute name="username" optional="YES" attributeType="String"/>
+    </entity>
 </model>

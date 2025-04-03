@@ -5,8 +5,8 @@
 //  Created by Home on 29.03.2025.
 //
 
-import UIKit
 import SwiftUI
+import GoogleSignInSwift
 
 struct ViewHelpers {
     static func hapticFeedback() {
@@ -81,5 +81,29 @@ class NavigationCoordinator: ObservableObject {
     
     func push(_ route: String) {
         path.append(route)
+    }
+}
+
+struct ShareSheet: UIViewControllerRepresentable {
+    var activityItems: [Any]
+    
+    func makeUIViewController(context: Context) -> UIActivityViewController {
+        let controller = UIActivityViewController(
+            activityItems: activityItems,
+            applicationActivities: nil
+        )
+        return controller
+    }
+    
+    func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
+}
+
+extension View {
+    func getRootViewController() -> UIViewController? {
+        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+              let rootViewController = windowScene.windows.first?.rootViewController else {
+            return nil
+        }
+        return rootViewController
     }
 }

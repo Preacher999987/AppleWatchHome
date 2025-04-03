@@ -23,7 +23,7 @@ class LazyGridViewModel: ObservableObject {
     func getRelated(for itemId: String, completion: @escaping ([Collectible]) -> Void) {
         isLoading = true
         
-        guard let relatedSubject = try? FunkoRepository.item(by: itemId),
+        guard let relatedSubject = try? CollectiblesRepository.item(by: itemId),
               let encodedQuery = relatedSubject.querySubject?.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) else {
             isLoading = false
             completion([]) // Return empty array on failure

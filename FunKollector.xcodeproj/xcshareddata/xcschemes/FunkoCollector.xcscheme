@@ -16,9 +16,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "B5CC8430270498D700DFB13B"
-               BuildableName = "Fun Kollector.app"
-               BlueprintName = "Fun Kollector"
-               ReferencedContainer = "container:FunkoCollector.xcodeproj">
+               BuildableName = "FunKollector.app"
+               BlueprintName = "FunKollector"
+               ReferencedContainer = "container:FunKollector.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -45,9 +45,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "B5CC8430270498D700DFB13B"
-            BuildableName = "Fun Kollector.app"
-            BlueprintName = "Fun Kollector"
-            ReferencedContainer = "container:FunkoCollector.xcodeproj">
+            BuildableName = "FunKollector.app"
+            BlueprintName = "FunKollector"
+            ReferencedContainer = "container:FunKollector.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -62,9 +62,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "B5CC8430270498D700DFB13B"
-            BuildableName = "Fun Kollector.app"
-            BlueprintName = "Fun Kollector"
-            ReferencedContainer = "container:FunkoCollector.xcodeproj">
+            BuildableName = "FunKollector.app"
+            BlueprintName = "FunKollector"
+            ReferencedContainer = "container:FunKollector.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

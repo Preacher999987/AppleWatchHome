@@ -23,6 +23,8 @@ class AppState: ObservableObject {
     
     @Published var showAuthView = false
     
+    @Published var showProfileInfo = false
+    
     @AppStorage("showSearchResultsInteractiveTutorial")
     var showSearchResultsInteractiveTutorial: Bool = true
 }

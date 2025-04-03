@@ -7,7 +7,7 @@
 
 import CoreData
 
-class UserProfileRepository {
+class UserProfileRepository: BaseRepository {
     // MARK: - User Profile Operations
     static func saveUserProfile(_ profile: UserProfile) throws {
         let request: NSFetchRequest<UserProfileEntity> = UserProfileEntity.fetchRequest()
@@ -21,9 +21,12 @@ class UserProfileRepository {
         // Create new profile
         let entity = UserProfileEntity(context: context)
         entity.uid = profile.uid
+        entity.email = profile.email
         entity.username = profile.username
         entity.referralCode = profile.referralCode
         entity.lastUpdated = Date()
+        entity.profilePicture = profile.profilePicture
+        entity.profileImageData = profile.profileImageData
         
         try saveContext()
     }
@@ -39,8 +42,11 @@ class UserProfileRepository {
         
         return UserProfile(
             uid: entity.uid ?? "",
-            username: entity.username ?? "",
-            referralCode: entity.referralCode ?? ""
+            username: entity.username,
+            email: entity.email,
+            referralCode: entity.referralCode ?? "",
+            profileImageData: entity.profileImageData,
+            profilePicture: entity.profilePicture
         )
     }
     
@@ -52,6 +58,18 @@ class UserProfileRepository {
             context.delete(profile)
         }
         
+        try saveContext()
+    }
+    
+    static func updateProfileImage(_ imageData: Data) throws {
+        let request: NSFetchRequest<UserProfileEntity> = UserProfileEntity.fetchRequest()
+        request.fetchLimit = 1
+        
+        guard let entity = try context.fetch(request).first else {
+            throw NSError(domain: "No user found", code: 0)
+        }
+        
+        entity.profileImageData = imageData
         try saveContext()
     }
 }

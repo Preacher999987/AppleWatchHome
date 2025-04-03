@@ -17,6 +17,7 @@ class KeychainHelper {
         return false
     }
     
+    @discardableResult
     static func save(service: String = "funko-auth", account: String = "current-user", token: String) -> Bool {
         guard let data = token.data(using: .utf8) else { return false }
         
@@ -73,6 +74,10 @@ class KeychainHelper {
         SecItemDelete(tokenQuery as CFDictionary)
         
         // Remove any other user-related keychain items
-        // ...
+        // Remove auth token
+        delete(service: "funko-auth", account: "current-user")
+        
+        // Clear user profile
+        try? UserProfileRepository.deleteUserProfile()
     }
 }

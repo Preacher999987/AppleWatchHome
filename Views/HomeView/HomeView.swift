@@ -226,7 +226,7 @@ struct HomeView: View {
             payload: $analysisResult,
             dismissAction: {
                 resetToInitialState()
-                if let result = try? FunkoRepository.loadItems(), !result.isEmpty {
+                if let result = try? CollectiblesRepository.loadItems(), !result.isEmpty {
                     prepareCollectionView(with: result)
                 }
             },
@@ -241,18 +241,37 @@ struct HomeView: View {
     
     private var userProfileButton: some View {
         Group {
-            if KeychainHelper.hasValidToken() {
-                Menu {
-                    Button(role: .destructive, action: {
+            if let profile = try? UserProfileRepository.getCurrentUserProfile() {
+                Button(action: {
+                    withAnimation {
+                        appState.showProfileInfo.toggle()
+                    }
+                }) {
+                    if let image = profile.profileImage {
+                        Image(uiImage: image)
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 32, height: 32)
+                            .clipShape(Circle())
+                            .overlay(
+                                Circle()
+                                    .stroke(Color.appPrimary, lineWidth: 2)
+                            )
+                    } else {
+                        Image(systemName: "person.circle.fill")
+                            .font(.system(size: 24))
+                            .foregroundColor(.appPrimary)
+                            .overlay(
+                                Circle()
+                                    .stroke(Color.appPrimary, lineWidth: 2)
+                            )
+                    }
+                }
+                .sheet(isPresented: $appState.showProfileInfo) {
+                    ProfileInfoView() {
                         KeychainHelper.logout()
                         resetToInitialState()
-                    }) {
-                        Label("Sign Out", systemImage: "rectangle.portrait.and.arrow.right")
                     }
-                } label: {
-                    Image(systemName: "person.circle.fill")
-                        .font(.system(size: 32))
-                        .foregroundColor(.appPrimary)
                 }
             } else {
                 Button(action: {
@@ -325,7 +344,7 @@ struct HomeView: View {
         }
         
         withAnimation(.easeOut) {
-            if let result = try? FunkoRepository.loadItems() {
+            if let result = try? CollectiblesRepository.loadItems() {
                 analysisResult = result
             }
             appState.openMyCollection = true

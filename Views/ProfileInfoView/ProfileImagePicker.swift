@@ -1,3 +1,12 @@
+//
+//  ProfileImagePicker.swift
+//  Fun Kollector
+//
+//  Created by Home on 02.04.2025.
+//
+
+import SwiftUI
+
 struct ProfileImagePicker: UIViewControllerRepresentable {
     @Binding var selectedImage: UIImage?
     @Environment(\.presentationMode) private var presentationMode

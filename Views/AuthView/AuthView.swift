@@ -8,6 +8,8 @@
 
 import SwiftUI
 import AuthenticationServices
+import GoogleSignInSwift
+import GoogleSignIn
 
 struct AuthView: View {
     @Environment(\.dismiss) var dismiss
@@ -133,11 +135,7 @@ struct AuthView: View {
             
             // Continue Button
             Button(action: {
-                viewModel.signIn { result in
-                    if case .success = result {
-                        showSuccessCheckmark = true
-                    }
-                }
+                viewModel.signIn(completion: processSignInResult)
             }) {
                 if viewModel.isLoading {
                     ProgressView()
@@ -168,33 +166,18 @@ struct AuthView: View {
             
             // Social Sign In
             VStack(spacing: 12) {
-                SignInWithAppleButton(.signIn) { request in
-                    // Configure request
-                } onCompletion: { result in
-                    // Handle completion
-                }
+                SignInWithAppleButton(.signIn,
+                                      onRequest: { request in
+                    request.requestedScopes = [.fullName, .email]
+                },
+                                      onCompletion: appleSignInButtonTapped)
                 .frame(height: 50)
                 .cornerRadius(8)
                 
-                Button(action: {
-                    // Google sign in
-                }) {
-                    HStack {
-                        Image("google-logo") // Add your Google logo asset
-                            .resizable()
-                            .scaledToFit()
-                            .frame(height: 20)
-                        Text("Sign in with Google")
-                            .foregroundColor(.primary)
-                    }
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 50)
-                    .background(Color(.systemBackground))
+                GoogleSignInButton(viewModel: GoogleSignInButtonViewModel(style: .wide),
+                                    action: googleSignInButtonTapped)
                     .cornerRadius(8)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 8)
-                            .stroke(Color.gray.opacity(0.3), lineWidth: 1))
-                }
+                    
             }
         }
     }
@@ -203,11 +186,11 @@ struct AuthView: View {
         VStack(spacing: 20) {
             // Full Name Field
             VStack(alignment: .leading, spacing: 8) {
-                Text("Full Name")
+                Text("Username")
                     .font(.subheadline)
                     .foregroundColor(.secondary)
                 
-                TextField("Enter your full name", text: $viewModel.fullName)
+                TextField("Enter your username", text: $viewModel.username)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
                     .autocapitalization(.words)
             }
@@ -261,13 +244,7 @@ struct AuthView: View {
             
             // Create Account Button
             Button(action: {
-                viewModel.signUp { result in
-                    if case .success = result {
-                        withAnimation {
-                            showSuccessCheckmark = true
-                        }
-                    }
-                }
+                viewModel.signUp(completion: processSignInResult)
             }) {
                 if viewModel.isLoading {
                     ProgressView()
@@ -277,7 +254,7 @@ struct AuthView: View {
                 }
             }
             .buttonStyle(PrimaryButtonStyle())
-            .disabled(viewModel.email.isEmpty || viewModel.password.isEmpty || viewModel.fullName.isEmpty || viewModel.isLoading)
+            .disabled(viewModel.email.isEmpty || viewModel.password.isEmpty || viewModel.username.isEmpty || viewModel.isLoading)
             
             // Separator
             HStack {
@@ -327,6 +304,30 @@ struct AuthView: View {
                 }
             }
         }
+    }
+    
+    fileprivate func processSignInResult(_ result: Result<Bool, any Error>) {
+        if case .success = result {
+            withAnimation {
+                showSuccessCheckmark = true
+            }
+        }
+    }
+    
+    private func googleSignInButtonTapped() {
+        guard let rootViewController = getRootViewController() else {
+            print("Could not find root view controller")
+            return
+        }
+        
+        GIDSignIn.sharedInstance.signIn(
+            withPresenting: rootViewController) {
+                viewModel.googleSignInButtonTapped($0, $1, completion: processSignInResult)
+            }
+    }
+    
+    private func appleSignInButtonTapped(_ result: Result<ASAuthorization, any Error>) {
+        viewModel.appleSignInButtonTapped(result, completion: processSignInResult)
     }
 }
 

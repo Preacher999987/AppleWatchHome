@@ -309,7 +309,7 @@ struct LazyGridGalleryView: View {
         do {
             // Add all current payload items to Collection
             try payload.forEach { item in
-                try FunkoRepository.addItem(item)
+                try CollectiblesRepository.addItem(item)
             }
             
             dismissActionWrapped()
@@ -429,7 +429,7 @@ struct LazyGridGalleryView: View {
         withAnimation(.easeOut(duration: 0.3)) {
             if let index = selectedItem {
                 // Remove the item from the data source
-                try? FunkoRepository.deleteItem(for: payload[index].id)
+                try? CollectiblesRepository.deleteItem(for: payload[index].id)
                 payload.remove(at: index)
                 // Reset selection
                 selectedItem = nil
@@ -699,7 +699,7 @@ struct LazyGridGalleryView: View {
             updatedItem.attributes.relatedSubjects?.append(newSubject)
         }
         
-        try? FunkoRepository.updateItem(updatedItem)
+        try? CollectiblesRepository.updateItem(updatedItem)
         payload[index] = updatedItem
         seeMissingPopsAction(updatedItem)
     }
@@ -1065,7 +1065,7 @@ struct LazyGridGalleryView: View {
                         payload[selectedIndex].id == currentItemId {
                         
                         do {
-                            try FunkoRepository.updateGallery(by: currentItemId, galleryImages: images)
+                            try CollectiblesRepository.updateGallery(by: currentItemId, galleryImages: images)
                             payload[selectedIndex].attributes.images.gallery = images
                             print("Successfully updated gallery for item: \(payload[selectedIndex].attributes.name)")
                         } catch {
@@ -1089,7 +1089,7 @@ struct LazyGridGalleryView: View {
                 isLoadingRelated = false
                 
                 // Process new items with inCollection flag
-                let myCollection = (try? FunkoRepository.loadItems()) ?? []
+                let myCollection = (try? CollectiblesRepository.loadItems()) ?? []
                 let newItems = items.compactMap { newItem -> Collectible? in
                     // Skip duplicates
                     guard !payload.contains(where: { $0.id == newItem.id }) else {

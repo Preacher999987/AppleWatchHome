@@ -121,7 +121,7 @@ struct PremiumUnlockView: View {
                                     Text("Start Free Trial")
                                         .font(.headline.weight(.semibold))
                                 }
-                                .foregroundColor(.white)
+                                .foregroundColor(.black)
                                 .frame(maxWidth: .infinity)
                                 .frame(height: 44)
                                 .background(Color.appPrimary)
