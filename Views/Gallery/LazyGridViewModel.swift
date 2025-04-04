@@ -156,11 +156,11 @@ class LazyGridViewModel: ObservableObject {
         // Prepare request body
         var body: [String: Any] = [
             "method": method.rawValue,
-            "items": itemIds,
+            "itemIds": itemIds,
             "uid": uid
         ]
         if method == .update,
-            let itemToUpdate = collectible?.toDictionary() {
+           let itemToUpdate = collectible?.toDictionary() {
             body["itemToUpdate"] = collectible?.toDictionary()
         }
         
@@ -219,5 +219,8 @@ class LazyGridViewModel: ObservableObject {
     
     func updateGallery(by itemId: String, galleryImages: [ImageData]) throws {
         try CollectiblesRepository.updateGallery(by: itemId, galleryImages: galleryImages)
+        if let itemToUpdate = try? CollectiblesRepository.item(by: itemId) {
+            manageCollection(itemIds: [itemId], method: .update, collectible: itemToUpdate) { _ in }
+        }
     }
 }
