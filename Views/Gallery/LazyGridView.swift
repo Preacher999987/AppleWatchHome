@@ -251,7 +251,7 @@ struct LazyGridGalleryView: View {
             }
             
             Button(action: {
-//                addNewItemTapped(.manually)
+                //                addNewItemTapped(.manually)
                 showManualEntryView = true
             }) {
                 Label("Add Manually", systemImage: "keyboard")
@@ -551,61 +551,158 @@ struct LazyGridGalleryView: View {
                 .offset(y: !isFullScreen ? 40 : 0)
             }
         }
-            .frame(height: UIScreen.main.bounds.height*0.5)
+            .frame(height: UIScreen.main.bounds.height*0.45)
             .matchedGeometryEffect(id: index, in: animationNamespace)
         
         // Details View
-        let detailsView = VStack(spacing: 10) {
-            detailRow(title: "ITEM:", value: currentItem.attributes.name)
-            detailRow(title: "VALUE:", value: currentItem.estimatedValue ?? "-")
-            detailRow(title: "RELEASE:", value: currentItem.attributes.dateFrom ?? "-")
-            detailRow(
-                title: "STATUS:",
-                value: {
-                    let statusText = currentItem.attributes.productionStatus?
-                        .joined(separator: ", ")
-                        .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-                    
-                    return !statusText.isEmpty ? statusText : "-"
-                }()
-            )
-            
-            detailRow(title: "REF #:", value: currentItem.attributes.refNumber ?? "-")
-            
-            let series = !currentItem.subject.isEmpty ? currentItem.subject : "-"
-            detailRow(title: "SERIES:", value: series)
-            
-            if !appState.showAddToCollectionButton && !appState.openRelated {
-                viewRelatedButton(currentItem)
-            }
-        }
-            .padding(.vertical, 20)
-            .background(
-                ZStack {
-                    // Blur effect with vibrancy
-                    VisualEffectView(effect: UIBlurEffect(style: .systemUltraThinMaterialDark))
-                    
-                    // Subtle dark overlay for better contrast
-                    Color.black.opacity(0.2)
-                }
-                    .cornerRadius(20)
-            )
-            .cornerRadius(20)
-            .padding(.bottom, 60)
-            .padding(.horizontal, 20)
-        
         return VStack(spacing: 20) {
             carouselView
             if isFullScreen {
-                detailsView
+                detailsView(currentItem)
             }
         }
         .transition(.opacity)
         .onAppear {
             currentImageIndex = 0
+            isDetailsExpanded = false // Reset expansion state when view appears
+        }
+        .textFieldAlert(isPresented: $isInputFieldFocused, title: "PURCHASE PRICE", text: $editedText) {
+            // Save the edited value when done
+//            if title == "PURCHASE PRICE" {
+            guard let newPrice = Float(editedText) else {
+                return
+            }
+            
+            viewModel.purchasePriceUpdated(newPrice, for: currentItem)
+            payload[index].pricePaid = newPrice
+//            }
         }
     }
     
+    @State private var isDetailsExpanded = false
+    private let collapsedRowCount = 3 // Number of rows to show when collapsed
+    
+    // Modify the detailsView to be expandable
+    private func detailsView(_ currentItem: Collectible) -> some View {
+        ZStack{
+            // Details content
+            ScrollView() {
+                Group {
+                    HeaderView("General Info")
+                        .padding(.top, 16)
+                    detailRow(title: "ITEM:", value: currentItem.attributes.name)
+                    detailRow(title: "VALUE:", value: currentItem.estimatedValue ?? "-")
+                    detailRow(title: "RELEASE:", value: currentItem.attributes.dateFrom ?? "-")
+                    detailRow(
+                        title: "STATUS:",
+                        value: {
+                            let statusText = currentItem.attributes.productionStatus?
+                                .joined(separator: ", ")
+                                .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+                            
+                            return !statusText.isEmpty ? statusText : "-"
+                        }()
+                    )
+                    
+                    detailRow(title: "REF #:", value: currentItem.attributes.refNumber ?? "-")
+                    
+                    let series = !currentItem.subject.isEmpty ? currentItem.subject : "-"
+                    detailRow(title: "SERIES:", value: series)
+                    
+                    HeaderView("Acquisition Details")
+                        .padding(.top, 8)
+                    
+                    detailRow(title: "PURCHASE PRICE:",
+                              value: {
+                        var price = ""
+                        if let intPrice = currentItem.customAttributes?.pricePaid {
+                            price = String(intPrice)
+                        }
+                        
+                        return price
+                    }(),
+                              style: .input)
+                    
+                    detailRow(title: "PHOTOS:", value: "", style: .media)
+                    
+                }
+                //                .padding(.top, 8)
+                .padding(.bottom, 64)
+            }
+            //            .padding(.horizontal, 20)
+            //            .padding(.bottom, 16)
+            
+            
+            if !appState.showAddToCollectionButton && !appState.openRelated {
+                VStack {
+                    Spacer()
+                    viewRelatedButton(currentItem)
+                        .padding(.bottom, 20)
+                }
+            }
+            
+            // Add expand/collapse button in the top corner
+            VStack {
+                HStack {
+                    Spacer()
+                    Button(action: {
+                        withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+                            isDetailsExpanded.toggle()
+                        }
+                    }) {
+                        Image(systemName: isDetailsExpanded ? "chevron.up.circle.fill" : "chevron.down.circle.fill")
+                            .font(.system(size: 22))
+                            .foregroundColor(.white)
+                        //                            .padding(8)
+                            .opacity(0.8)
+                            .background(.black.opacity(0.5))
+                            .clipShape(Circle())
+                    }
+                }
+                .padding(.horizontal, 8)
+                .padding(.top, 8)
+                
+                Spacer()
+            }
+        }
+        .background(
+            ZStack {
+                // Blur effect with vibrancy
+                VisualEffectView(effect: UIBlurEffect(style: .systemUltraThinMaterialDark))
+                
+                // Subtle dark overlay for better contrast
+                Color.black.opacity(0.2)
+            }
+                .cornerRadius(20)
+        )
+        .cornerRadius(20)
+        .padding(.bottom, 60)
+        .padding(.horizontal, 20)
+        .frame(maxHeight: isDetailsExpanded ? .infinity : UIScreen.main.bounds.height*0.4) // Adjust height based on state
+        .animation(.spring(response: 0.3, dampingFraction: 0.8), value: isDetailsExpanded)
+    }
+    
+    // Separator
+    private func HeaderView(_ title: String) -> some View {
+        HStack {
+            Rectangle()
+                .frame(height: 1)
+                .foregroundColor(.appPrimary.opacity(0.3))
+                .layoutPriority(1) // Important for proper shrinking
+            
+            Text(title)
+                .font(.body)
+                .foregroundColor(.appPrimary)
+                .fixedSize() // Prevent text wrapping
+                .lineLimit(1) // Ensure single line
+            
+            Rectangle()
+                .frame(height: 1)
+                .foregroundColor(.appPrimary.opacity(0.3))
+                .layoutPriority(1) // Important for proper shrinking
+        }
+        .padding(.horizontal, 20)
+    }
     
     struct VisualEffectView: UIViewRepresentable {
         var effect: UIVisualEffect?
@@ -619,17 +716,64 @@ struct LazyGridGalleryView: View {
         }
     }
     
-    private func detailRow(title: String, value: String) -> some View {
+    @State private var editedText: String = ""
+    @State private var showImagePicker: Bool = false
+    @State private var isInputFieldFocused: Bool = false
+    
+    private func detailRow(title: String, value: String, style: DetailRowStyle = .regular) -> some View {
         HStack {
             Text(title)
-                .font(.headline)
-                .foregroundColor(.white)
+                .font(.body)
+                .foregroundColor(.secondary)
+            
             Spacer()
-            Text(value)
-                .font(.subheadline)
-                .foregroundColor(.white)
+            
+            switch style {
+            case .regular:
+                Text(value)
+                    .font(.body)
+                    .foregroundColor(.secondary)
+                
+            case .input:
+                Button(action: {
+                    withAnimation {
+                        editedText = value
+                        isInputFieldFocused = true
+                    }
+                }) {
+                    HStack(spacing: 8) {
+                        Text(value.isEmpty ? "-" : "\(Locale.current.currency?.identifier ?? "") \(value)")
+                            .font(.body)
+                            .foregroundColor(.secondary)
+                        Text(!value.isEmpty ? "Edit" : "Set")
+                            .font(.body)
+                            .foregroundColor(.appPrimary)
+                    }
+                }
+                
+            case .media:
+                Button(action: {
+                    showImagePicker = true
+                }) {
+                    if value == "0" {
+                        Text("Add Your Photos")
+                            .font(.body)
+                            .foregroundColor(.appPrimary)
+                    } else {
+                        HStack(spacing: 8) {
+                            Text("(\(value))")
+                                .font(.body)
+                                .foregroundColor(.secondary)
+                            Text("Edit")
+                                .font(.body)
+                                .foregroundColor(.appPrimary)
+                        }
+                    }
+                }
+            }
         }
         .padding(.horizontal, 20)
+        .padding(.vertical, 4)
     }
     
     private func viewRelatedButton(_ currentItem: Collectible) -> some View {
@@ -671,7 +815,7 @@ struct LazyGridGalleryView: View {
             }
         }
     }
-
+    
     // Extracted button label for consistency
     private var menuButtonLabel: some View {
         Text("See More in This Series")
@@ -686,7 +830,7 @@ struct LazyGridGalleryView: View {
                     .stroke(Color.appPrimary, lineWidth: 2)
             )
     }
-
+    
     // Extracted subject selection logic
     private func handleSubjectSelection(_ subject: RelatedSubject, for currentItem: Collectible) {
         guard let index = payload.firstIndex(where: { $0.id == currentItem.id }) else { return }
@@ -970,7 +1114,7 @@ struct LazyGridGalleryView: View {
                             VisualEffectView(effect: UIBlurEffect(style: .systemUltraThinMaterialDark))
                             Color.black.opacity(0.2)
                         }
-                        .cornerRadius(20)
+                            .cornerRadius(20)
                     )
                     .frame(width: 320)
                     .onAppear {
@@ -1102,7 +1246,7 @@ struct LazyGridGalleryView: View {
         guard !payload.isEmpty else { return }
         
         viewModel.getRelated(for: payload[0].id) { items in
-            DispatchQueue.main.async {                
+            DispatchQueue.main.async {
                 // Process new items with inCollection flag
                 let myCollection = viewModel.loadMyCollection()
                 

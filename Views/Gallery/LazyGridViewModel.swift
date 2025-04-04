@@ -223,4 +223,12 @@ class LazyGridViewModel: ObservableObject {
             manageCollection(itemIds: [itemId], method: .update, collectible: itemToUpdate) { _ in }
         }
     }
+    
+    func purchasePriceUpdated(_ price: Float, for item: Collectible) {
+        var itemToUpdate = item
+        itemToUpdate.pricePaid = price
+        
+        try? CollectiblesRepository.updateItem(itemToUpdate)
+        manageCollection(itemIds: [item.id], method: .update, collectible: itemToUpdate) { _ in }
+    }
 }

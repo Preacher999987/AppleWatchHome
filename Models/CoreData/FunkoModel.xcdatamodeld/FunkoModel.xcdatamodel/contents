@@ -12,6 +12,7 @@
         <attribute name="mainImageInsensitive" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="mainImageNudity" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="mainImageUrl" optional="YES" attributeType="String"/>
+        <attribute name="pricePaid" optional="YES" attributeType="Float" defaultValueString="0.0" usesScalarValueType="YES"/>
         <attribute name="productionStatus" optional="YES" attributeType="Binary"/>
         <attribute name="relatedSubjects" optional="YES" attributeType="Binary"/>
         <attribute name="searchImageInsensitive" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>

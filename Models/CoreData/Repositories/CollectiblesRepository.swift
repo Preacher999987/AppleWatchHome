@@ -17,10 +17,15 @@ class CollectiblesRepository: BaseRepository {
     }
     
     static func addItems(_ items: [Collectible]) throws {
-        // Create all entities first
-        items.forEach { item in
+        // Fetch all existing entities first
+        let existingIds = try loadItems().map { $0.id }
+        
+        // Add only the items that are not already present
+        items.forEach {
+            guard !existingIds.contains($0.id) else { return }
+            
             let entity = CollectibleEntity(context: context)
-            entity.update(with: item)
+            entity.update(with: $0)
         }
         
         // Save all changes in a single operation
@@ -111,6 +116,9 @@ extension CollectibleEntity {
             self.searchNoBgImageNudity = searchNoBgImage.nudity
             self.searchNoBgImageInsensitive = searchNoBgImage.insensitive
         }
+        if let pricePaid = collectible.customAttributes?.pricePaid {
+            self.pricePaid = pricePaid
+        }
         
         // Handle array-type attributes
         self.galleryImages = collectible.attributes.images.gallery.flatMap { try? JSONEncoder().encode($0) }
@@ -178,9 +186,12 @@ extension CollectibleEntity {
             refNumber: attrRefNumber
         )
         
+        let customAttributes = CustomAttributes(pricePaid: pricePaid)
+        
         return Collectible(
             id: id,
             attributes: attributes,
+            customAttributes: customAttributes,
             inCollection: inCollection
         )
     }

@@ -107,3 +107,87 @@ extension View {
         return rootViewController
     }
 }
+
+// First, add this enum above your view struct
+enum DetailRowStyle {
+    case regular
+    case input
+    case media
+}
+
+// Helper view for text input
+struct TextFieldAlert<Presenting>: View where Presenting: View {
+    @Binding var isPresented: Bool
+    let presenting: Presenting
+    let title: String
+    @Binding var text: String
+    let onSave: () -> Void
+    
+    var body: some View {
+        ZStack {
+            presenting
+            
+            if isPresented {
+                VStack {
+                    Text(title)
+                        .font(.headline)
+                        .foregroundColor(.appPrimary)
+                        .padding()
+                    
+                    TextField("Enter Purchase Price", text: $text)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .padding()
+                    
+                    HStack {
+                        Button("Cancel") {
+                            withAnimation {
+                                isPresented = false
+                            }
+                        }
+                        .tint(.appPrimary)
+                        
+                        Spacer()
+                        
+                        Button("Save") {
+                            onSave()
+                            withAnimation {
+                                isPresented = false
+                            }
+                        }
+                        .font(.headline)
+                        .tint(.appPrimary)
+                    }
+                    .padding()
+                }
+                .background(
+                    ZStack {
+                        VisualEffectView(effect: UIBlurEffect(style: .systemUltraThinMaterialDark))
+                        Color.black.opacity(0.2)
+                    }
+                        .cornerRadius(20)
+                )
+                .frame(width: 300, height: 200)
+                .cornerRadius(20)
+                .shadow(radius: 10)
+                .zIndex(1)
+            }
+        }
+    }
+}
+
+extension View {
+    func textFieldAlert(
+        isPresented: Binding<Bool>,
+        title: String,
+        text: Binding<String>,
+        onSave: @escaping () -> Void
+    ) -> some View {
+        TextFieldAlert(
+            isPresented: isPresented,
+            presenting: self,
+            title: title,
+            text: text,
+            onSave: onSave
+        )
+    }
+}

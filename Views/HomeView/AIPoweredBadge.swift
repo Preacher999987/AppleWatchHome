@@ -11,7 +11,7 @@ struct AIPoweredBadge: View {
     var body: some View {
         Label {
             Text("AI-Powered")
-                .font(.system(size: 14, weight: .bold))
+                .font(.system(size: 12, weight: .semibold))
         } icon: {
             Image(systemName: "sparkles")
         }

@@ -103,9 +103,15 @@ struct CollectibleAttributes: Codable, Hashable {
         }
 }
 
+struct CustomAttributes: Codable, Hashable {
+    var pricePaid: Float?
+    var userPhotos: [ImageData]?
+}
+
 struct Collectible: Codable, Hashable {
     let id: String
     var attributes: CollectibleAttributes
+    var customAttributes: CustomAttributes?
     var inCollection: Bool = true
     
     // Computed variables
@@ -113,6 +119,16 @@ struct Collectible: Codable, Hashable {
     var searchImageNoBgUrl: String { attributes.images.searchNoBg?.url ?? "" }
     var mainImageUrl: String { attributes.images.main?.url ?? "" }
     var gallery: [ImageData] { attributes.images.gallery ?? [] }
+    
+    var pricePaid: Float? {
+        didSet {
+            if customAttributes == nil {
+                customAttributes = CustomAttributes()
+            }
+            
+                customAttributes?.pricePaid = pricePaid
+        }
+    }
     
     var subject: String {
         attributes.relatedSubjects?
@@ -157,6 +173,10 @@ struct Collectible: Codable, Hashable {
         var dict: [String: Any] = [
             "id": id,
             "inCollection": inCollection,
+            "custom_attributes": [
+                "price_paid": customAttributes?.pricePaid as Any,
+                "user_photos": customAttributes?.userPhotos?.map { $0.url } as Any
+            ],
             "attributes": [
                 "name": attributes.name,
                 "estimated_value": attributes._estimatedValue as Any,
@@ -199,9 +219,10 @@ struct Collectible: Codable, Hashable {
         inCollection = (try? container.decode(Bool.self, forKey: .inCollection)) ?? true
     }
     
-    init(id: String, attributes: CollectibleAttributes, inCollection: Bool) {
+    init(id: String, attributes: CollectibleAttributes, customAttributes: CustomAttributes, inCollection: Bool) {
         self.id = id
         self.attributes = attributes
+        self.customAttributes = customAttributes
         self.inCollection = inCollection
     }
     
