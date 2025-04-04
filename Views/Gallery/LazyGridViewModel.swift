@@ -10,8 +10,11 @@ import Foundation
 
 // LazyGridViewModel.swift
 class LazyGridViewModel: ObservableObject {
-    @Published var isLoading = false
+    @Published var showLoadingIndicator = false
+    @Published var errorMessage: String?
+    
     private let baseUrl = "http://192.168.1.17:3000"
+    
     func getGridItemUrl(from item: Collectible) -> URL? {
         let stringUrl = !item.searchImageNoBgUrl.isEmpty
         ? baseUrl + item.searchImageNoBgUrl
@@ -21,43 +24,74 @@ class LazyGridViewModel: ObservableObject {
     }
     
     func getRelated(for itemId: String, completion: @escaping ([Collectible]) -> Void) {
-        isLoading = true
+        showLoadingIndicator = true
         
-        guard let relatedSubject = try? CollectiblesRepository.item(by: itemId),
-              let encodedQuery = relatedSubject.querySubject?.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) else {
-            isLoading = false
-            completion([]) // Return empty array on failure
+        // Validate inputs
+        guard let querySubject = try? CollectiblesRepository.item(by: itemId)?.querySubject,
+              let encodedQuery = querySubject.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) else {
+            showLoadingIndicator = false
+            errorMessage = NetworkError.invalidQuery.userFacingMessage
             return
         }
         
-        let url = URL(string: "http://192.168.1.17:3000/related/\(encodedQuery)")!
+        // Create request
+        guard let url = URL(string: "http://192.168.1.17:3000/related/\(encodedQuery)") else {
+            showLoadingIndicator = false
+            errorMessage = NetworkError.invalidURL.userFacingMessage
+            return
+        }
         
-        URLSession.shared.dataTask(with: url) { [weak self] data, response, error in
+        var request = URLRequest(url: url)
+        
+        // Add authorization header
+        do {
+            try request.addAuthorizationHeader()
+        } catch {
+            showLoadingIndicator = false
+            errorMessage = (error as? AuthError)?.localizedDescription
+            return
+        }
+        
+        // Perform network request
+        URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
             DispatchQueue.main.async {
-                self?.isLoading = false
-            }
-            
-            guard let data = data else {
-                completion([]) // Return empty array on failure
-                return
-            }
-            
-            do {
-                let items = try JSONDecoder().decode([Collectible].self, from: data)
-                completion(items) // Return decoded items
-            } catch {
-                completion([]) // Return empty array on failure
+                self?.showLoadingIndicator = false
+                
+                // Handle network errors
+                if let error = error {
+                    self?.errorMessage = NetworkError.requestFailed(error).userFacingMessage
+                    return
+                }
+                
+                // Validate data exists
+                guard let data = data else {
+                    self?.errorMessage = NetworkError.noData.userFacingMessage
+                    return
+                }
+                
+                // Parse response
+                do {
+                    let items = try JSONDecoder().decode([Collectible].self, from: data)
+                    guard !items.isEmpty else {
+                        self?.errorMessage = NetworkError.noRelatedPopsFound(querySubject).userFacingMessage
+                        return
+                    }
+                    
+                    completion(items) // Return decoded items
+                } catch {
+                    self?.errorMessage = NetworkError.decodingFailed(error).userFacingMessage
+                }
             }
         }.resume()
     }
     
     func getGalleryImages(for id: String, completion: @escaping (Result<[ImageData], Error>) -> Void) {
-        isLoading = true
+        showLoadingIndicator = true
         
         // Construct URL with path parameter
         guard let apiUrl = URL(string: "http://192.168.1.17:3000/gallery/\(id)") else {
             completion(.failure(NSError(domain: "InvalidURL", code: -3, userInfo: nil)))
-            isLoading = false
+            showLoadingIndicator = false
             return
         }
         
@@ -67,7 +101,7 @@ class LazyGridViewModel: ObservableObject {
         
         URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
             DispatchQueue.main.async {
-                self?.isLoading = false
+                self?.showLoadingIndicator = false
             }
             
             if let error = error {
@@ -90,5 +124,100 @@ class LazyGridViewModel: ObservableObject {
             }
         }.resume()
     }
+    
+    func manageCollection(itemIds: [String], method: ManageCollectionMethod, collectible: Collectible? = nil, completion: @escaping (Result<Bool, Error>) -> Void
+    ) {
+        showLoadingIndicator = true
+        
+        // Construct the request URL
+        guard let url = URL(string: "\(baseUrl)/manage-collection") else {
+            showLoadingIndicator = false
+            errorMessage = NetworkError.invalidURL.userFacingMessage
+            completion(.failure(NetworkError.invalidURL))
+            return
+        }
+        
+        // Create the request
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        // Add authorization header
+        do {
+            try request.addAuthorizationHeader()
+        } catch {
+            showLoadingIndicator = false
+            errorMessage = (error as? AuthError)?.localizedDescription
+            completion(.failure(error))
+            return
+        }
+        
+        let uid = (try? UserProfileRepository.getCurrentUserProfile()?.uid) ?? ""
+        // Prepare request body
+        var body: [String: Any] = [
+            "method": method.rawValue,
+            "items": itemIds,
+            "uid": uid
+        ]
+        if method == .update,
+            let itemToUpdate = collectible?.toDictionary() {
+            body["itemToUpdate"] = collectible?.toDictionary()
+        }
+        
+        // Add JSON body
+        do {
+            request.httpBody = try JSONSerialization.data(withJSONObject: body)
+        } catch {
+            showLoadingIndicator = false
+            errorMessage = "Error creating request"
+            completion(.failure(error))
+            return
+        }
+        
+        // Perform the request
+        URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
+            DispatchQueue.main.async {
+                self?.showLoadingIndicator = false
+                
+                // Handle errors
+                if let error = error {
+                    self?.errorMessage = NetworkError.requestFailed(error).userFacingMessage
+                    completion(.failure(error))
+                    return
+                }
+                
+                // Check for successful response
+                guard let httpResponse = response as? HTTPURLResponse,
+                      (200...299).contains(httpResponse.statusCode) else {
+                    self?.errorMessage = NetworkError.serverError.userFacingMessage
+                    completion(.failure(NetworkError.serverError))
+                    return
+                }
+                
+                // Parse successful response
+                completion(.success(true))
+            }
+        }.resume()
+    }
+    
+    func loadMyCollection() -> [Collectible] {
+        (try? CollectiblesRepository.loadItems()) ?? []
+    }
+    
+    func addToCollection(_ items: [Collectible]) {
+        // Add all current payload items to Collection
+        try? CollectiblesRepository.addItems(items)
+    }
+    
+    func deleteItem(for id: String) {
+        try? CollectiblesRepository.deleteItem(for: id)
+    }
+    
+    func updateItem(_ item: Collectible) {
+        try? CollectiblesRepository.updateItem(item)
+    }
+    
+    func updateGallery(by itemId: String, galleryImages: [ImageData]) throws {
+        try CollectiblesRepository.updateGallery(by: itemId, galleryImages: galleryImages)
+    }
 }
-

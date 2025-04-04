@@ -24,7 +24,6 @@ struct LazyGridGalleryView: View {
     @State private var showEllipsisMenu = false
     
     @State private var showAddToCollectionConfirmation = false
-    @State private var isLoadingRelated = false
     // State property to manage gallery carousel
     @State private var currentImageIndex: Int = 0
     
@@ -307,18 +306,21 @@ struct LazyGridGalleryView: View {
         // Implement your Collection saving logic here
         print("Adding items to Collection: \(payload)")
         do {
-            // Add all current payload items to Collection
-            try payload.forEach { item in
-                try CollectiblesRepository.addItem(item)
+            let itemIds = payload.map { $0.id }
+            
+            viewModel.manageCollection(itemIds: itemIds, method: .add) { result in
+                if case .success = result {
+                    viewModel.addToCollection(payload)
+                    
+                    dismissActionWrapped()
+                    
+                    appState.openMyCollection = true
+                    appState.showPlusButton = true
+                    appState.showEllipsisButton = true
+                    appState.showCollectionButton = false
+                    appState.showAddToCollectionButton = false
+                }
             }
-            
-            dismissActionWrapped()
-            
-            appState.openMyCollection = true
-            appState.showPlusButton = true
-            appState.showEllipsisButton = true
-            appState.showCollectionButton = false
-            appState.showAddToCollectionButton = false
         } catch {
             //TODO: -
             print("Error saving to Collection:", error.localizedDescription)
@@ -426,13 +428,20 @@ struct LazyGridGalleryView: View {
     
     private func confirmDeletion() {
         showDeleteConfirmation = false
-        withAnimation(.easeOut(duration: 0.3)) {
-            if let index = selectedItem {
-                // Remove the item from the data source
-                try? CollectiblesRepository.deleteItem(for: payload[index].id)
-                payload.remove(at: index)
-                // Reset selection
-                selectedItem = nil
+        if let index = selectedItem {
+            let itemId = payload[index].id
+            viewModel.manageCollection(itemIds: [itemId], method: .delete) { result in
+                // NOTE: Errors are handled by the ViewModel before reaching the completion handler
+                if case .success = result {
+                    // Remove the item from the local repository
+                    withAnimation(.easeOut(duration: 0.3)) {
+                        viewModel.deleteItem(for: payload[index].id)
+                        
+                        payload.remove(at: index)
+                        // Reset selection
+                        selectedItem = nil
+                    }
+                }
             }
         }
     }
@@ -542,7 +551,7 @@ struct LazyGridGalleryView: View {
                 .offset(y: !isFullScreen ? 40 : 0)
             }
         }
-            .frame(height: UIScreen.main.bounds.height*0.6)
+            .frame(height: UIScreen.main.bounds.height*0.5)
             .matchedGeometryEffect(id: index, in: animationNamespace)
         
         // Details View
@@ -682,13 +691,13 @@ struct LazyGridGalleryView: View {
     private func handleSubjectSelection(_ subject: RelatedSubject, for currentItem: Collectible) {
         guard let index = payload.firstIndex(where: { $0.id == currentItem.id }) else { return }
         
-        var updatedItem = currentItem
+        var itemToUpdate = currentItem
         
-        if let existingIndex = updatedItem.attributes.relatedSubjects?
+        if let existingIndex = itemToUpdate.attributes.relatedSubjects?
             .firstIndex(where: { $0.type == .userSelectionPrimary }) {
             // Update existing
-            updatedItem.attributes.relatedSubjects?[existingIndex].name = subject.name
-            updatedItem.attributes.relatedSubjects?[existingIndex].url = subject.url
+            itemToUpdate.attributes.relatedSubjects?[existingIndex].name = subject.name
+            itemToUpdate.attributes.relatedSubjects?[existingIndex].url = subject.url
         } else {
             // Add new
             let newSubject = RelatedSubject(
@@ -696,12 +705,13 @@ struct LazyGridGalleryView: View {
                 name: subject.name,
                 type: .userSelectionPrimary
             )
-            updatedItem.attributes.relatedSubjects?.append(newSubject)
+            itemToUpdate.attributes.relatedSubjects?.append(newSubject)
         }
         
-        try? CollectiblesRepository.updateItem(updatedItem)
-        payload[index] = updatedItem
-        seeMissingPopsAction(updatedItem)
+        viewModel.updateItem(itemToUpdate)
+        
+        payload[index] = itemToUpdate
+        seeMissingPopsAction(itemToUpdate)
     }
     
     var body: some View {
@@ -735,7 +745,7 @@ struct LazyGridGalleryView: View {
                     )
             }
             
-            if isLoadingRelated {
+            if viewModel.showLoadingIndicator {
                 ProgressView()
                     .scaleEffect(2)
                     .progressViewStyle(CircularProgressViewStyle(tint: .white))
@@ -783,7 +793,7 @@ struct LazyGridGalleryView: View {
             
             if let selectedItem = selectedItem {
                 fullScreenView(for: selectedItem)
-                    .offset(y: !isFullScreen ? UIScreen.main.bounds.height*0.5 : 0)  // Half of 300 to maintain visual balance
+                    .offset(y: !isFullScreen ? UIScreen.main.bounds.height*0.45 : 0)  // Half of 300 to maintain visual balance
             } else {
                 VStack {
                     Spacer()
@@ -812,6 +822,13 @@ struct LazyGridGalleryView: View {
                 showNavigationTitle = true
                 loadRelatedItems()
             }
+        }
+        .alert("Error", isPresented: .constant(viewModel.errorMessage != nil)) {
+            Button("OK", role: .cancel) {
+                viewModel.errorMessage = nil
+            }
+        } message: {
+            Text(viewModel.errorMessage ?? "")
         }
     }
     
@@ -1023,7 +1040,7 @@ struct LazyGridGalleryView: View {
     
     private func addToCollectionButtonTapped() {
         // Check if user is logged in
-        if KeychainHelper.hasValidToken() {
+        if KeychainHelper.hasValidJWTToken {
             // Existing collection saving logic
             showAddToCollectionConfirmation = true
         } else {
@@ -1065,7 +1082,8 @@ struct LazyGridGalleryView: View {
                         payload[selectedIndex].id == currentItemId {
                         
                         do {
-                            try CollectiblesRepository.updateGallery(by: currentItemId, galleryImages: images)
+                            try viewModel.updateGallery(by: currentItemId, galleryImages: images)
+                            
                             payload[selectedIndex].attributes.images.gallery = images
                             print("Successfully updated gallery for item: \(payload[selectedIndex].attributes.name)")
                         } catch {
@@ -1083,13 +1101,11 @@ struct LazyGridGalleryView: View {
     private func loadRelatedItems() {
         guard !payload.isEmpty else { return }
         
-        isLoadingRelated = true
         viewModel.getRelated(for: payload[0].id) { items in
-            DispatchQueue.main.async {
-                isLoadingRelated = false
-                
+            DispatchQueue.main.async {                
                 // Process new items with inCollection flag
-                let myCollection = (try? CollectiblesRepository.loadItems()) ?? []
+                let myCollection = viewModel.loadMyCollection()
+                
                 let newItems = items.compactMap { newItem -> Collectible? in
                     // Skip duplicates
                     guard !payload.contains(where: { $0.id == newItem.id }) else {

@@ -22,23 +22,27 @@ struct FunkoCollector: App {
                         }
                 .onAppear {
                           GIDSignIn.sharedInstance.restorePreviousSignIn { user, error in
-                            // Check if `user` exists; otherwise, do something with `error`
+                              // Check if `user` exists; otherwise, do something with `error`
                           }
-                        }
+                    
+                    UIView.appearance(whenContainedInInstancesOf: [UIAlertController.self])
+                        .tintColor = UIColor(Color.appPrimary)
+                    
+                }
         }
         .environmentObject(navCoordinator)
     }
 }
 
 struct LaunchView: View {
-    @State private var isActive = false
+    @State private var isActive = true
     @State private var showPremiumUnlockView = false
     @EnvironmentObject var appState: AppState
     
     var body: some View {
         Group {
             if isActive {
-                if KeychainHelper.hasValidToken() || appState.showHomeView {
+                if KeychainHelper.hasValidJWTToken || appState.showHomeView {
                     HomeView()
                         .environmentObject(appState)
                         .sheet(isPresented: $appState.showAuthView) {

@@ -338,7 +338,7 @@ struct HomeView: View {
     // MARK: - Actions
     
     private func loadCollection() {
-        guard KeychainHelper.hasValidToken() else {
+        guard KeychainHelper.hasValidJWTToken else {
             appState.showAuthView = true
             return
         }

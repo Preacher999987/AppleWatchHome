@@ -16,9 +16,14 @@ class CollectiblesRepository: BaseRepository {
         return entities.compactMap { $0.toCollectible() }
     }
     
-    static func addItem(_ item: Collectible) throws {
-        let entity = CollectibleEntity(context: context)
-        entity.update(with: item)
+    static func addItems(_ items: [Collectible]) throws {
+        // Create all entities first
+        items.forEach { item in
+            let entity = CollectibleEntity(context: context)
+            entity.update(with: item)
+        }
+        
+        // Save all changes in a single operation
         try saveContext()
     }
     

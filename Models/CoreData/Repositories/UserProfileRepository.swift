@@ -36,7 +36,7 @@ class UserProfileRepository: BaseRepository {
         request.sortDescriptors = [NSSortDescriptor(key: "lastUpdated", ascending: false)]
         request.fetchLimit = 1
         
-        guard let entity = try context.fetch(request).first else {
+        guard let entity = try? context.fetch(request).first else {
             return nil
         }
         

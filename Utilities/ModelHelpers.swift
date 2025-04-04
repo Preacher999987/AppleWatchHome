@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-import SwiftUI
+import CommonCrypto
 
 class AppState: ObservableObject {
     @Published var openMyCollection = false 
@@ -62,3 +62,60 @@ enum AddNewItemAction {
     case camera, manually, barcode, photoPicker
 }
 
+enum ManageCollectionMethod: String {
+    case add, update, delete
+}
+
+// MARK: - Security Helpers
+class CryptoUtils {
+    static func hashPassword(_ password: String) -> String? {
+        // 1. Prepare salt (in production, use unique salt per user)
+        let salt = "your_client_salt".data(using: .utf8)!
+        let passwordData = password.data(using: .utf8)!
+        
+        // 2. Convert Data to [UInt8] for CommonCrypto
+        let saltBytes = [UInt8](salt)
+        let passwordBytes = [UInt8](passwordData)
+        
+        // 3. Prepare output buffer
+        var hash = [UInt8](repeating: 0, count: Int(CC_SHA256_DIGEST_LENGTH))
+        
+        // 4. Perform key derivation
+        let status = CCKeyDerivationPBKDF(
+            CCPBKDFAlgorithm(kCCPBKDF2),
+            String(password),          // Convert to C string
+            passwordBytes.count,
+            saltBytes,                // Pass the byte array
+            saltBytes.count,
+            CCPseudoRandomAlgorithm(kCCPRFHmacAlgSHA256),
+            100_000,                  // Iteration count
+            &hash,
+            hash.count
+        )
+        
+        guard status == kCCSuccess else { return nil }
+        return Data(hash).base64EncodedString()
+    }
+    
+    static func generateNonce() -> String {
+        // Generate a random string for each request
+        let nonce = UUID().uuidString
+//        KeychainHelper.save(nonce, for: "lastAuthNonce")
+        return nonce
+    }
+    
+    static func loadSSLPins() -> [Data]? {
+        // Implement certificate pinning in production
+        return nil
+    }
+}
+
+extension URLRequest {
+    mutating func addAuthorizationHeader() throws {
+        if let jwtToken = KeychainHelper.jwtToken {
+            self.setValue("Bearer \(jwtToken)", forHTTPHeaderField: "Authorization")
+        } else {
+            throw AuthError.jwtTokenNotFound
+        }
+    }
+}

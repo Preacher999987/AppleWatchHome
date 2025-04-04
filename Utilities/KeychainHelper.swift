@@ -9,12 +9,13 @@ import SwiftUICore
 import Security
 
 class KeychainHelper {
-    static func hasValidToken() -> Bool {
+    static var hasValidJWTToken: Bool {
+        !(jwtToken?.isEmpty ?? true)
+    }
+    
+    static var jwtToken: String? {
         // Check Keychain or UserDefaults for existing token
-        if let token = read(service: "funko-auth", account: "current-user") {
-            return !token.isEmpty
-        }
-        return false
+        read(service: "funko-auth", account: "current-user")
     }
     
     @discardableResult

@@ -153,6 +153,45 @@ struct Collectible: Codable, Hashable {
         return nil
     }
     
+    func toDictionary() -> [String: Any] {
+        var dict: [String: Any] = [
+            "id": id,
+            "inCollection": inCollection,
+            "attributes": [
+                "name": attributes.name,
+                "estimated_value": attributes._estimatedValue as Any,
+                "estimated_value_range": attributes.estimatedValueRange as Any,
+                "date_from": attributes.dateFrom as Any,
+                "production_status": attributes.productionStatus as Any,
+                "ref_number": attributes.refNumber as Any,
+                "images": [
+                    "main": attributes.images.main?.url as Any,
+                    "search": attributes.images.search?.url as Any,
+                    "search_no_bg": attributes.images.searchNoBg?.url as Any,
+                    "gallery": attributes.images.gallery?.map { $0.url } as Any
+                ],
+                "related_subjects": attributes.relatedSubjects?.map { [
+                    "url": $0.url as Any,
+                    "name": $0.name as Any,
+                    "type": $0.type?.rawValue as Any
+                ]} as Any
+            ]
+        ]
+        
+        // Remove nil values to keep the dictionary clean
+        dict = dict.compactMapValues { $0 }
+        if var attributesDict = dict["attributes"] as? [String: Any] {
+            attributesDict = attributesDict.compactMapValues { $0 }
+            if var imagesDict = attributesDict["images"] as? [String: Any] {
+                imagesDict = imagesDict.compactMapValues { $0 }
+                attributesDict["images"] = imagesDict
+            }
+            dict["attributes"] = attributesDict
+        }
+        
+        return dict
+    }
+    
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         id = try container.decode(String.self, forKey: .id)

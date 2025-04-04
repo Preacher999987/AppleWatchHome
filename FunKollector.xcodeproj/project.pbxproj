@@ -49,6 +49,7 @@
 		BBBBF6702D9DD4A3008CE85F /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = BBBBF66F2D9DD4A3008CE85F /* GoogleSignInSwift */; };
 		BBBBF6722D9DD9E2008CE85F /* animated-logo.gif in Resources */ = {isa = PBXBuildFile; fileRef = BBBBF6712D9DD9E2008CE85F /* animated-logo.gif */; };
 		BBBBF6762D9E10CF008CE85F /* AuthResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBBBF6752D9E10CF008CE85F /* AuthResponse.swift */; };
+		BBBBF6782D9F2399008CE85F /* NetworkError.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBBBF6772D9F2399008CE85F /* NetworkError.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -93,6 +94,7 @@
 		BBBBF66A2D9DB053008CE85F /* ProfileImagePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileImagePicker.swift; sourceTree = "<group>"; };
 		BBBBF6712D9DD9E2008CE85F /* animated-logo.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = "animated-logo.gif"; sourceTree = "<group>"; };
 		BBBBF6752D9E10CF008CE85F /* AuthResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthResponse.swift; sourceTree = "<group>"; };
+		BBBBF6772D9F2399008CE85F /* NetworkError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkError.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -280,6 +282,7 @@
 		BBBBF6602D9D94A6008CE85F /* Entities */ = {
 			isa = PBXGroup;
 			children = (
+				BBBBF6772D9F2399008CE85F /* NetworkError.swift */,
 				BBBBF6752D9E10CF008CE85F /* AuthResponse.swift */,
 				BB6232052D91901B0048BF67 /* Collectible.swift */,
 				BBBBF65E2D9D948C008CE85F /* UserProfile.swift */,
@@ -384,6 +387,7 @@
 				BB1D1E912D9A00C000153BB4 /* ModelHelpers.swift in Sources */,
 				BB2B5B2D2D920752004461C4 /* AsyncImageLoader.swift in Sources */,
 				BBBBF6412D9C0F58008CE85F /* CameraView.swift in Sources */,
+				BBBBF6782D9F2399008CE85F /* NetworkError.swift in Sources */,
 				BBBBF6682D9DA648008CE85F /* ProfileInfoViewModel.swift in Sources */,
 				BB1D1E882D98271500153BB4 /* ViewHelpers.swift in Sources */,
 				BBBBF6392D9B100D008CE85F /* FunkoModel.xcdatamodeld in Sources */,
@@ -551,6 +555,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "";
@@ -572,6 +577,7 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.swipeless.FunKollector;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -583,6 +589,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "";
@@ -604,6 +611,7 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.swipeless.FunKollector;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";

@@ -57,13 +57,21 @@ class AuthViewModel: ObservableObject {
         URLSession.shared.dataTaskPublisher(for: request)
             .tryMap { data, response -> Data in
                 guard let httpResponse = response as? HTTPURLResponse else {
-                    throw URLError(.badServerResponse)
+                    let error = URLError(.badServerResponse)
+                    self.errorMessage = error.localizedDescription
+                    completion(.failure(error))
+                    
+                    return data
                 }
                 
                 if httpResponse.statusCode == 401 {
-                    throw AuthError.invalidCredentials
+                    let error = AuthError.invalidCredentials
+                    self.errorMessage = error.localizedDescription
+                    completion(.failure(error))
                 } else if !(200...299).contains(httpResponse.statusCode) {
-                    throw AuthError.serverError
+                    let error = NetworkError.serverError
+                    self.errorMessage = error.localizedDescription
+                    completion(.failure(error))
                 }
                 
                 return data
@@ -173,7 +181,7 @@ class AuthViewModel: ObservableObject {
                 }
                 
                 if !(200...299).contains(httpResponse.statusCode) {
-                    throw AuthError.serverError
+                    throw NetworkError.serverError
                 }
                 
                 return data
@@ -216,7 +224,7 @@ class AuthViewModel: ObservableObject {
         isLoading = true
         errorMessage = nil
         
-        guard let url = URL(string: "\(baseUrl)/auth/tokensignin") else {
+        guard let url = URL(string: "\(baseUrl)/auth/token-signin") else {
             errorMessage = "Invalid URL"
             isLoading = false
             return
@@ -251,7 +259,7 @@ class AuthViewModel: ObservableObject {
             print("Authorization successful: \(authorization)")
             // 1. Handle credential
             guard let credential = authorization.credential as? ASAuthorizationAppleIDCredential else {
-                completion(.failure(AuthError.serverError))
+                completion(.failure(NetworkError.serverError))
                 return
             }
             
