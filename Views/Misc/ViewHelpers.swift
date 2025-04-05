@@ -122,6 +122,7 @@ struct TextFieldAlert<Presenting>: View where Presenting: View {
     let title: String
     @Binding var text: String
     let onSave: () -> Void
+    let onCancel: () -> Void
     
     var body: some View {
         ZStack {
@@ -140,11 +141,12 @@ struct TextFieldAlert<Presenting>: View where Presenting: View {
                     
                     HStack {
                         Button("Cancel") {
+                            onCancel()
                             withAnimation {
                                 isPresented = false
                             }
                         }
-                        .tint(.appPrimary)
+                        .tint(.primary)
                         
                         Spacer()
                         
@@ -166,7 +168,7 @@ struct TextFieldAlert<Presenting>: View where Presenting: View {
                     }
                         .cornerRadius(20)
                 )
-                .frame(width: 300, height: 200)
+                .frame(width: 240, height: 200)
                 .cornerRadius(20)
                 .shadow(radius: 10)
                 .zIndex(1)
@@ -180,14 +182,16 @@ extension View {
         isPresented: Binding<Bool>,
         title: String,
         text: Binding<String>,
-        onSave: @escaping () -> Void
+        onSave: @escaping () -> Void,
+        onCancel: @escaping () -> Void
     ) -> some View {
         TextFieldAlert(
             isPresented: isPresented,
             presenting: self,
             title: title,
             text: text,
-            onSave: onSave
+            onSave: onSave,
+            onCancel: onCancel
         )
     }
 }

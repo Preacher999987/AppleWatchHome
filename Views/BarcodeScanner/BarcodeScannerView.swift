@@ -10,6 +10,7 @@ import SwiftUI
 import AVFoundation
 
 struct BarcodeScannerView: View {
+    @Environment(\.dismiss) private var dismiss
     @Environment(\.presentationMode) var presentationMode
     @State private var isScanning = true
     @State private var isLoading = false
@@ -40,6 +41,22 @@ struct BarcodeScannerView: View {
                     .progressViewStyle(CircularProgressViewStyle(tint: .white))
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .background(.black.opacity(0.7))
+            }
+            // Close Button
+            VStack {
+                HStack {
+                    Button(action: { dismiss() }) {
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.system(size: 30))
+                            .foregroundColor(.white)
+                            .opacity(0.8)
+                            .background(Color.black.opacity(0.5))
+                            .clipShape(Circle())
+                    }
+                    .padding()
+                    Spacer()
+                }
+                Spacer()
             }
         }
         .alert("Scan Error", isPresented: $showError) {

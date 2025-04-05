@@ -17,7 +17,11 @@ struct LazyGridGalleryView: View {
             }
         }
     } // Track the selected grid item
-    @State private var isFullScreen: Bool = false // Track full-screen state
+    @State private var isFullScreen: Bool = false { // Track full-screen state
+        didSet {
+            dismissInputView()
+        }
+    }
     
     @State private var selectedBackgroundImage: [UIImage]? = nil // Store the selected background image
     @State private var isShowingImagePicker: Bool = false // Control the image picker presentation
@@ -238,6 +242,12 @@ struct LazyGridGalleryView: View {
             dismissAction()
             addNewItemAction(action)
         }
+    }
+    
+    private func dismissInputView() {
+            isInputFieldFocused = false
+            showKeyboard = false
+            editedPricePaid = ""
     }
     
     private func addItemButtonDropDownView() -> some View {
@@ -476,6 +486,9 @@ struct LazyGridGalleryView: View {
         }
     }
     
+    @State private var showFullScreenCarousel = false
+    @State private var initialCarouselIndex = 0
+    
     // State for showing subject selection menu
     @State private var showSubjectMenu = false
     
@@ -506,7 +519,12 @@ struct LazyGridGalleryView: View {
                                 .onEnded {
                                     withAnimation(.spring()) {
                                         editCollectibleUserPhotos = false
-                                        isFullScreen.toggle()
+                                        
+                                        if isFullScreen {
+                                            showFullScreenCarousel = true
+                                        } else {
+                                            isFullScreen = true
+                                        }
                                     }
                                 }
                                 .exclusively(before: DragGesture()
@@ -602,17 +620,28 @@ struct LazyGridGalleryView: View {
             currentImageIndex = 0
             isDetailsExpanded = false // Reset expansion state when view appears
         }
-        .textFieldAlert(isPresented: $isInputFieldFocused, title: "PURCHASE PRICE", text: $editedPricePaid) {
-            // Save the edited value when done
-//            if title == "PURCHASE PRICE" {
-            guard let newPrice = Float(editedPricePaid) else {
-                return
-            }
-            
-            viewModel.purchasePriceUpdated(newPrice, for: currentItem)
-            payload[index].pricePaid = newPrice
-//            }
-        }
+        .textFieldAlert(
+            isPresented: $isInputFieldFocused,
+            title: "PURCHASE PRICE",
+            text: $editedPricePaid,
+            onSave: {
+                // Save the edited value when done
+                //            if title == "PURCHASE PRICE" {
+                guard let newPrice = Float(editedPricePaid) else {
+                    dismissInputView()
+                    return
+                }
+                
+                viewModel.purchasePriceUpdated(newPrice, for: currentItem)
+                payload[index].pricePaid = newPrice
+                
+                dismissInputView()
+                //            }
+            }, onCancel: {
+                dismissInputView()
+            })
+        .keyboardType(.decimalPad)
+        .focused($showKeyboard)
     }
     
     @State private var isDetailsExpanded = false
@@ -652,8 +681,8 @@ struct LazyGridGalleryView: View {
                         title: "PURCHASE PRICE:",
                         value: {
                             var price = ""
-                            if let intPrice = currentItem.customAttributes?.pricePaid {
-                                price = String(intPrice)
+                            if let floatPrice = currentItem.customAttributes?.pricePaid, floatPrice > 0 {
+                                price = String(Int(floatPrice))
                             }
                             
                             return price
@@ -764,6 +793,7 @@ struct LazyGridGalleryView: View {
     // DetailsView - DetailsRow - Price Paid states
     @State private var editedPricePaid: String = ""
     @State private var isInputFieldFocused: Bool = false
+    @FocusState private var showKeyboard: Bool
     
     // DetailsView - DetailsRow - User Photo Selection states
     @State private var chooseCollectibleUserPhotos: Bool = false
@@ -774,7 +804,7 @@ struct LazyGridGalleryView: View {
         HStack {
             Text(title)
                 .font(.body)
-                .foregroundColor(.secondary)
+                .foregroundColor(.primary)
             
             Spacer()
             
@@ -782,19 +812,19 @@ struct LazyGridGalleryView: View {
             case .regular:
                 Text(value)
                     .font(.body)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(.primary)
                 
             case .input:
                 Button(action: {
                     withAnimation {
-                        editedPricePaid = value
                         isInputFieldFocused = true
+                        showKeyboard = true
                     }
                 }) {
                     HStack(spacing: 8) {
                         Text(value.isEmpty ? "-" : "\(Locale.current.currency?.identifier ?? "") \(value)")
                             .font(.body)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(.primary)
                         Text(!value.isEmpty ? "Edit" : "Set")
                             .font(.body)
                             .foregroundColor(.appPrimary)
@@ -815,7 +845,7 @@ struct LazyGridGalleryView: View {
                         HStack(spacing: 8) {
                             Text(value)
                                 .font(.body)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(.primary)
                             Text("Add")
                                 .font(.body)
                                 .foregroundColor(.appPrimary)
@@ -825,7 +855,9 @@ struct LazyGridGalleryView: View {
                 
                 if !value.isEmpty {
                     Button(action: {
-                        editCollectibleUserPhotos = true
+                        withAnimation {
+                            editCollectibleUserPhotos = true
+                        }
                     }) {
                         Text("Edit")
                             .font(.body)
@@ -885,7 +917,13 @@ struct LazyGridGalleryView: View {
             .foregroundColor(.appPrimary)
             .padding(.horizontal, 18)
             .padding(.vertical, 8)
-            .background(Color.black.opacity(0.3))
+            .background(
+                ZStack {
+                    VisualEffectView(effect: UIBlurEffect(style: .systemUltraThinMaterialDark))
+                    Color.black.opacity(0.2)
+                }
+                    .cornerRadius(20)
+            )
             .cornerRadius(15)
             .overlay(
                 RoundedRectangle(cornerRadius: 15)
@@ -1002,6 +1040,15 @@ struct LazyGridGalleryView: View {
                     .offset(y: !isFullScreen ? UIScreen.main.bounds.height*0.45 : 0)  // Half of 300 to maintain visual balance
                     .sheet(isPresented: $chooseCollectibleUserPhotos) {
                         ImagePicker(selectedImages: $selectedCollectibleUserPhotos, selectionLimit: 5)
+                    }
+                    .sheet(isPresented: $showFullScreenCarousel) {
+                        FullScreenCarouselView(
+                            galleryImages: viewModel.combinedGalleryImages(for: payload[selectedItem]),
+                            initialIndex: initialCarouselIndex,
+                            currentIndex: $currentImageIndex,
+                            itemDetails: payload[selectedItem]
+                        )
+                        .edgesIgnoringSafeArea(.all)
                     }
                     .onChange(of: selectedCollectibleUserPhotos) {
                         // Map each UIImage to PNG data with compression

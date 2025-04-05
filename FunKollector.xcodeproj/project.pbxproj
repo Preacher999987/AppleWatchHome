@@ -13,6 +13,7 @@
 		B5CC844427049E4600DFB13B /* GridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5CC844327049E4600DFB13B /* GridView.swift */; };
 		B5CC84472704D02E00DFB13B /* AppIcons.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5CC84462704D02E00DFB13B /* AppIcons.swift */; };
 		BB1749BF2DA0CA4D00A64678 /* PhotoUploadResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1749BE2DA0CA4D00A64678 /* PhotoUploadResponse.swift */; };
+		BB1749C12DA19F9500A64678 /* FullScreenCarouselView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1749C02DA19F9500A64678 /* FullScreenCarouselView.swift */; };
 		BB1D1E862D97411F00153BB4 /* BarcodeScannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1D1E852D97411F00153BB4 /* BarcodeScannerView.swift */; };
 		BB1D1E882D98271500153BB4 /* ViewHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1D1E872D98271000153BB4 /* ViewHelpers.swift */; };
 		BB1D1E8A2D983A5300153BB4 /* LaunchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1D1E892D983A4D00153BB4 /* LaunchView.swift */; };
@@ -61,6 +62,7 @@
 		B5CC844327049E4600DFB13B /* GridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GridView.swift; sourceTree = "<group>"; };
 		B5CC84462704D02E00DFB13B /* AppIcons.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppIcons.swift; sourceTree = "<group>"; };
 		BB1749BE2DA0CA4D00A64678 /* PhotoUploadResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoUploadResponse.swift; sourceTree = "<group>"; };
+		BB1749C02DA19F9500A64678 /* FullScreenCarouselView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FullScreenCarouselView.swift; sourceTree = "<group>"; };
 		BB1D1E852D97411F00153BB4 /* BarcodeScannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BarcodeScannerView.swift; sourceTree = "<group>"; };
 		BB1D1E872D98271000153BB4 /* ViewHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewHelpers.swift; sourceTree = "<group>"; };
 		BB1D1E892D983A4D00153BB4 /* LaunchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchView.swift; sourceTree = "<group>"; };
@@ -170,6 +172,7 @@
 		B5CC84452704C1C800DFB13B /* Gallery */ = {
 			isa = PBXGroup;
 			children = (
+				BB1749C42DA1A21A00A64678 /* CarouselView */,
 				BB2B5B2F2D93296A004461C4 /* LazyGridViewModel.swift */,
 				B5CC8436270498D700DFB13B /* LazyGridView.swift */,
 				BB2B5B2C2D920752004461C4 /* AsyncImageLoader.swift */,
@@ -177,6 +180,14 @@
 				B5CC844227049E2E00DFB13B /* Grids */,
 			);
 			path = Gallery;
+			sourceTree = "<group>";
+		};
+		BB1749C42DA1A21A00A64678 /* CarouselView */ = {
+			isa = PBXGroup;
+			children = (
+				BB1749C02DA19F9500A64678 /* FullScreenCarouselView.swift */,
+			);
+			path = CarouselView;
 			sourceTree = "<group>";
 		};
 		BB1D1E842D97411100153BB4 /* BarcodeScanner */ = {
@@ -386,6 +397,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BB1749C12DA19F9500A64678 /* FullScreenCarouselView.swift in Sources */,
 				BB1D1E862D97411F00153BB4 /* BarcodeScannerView.swift in Sources */,
 				BB1D1E912D9A00C000153BB4 /* ModelHelpers.swift in Sources */,
 				BB2B5B2D2D920752004461C4 /* AsyncImageLoader.swift in Sources */,
