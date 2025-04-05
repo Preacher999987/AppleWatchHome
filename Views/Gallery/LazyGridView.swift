@@ -19,7 +19,7 @@ struct LazyGridGalleryView: View {
     } // Track the selected grid item
     @State private var isFullScreen: Bool = false // Track full-screen state
     
-    @State private var selectedBackgroundImage: UIImage? = nil // Store the selected background image
+    @State private var selectedBackgroundImage: [UIImage]? = nil // Store the selected background image
     @State private var isShowingImagePicker: Bool = false // Control the image picker presentation
     @State private var showEllipsisMenu = false
     
@@ -64,7 +64,7 @@ struct LazyGridGalleryView: View {
     
     private var backgroundView: some View {
         Group {
-            let backgroundImage = selectedBackgroundImage.map { Image(uiImage: $0) }
+            let backgroundImage = selectedBackgroundImage?.first.map { Image(uiImage: $0) }
             ?? Image("background-image-1")
             
             backgroundImage
@@ -566,10 +566,10 @@ struct LazyGridGalleryView: View {
             currentImageIndex = 0
             isDetailsExpanded = false // Reset expansion state when view appears
         }
-        .textFieldAlert(isPresented: $isInputFieldFocused, title: "PURCHASE PRICE", text: $editedText) {
+        .textFieldAlert(isPresented: $isInputFieldFocused, title: "PURCHASE PRICE", text: $editedPricePaid) {
             // Save the edited value when done
 //            if title == "PURCHASE PRICE" {
-            guard let newPrice = Float(editedText) else {
+            guard let newPrice = Float(editedPricePaid) else {
                 return
             }
             
@@ -612,22 +612,31 @@ struct LazyGridGalleryView: View {
                     HeaderView("Acquisition Details")
                         .padding(.top, 8)
                     
-                    detailRow(title: "PURCHASE PRICE:",
-                              value: {
-                        var price = ""
-                        if let intPrice = currentItem.customAttributes?.pricePaid {
-                            price = String(intPrice)
-                        }
-                        
-                        return price
+                    detailRow(
+                        title: "PURCHASE PRICE:",
+                        value: {
+                            var price = ""
+                            if let intPrice = currentItem.customAttributes?.pricePaid {
+                                price = String(intPrice)
+                            }
+                            
+                            return price
                     }(),
                               style: .input)
                     
-                    detailRow(title: "PHOTOS:", value: "", style: .media)
-                    
+                    detailRow(
+                        title: "PHOTOS:",
+                        value: {
+                            if let count = currentItem.customAttributes?.userPhotos?.count {
+                                return "\(count) Photos"
+                            } else {
+                                return ""
+                            }
+                        }(),
+                        style: .media)
                 }
                 //                .padding(.top, 8)
-                .padding(.bottom, 64)
+                .padding(.bottom, 90)
             }
             //            .padding(.horizontal, 20)
             //            .padding(.bottom, 16)
@@ -716,9 +725,13 @@ struct LazyGridGalleryView: View {
         }
     }
     
-    @State private var editedText: String = ""
-    @State private var showImagePicker: Bool = false
+    // DetailsView - DetailsRow - Price Paid states
+    @State private var editedPricePaid: String = ""
     @State private var isInputFieldFocused: Bool = false
+    
+    // DetailsView - DetailsRow - User Photo Selection states
+    @State private var chooseCollectibleUserPhotos: Bool = false
+    @State private var selectedCollectibleUserPhotos: [UIImage]?
     
     private func detailRow(title: String, value: String, style: DetailRowStyle = .regular) -> some View {
         HStack {
@@ -737,7 +750,7 @@ struct LazyGridGalleryView: View {
             case .input:
                 Button(action: {
                     withAnimation {
-                        editedText = value
+                        editedPricePaid = value
                         isInputFieldFocused = true
                     }
                 }) {
@@ -753,15 +766,15 @@ struct LazyGridGalleryView: View {
                 
             case .media:
                 Button(action: {
-                    showImagePicker = true
+                    chooseCollectibleUserPhotos = true
                 }) {
-                    if value == "0" {
+                    if value == "" {
                         Text("Add Your Photos")
                             .font(.body)
                             .foregroundColor(.appPrimary)
                     } else {
                         HStack(spacing: 8) {
-                            Text("(\(value))")
+                            Text(value)
                                 .font(.body)
                                 .foregroundColor(.secondary)
                             Text("Edit")
@@ -931,13 +944,36 @@ struct LazyGridGalleryView: View {
                         }
                 )
                 .sheet(isPresented: $isShowingImagePicker) {
-                    ImagePicker(selectedImage: $selectedBackgroundImage)
+                    ImagePicker(selectedImages: $selectedBackgroundImage, selectionLimit: 1)
                 }
             }
             
             if let selectedItem = selectedItem {
                 fullScreenView(for: selectedItem)
                     .offset(y: !isFullScreen ? UIScreen.main.bounds.height*0.45 : 0)  // Half of 300 to maintain visual balance
+                    .sheet(isPresented: $chooseCollectibleUserPhotos) {
+                        ImagePicker(selectedImages: $selectedCollectibleUserPhotos, selectionLimit: 5)
+                    }
+                    .onChange(of: selectedCollectibleUserPhotos) {
+                        // Map each UIImage to PNG data with compression
+                        let imageDataArray = selectedCollectibleUserPhotos?.compactMap {
+                            $0.jpegData(compressionQuality: 0.8)
+                        }
+                        
+                        if let dataArray = imageDataArray {
+                            viewModel.uploadCollectibleUserPhotos(
+                                collectibleId: payload[selectedItem].id,
+                                photos: dataArray) { result in
+                                    switch result {
+                                        
+                                    case .success(_): break
+                                        
+                                    case .failure(_): break
+                                        
+                                    }
+                                }
+                        }
+                    }
             } else {
                 VStack {
                     Spacer()
@@ -1393,45 +1429,55 @@ struct Axes: View {
     }
 }
 
-// Image Picker using PHPickerViewController
+/// Image Picker using PHPickerViewController (multi-selection)
 struct ImagePicker: UIViewControllerRepresentable {
-    @Binding var selectedImage: UIImage?
-    
+    @Binding var selectedImages: [UIImage]?
+    var selectionLimit: Int
+
     func makeUIViewController(context: Context) -> PHPickerViewController {
         var configuration = PHPickerConfiguration()
-        configuration.filter = .images // Allow only images to be selected
-        configuration.selectionLimit = 1 // Allow only one image to be selected
-        
+        configuration.filter = .images // Allow only images
+        configuration.selectionLimit = selectionLimit // 0 means unlimited selection
+
         let picker = PHPickerViewController(configuration: configuration)
         picker.delegate = context.coordinator
         return picker
     }
-    
+
     func updateUIViewController(_ uiViewController: PHPickerViewController, context: Context) {}
-    
+
     func makeCoordinator() -> Coordinator {
         Coordinator(self)
     }
-    
+
     class Coordinator: NSObject, PHPickerViewControllerDelegate {
         let parent: ImagePicker
-        
+
         init(_ parent: ImagePicker) {
             self.parent = parent
         }
-        
+
         func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
             picker.dismiss(animated: true)
-            
-            guard let result = results.first else { return }
-            
-            // Load the selected image
-            result.itemProvider.loadObject(ofClass: UIImage.self) { (object, error) in
-                if let image = object as? UIImage {
-                    DispatchQueue.main.async {
-                        self.parent.selectedImage = image // Set the selected image as the background
+
+            let dispatchGroup = DispatchGroup()
+            var images: [UIImage] = []
+
+            for result in results {
+                if result.itemProvider.canLoadObject(ofClass: UIImage.self) {
+                    dispatchGroup.enter()
+                    result.itemProvider.loadObject(ofClass: UIImage.self) { object, error in
+                        defer { dispatchGroup.leave() }
+
+                        if let image = object as? UIImage {
+                            images.append(image)
+                        }
                     }
                 }
+            }
+
+            dispatchGroup.notify(queue: .main) {
+                self.parent.selectedImages = images
             }
         }
     }

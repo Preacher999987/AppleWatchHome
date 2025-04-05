@@ -161,7 +161,7 @@ class LazyGridViewModel: ObservableObject {
         ]
         if method == .update,
            let itemToUpdate = collectible?.toDictionary() {
-            body["itemToUpdate"] = collectible?.toDictionary()
+            body["itemToUpdate"] = itemToUpdate
         }
         
         // Add JSON body
@@ -230,5 +230,91 @@ class LazyGridViewModel: ObservableObject {
         
         try? CollectiblesRepository.updateItem(itemToUpdate)
         manageCollection(itemIds: [item.id], method: .update, collectible: itemToUpdate) { _ in }
+    }
+    
+    func uploadCollectibleUserPhotos(collectibleId: String, photos: [Data], completion: @escaping (Result<[String], Error>) -> Void) {
+        showLoadingIndicator = true
+        let uid = (try? UserProfileRepository.getCurrentUserProfile()?.uid) ?? ""
+        guard let url = URL(string: "http://192.168.1.17:3000/addUserPhotos/\(uid)") else {
+            showLoadingIndicator = false
+            errorMessage = NetworkError.invalidURL.userFacingMessage
+            completion(.failure(NetworkError.invalidURL))
+            return
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        
+        // Add authorization header
+        do {
+            try request.addAuthorizationHeader()
+        } catch {
+            showLoadingIndicator = false
+            errorMessage = (error as? AuthError)?.localizedDescription
+            completion(.failure(error))
+            return
+        }
+        
+        let boundary = UUID().uuidString
+        request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+        
+        var body = Data()
+        
+        // Add collectibleId as form field
+        body.append("--\(boundary)\r\n".data(using: .utf8)!)
+        body.append("Content-Disposition: form-data; name=\"collectibleId\"\r\n\r\n".data(using: .utf8)!)
+        body.append("\(collectibleId)\r\n".data(using: .utf8)!)
+        
+        // Add each photo
+        for (index, photoData) in photos.enumerated() {
+            body.append("--\(boundary)\r\n".data(using: .utf8)!)
+            body.append("Content-Disposition: form-data; name=\"photos\"; filename=\"photo_\(index).jpg\"\r\n".data(using: .utf8)!)
+            body.append("Content-Type: image/jpeg\r\n\r\n".data(using: .utf8)!)
+            body.append(photoData)
+            body.append("\r\n".data(using: .utf8)!)
+        }
+        
+        body.append("--\(boundary)--\r\n".data(using: .utf8)!)
+        request.httpBody = body
+        
+        let task = URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
+            DispatchQueue.main.async {
+                self?.showLoadingIndicator = false
+                
+                // Handle errors
+                if let error = error {
+                    self?.errorMessage = NetworkError.requestFailed(error).userFacingMessage
+                    completion(.failure(error))
+                    return
+                }
+                
+                guard let data = data else {
+                    self?.errorMessage = NetworkError.noData.userFacingMessage
+                    completion(.failure(NetworkError.noData))
+                    return
+                }
+                
+                do {
+                    // First try to decode the success response
+                    let decoder = JSONDecoder()
+                    let response = try decoder.decode(PhotoUploadResponse.self, from: data)
+                        completion(.success(response.photos))
+                } catch {
+                    // If that fails, try to decode an error response
+                    let decoder = JSONDecoder()
+                    if let errorResponse = try? decoder.decode(ErrorResponse.self, from: data) {
+                        self?.errorMessage = NetworkError.decodingFailed(error).userFacingMessage
+                        
+                        completion(.failure(NSError(domain: errorResponse.error, code: -2, userInfo: [
+                            NSLocalizedDescriptionKey: errorResponse.details ?? errorResponse.error
+                        ])))
+                    } else {
+                        completion(.failure(error))
+                    }
+                }
+            }
+        }
+        
+        task.resume()
     }
 }
