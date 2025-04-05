@@ -27,7 +27,8 @@ struct LazyGridGalleryView: View {
     // State property to manage gallery carousel
     @State private var currentImageIndex: Int = 0
     
-    @State private var showDeleteConfirmation = false
+    @State private var showCollectibleDeleteConfirmation = false
+    @State private var showCollectibleUserPhotoDeleteConfirmation = false
     
     @State private var showAddMenu = false
     
@@ -52,6 +53,7 @@ struct LazyGridGalleryView: View {
     @StateObject private var viewModel = LazyGridViewModel()
     
     @EnvironmentObject var appState: AppState
+    @Environment(\.dismiss) var dismiss
     
     private static let size: CGFloat = 150
     private static let spacingBetweenColumns: CGFloat = 12
@@ -174,13 +176,13 @@ struct LazyGridGalleryView: View {
         get {
             return {
                 //                Helpers.hapticFeedback()
-                
-                if isFullScreen {
+                if editCollectibleUserPhotos {
+                    editCollectibleUserPhotos = false
+                } else if isFullScreen {
                     withAnimation {
                         isFullScreen = false
                     }
-                }
-                else if selectedItem != nil {
+                } else if selectedItem != nil {
                     withAnimation {
                         selectedItem = nil
                     }
@@ -206,6 +208,14 @@ struct LazyGridGalleryView: View {
         ),
         count: totalColumns
     )
+    
+    private var isCurrentImageDefault: Bool {
+        if let index = selectedItem, currentImageIndex < payload[index].gallery.count {
+            return true
+        } else {
+            return false
+        }
+    }
     
     private func addNewItemTapped(_ action: AddNewItemAction) {
         /* TODO: BUTTON ROTATION ISSUE
@@ -404,7 +414,7 @@ struct LazyGridGalleryView: View {
                 }
                 if payload[index].inCollection {
                     Button(action: {
-                        showDeleteConfirmation = true
+                        showCollectibleDeleteConfirmation = true
                     }) {
                         Image(systemName: "xmark.circle.fill")
                             .font(.system(size: 22))
@@ -415,8 +425,8 @@ struct LazyGridGalleryView: View {
                     .frame(width: 44, height: 44) // Minimum tappable area
                     .contentShape(Circle()) // Makes entire circle tappable
                     .offset(x: offsetX(index) + Self.size / 2 - 10, y: -Self.size / 2 + 10)
-                    .alert("Delete \(payload[index].attributes.name)?", isPresented: $showDeleteConfirmation) {
-                        Button("Delete", role: .destructive, action: confirmDeletion)
+                    .alert("Delete \(payload[index].attributes.name)?", isPresented: $showCollectibleDeleteConfirmation) {
+                        Button("Delete", role: .destructive, action: confirmCollectibleDeletion)
                         Button("Cancel", role: .cancel) {}
                     } message: {
                         Text("This will permanently remove the item from your collection.")
@@ -426,8 +436,8 @@ struct LazyGridGalleryView: View {
         }
     }
     
-    private func confirmDeletion() {
-        showDeleteConfirmation = false
+    private func confirmCollectibleDeletion() {
+        showCollectibleDeleteConfirmation = false
         if let index = selectedItem {
             let itemId = payload[index].id
             viewModel.manageCollection(itemIds: [itemId], method: .delete) { result in
@@ -445,13 +455,34 @@ struct LazyGridGalleryView: View {
             }
         }
     }
+    
+    private func confirmCollectibleUserPhotoDeletion() {
+        showCollectibleDeleteConfirmation = false
+        if let index = selectedItem {
+            var itemToUpdate = payload[index]
+            // NOTE: Combines standard gallery images with user-uploaded photos for the carousel. Only user-uploaded photos can be deleted.
+            let indexToDelete = currentImageIndex - (itemToUpdate.gallery.count)
+            itemToUpdate.customAttributes?.userPhotos?.remove(at: indexToDelete)
+            viewModel.manageCollection(itemIds: [itemToUpdate.id], method: .update, collectible: itemToUpdate) { result in
+                // NOTE: Errors are handled by the ViewModel before reaching the completion handler
+                if case .success = result {
+                    // Remove the item from the local repository
+                    withAnimation(.easeOut(duration: 0.3)) {
+                        viewModel.updateItem(itemToUpdate)
+                        payload[index].customAttributes?.userPhotos?.remove(at: indexToDelete)
+                    }
+                }
+            }
+        }
+    }
+    
     // State for showing subject selection menu
     @State private var showSubjectMenu = false
     
     private func fullScreenView(for index: Int) -> some View {
         // Get the current item from payload
         let currentItem = payload[index]
-        let galleryImages = currentItem.attributes.images.gallery ?? []
+        let galleryImages = viewModel.combinedGalleryImages(for: currentItem)
         
         // Carousel View
         let carouselView = ZStack {
@@ -460,10 +491,12 @@ struct LazyGridGalleryView: View {
                 ForEach(Array(galleryImages.enumerated()), id: \.offset) { index, imageData in
                     GeometryReader { geometry in
                         AsyncImageLoader(
-                            url: URL(string: imageData.url),
+                            url: viewModel.imageURL(from: imageData),
                             placeholder: Image(.gridItemPlaceholder),
                             grayScale: false
                         )
+                        // NOTE: For better visual feedback during swiping, consider adding this modifier:
+//                        .animation(.interactiveSpring(), value: currentImageIndex)
                         .scaledToFit()
                         .clipShape(RoundedRectangle(cornerRadius: 20))
                         .frame(width: geometry.size.width, height: geometry.size.height, alignment: .center)
@@ -472,6 +505,7 @@ struct LazyGridGalleryView: View {
                             TapGesture()
                                 .onEnded {
                                     withAnimation(.spring()) {
+                                        editCollectibleUserPhotos = false
                                         isFullScreen.toggle()
                                     }
                                 }
@@ -482,6 +516,7 @@ struct LazyGridGalleryView: View {
                                                 if !isFullScreen { // Hide Carousel Preview on Swipe Down
                                                     selectedItem = nil
                                                 }
+                                                editCollectibleUserPhotos = false
                                                 isFullScreen = false // Collapse fullscreen Carousel on Swipe Down
                                             }
                                         } else if gesture.translation.height < -50 { // Swipe Up
@@ -493,6 +528,7 @@ struct LazyGridGalleryView: View {
                                 )
                         )
                     }
+                    .padding(.horizontal, 4) // Adds spacing between cards
                 }
             }
             .background(
@@ -625,9 +661,9 @@ struct LazyGridGalleryView: View {
                               style: .input)
                     
                     detailRow(
-                        title: "PHOTOS:",
+                        title: "CUSTOM PHOTOS:",
                         value: {
-                            if let count = currentItem.customAttributes?.userPhotos?.count {
+                            if let count = currentItem.customAttributes?.userPhotos?.count, count > 0 {
                                 return "\(count) Photos"
                             } else {
                                 return ""
@@ -732,6 +768,7 @@ struct LazyGridGalleryView: View {
     // DetailsView - DetailsRow - User Photo Selection states
     @State private var chooseCollectibleUserPhotos: Bool = false
     @State private var selectedCollectibleUserPhotos: [UIImage]?
+    @State private var editCollectibleUserPhotos: Bool = false
     
     private func detailRow(title: String, value: String, style: DetailRowStyle = .regular) -> some View {
         HStack {
@@ -766,9 +803,11 @@ struct LazyGridGalleryView: View {
                 
             case .media:
                 Button(action: {
-                    chooseCollectibleUserPhotos = true
+                    withAnimation {
+                        chooseCollectibleUserPhotos = true
+                    }
                 }) {
-                    if value == "" {
+                    if value.isEmpty {
                         Text("Add Your Photos")
                             .font(.body)
                             .foregroundColor(.appPrimary)
@@ -777,10 +816,20 @@ struct LazyGridGalleryView: View {
                             Text(value)
                                 .font(.body)
                                 .foregroundColor(.secondary)
-                            Text("Edit")
+                            Text("Add")
                                 .font(.body)
                                 .foregroundColor(.appPrimary)
                         }
+                    }
+                }
+                
+                if !value.isEmpty {
+                    Button(action: {
+                        editCollectibleUserPhotos = true
+                    }) {
+                        Text("Edit")
+                            .font(.body)
+                            .foregroundColor(.appPrimary)
                     }
                 }
             }
@@ -963,17 +1012,24 @@ struct LazyGridGalleryView: View {
                         if let dataArray = imageDataArray {
                             viewModel.uploadCollectibleUserPhotos(
                                 collectibleId: payload[selectedItem].id,
-                                photos: dataArray) { result in
-                                    switch result {
-                                        
-                                    case .success(_): break
-                                        
-                                    case .failure(_): break
-                                        
-                                    }
+                                photos: dataArray) { updatedItem in
+                                    payload[selectedItem] = updatedItem
                                 }
                         }
                     }
+                // Success Checkmark Overlay
+                if viewModel.showSuccessCheckmark {
+                    SuccessCheckmarkView()
+                        .transition(.opacity)
+                        .onAppear {
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                                withAnimation {
+                                    viewModel.showSuccessCheckmark = false
+                                    dismiss()
+                                }
+                            }
+                        }
+                }
             } else {
                 VStack {
                     Spacer()
@@ -1018,19 +1074,28 @@ struct LazyGridGalleryView: View {
         showNavigationTitle ? (payload.first?.subject ?? "") : ""
     }
     
+    private var backNavigationItemIcon: String {
+        appState.openRelated || appState.showAddToCollectionButton || isFullScreen || selectedItem != nil
+        ? "chevron.left.circle.fill"
+        : "house.circle.fill"
+    }
+    
     private var leadingNavigationButton: some View {
         Group {
             if appState.showBackButton {
                 Button(action: dismissActionWrapped) {
-                    let iconName = appState.openRelated || appState.showAddToCollectionButton || isFullScreen || selectedItem != nil
-                    ? "chevron.left.circle.fill"
-                    : "house.circle.fill"
-                    // System icon version
-                    Image(systemName: iconName)
-                        .font(.system(size: 22))
-                        .foregroundColor(.black).opacity(0.8)
-                        .background(Color.appPrimary)
-                        .clipShape(Circle())
+                    if editCollectibleUserPhotos {
+                        Text("Done")
+                            .font(.headline)
+                            .foregroundColor(.appPrimary)
+                    } else {
+                        // System icon version
+                        Image(systemName: backNavigationItemIcon)
+                            .font(.system(size: 22))
+                            .foregroundColor(.black).opacity(0.8)
+                            .background(Color.appPrimary)
+                            .clipShape(Circle())
+                    }
                 }
                 .frame(width: 44, height: 44)
                 .contentShape(Circle())
@@ -1051,6 +1116,26 @@ struct LazyGridGalleryView: View {
         )
     }
     
+    private func editCollectibleUserPhotosNavigationItem() -> some View {
+        Button(action: {
+            showCollectibleUserPhotoDeleteConfirmation = true
+        }) {
+            Image(systemName: "xmark.circle.fill")
+                .font(.system(size: 22))
+                .foregroundColor(.black).opacity(0.8)
+                .background(.red)
+                .clipShape(Circle())
+        }
+        .frame(width: 44, height: 44) // Minimum tappable area
+        .contentShape(Circle()) // Makes entire circle tappable
+        .alert("Delete Collectible Photo?", isPresented: $showCollectibleUserPhotoDeleteConfirmation) {
+            Button("Delete", role: .destructive, action: confirmCollectibleUserPhotoDeletion)
+            Button("Keep", role: .cancel) {}
+        } message: {
+            Text("Photo will be permanently deleted from your collectible's gallery.")
+        }
+    }
+    
     private var trailingNavigationButtons: some View {
         HStack(spacing: 12) {
             if appState.showAddToCollectionButton {
@@ -1061,7 +1146,9 @@ struct LazyGridGalleryView: View {
                 addItemButtonDropDownView()
             }
             
-            if appState.showEllipsisButton {
+            if editCollectibleUserPhotos && !isCurrentImageDefault {
+                editCollectibleUserPhotosNavigationItem()
+            } else if appState.showEllipsisButton {
                 ellipsisButtonDropDownView()
             }
             

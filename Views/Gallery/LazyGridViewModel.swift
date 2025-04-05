@@ -13,6 +13,8 @@ class LazyGridViewModel: ObservableObject {
     @Published var showLoadingIndicator = false
     @Published var errorMessage: String?
     
+    @Published var showSuccessCheckmark: Bool = false
+    
     private let baseUrl = "http://192.168.1.17:3000"
     
     func getGridItemUrl(from item: Collectible) -> URL? {
@@ -232,13 +234,12 @@ class LazyGridViewModel: ObservableObject {
         manageCollection(itemIds: [item.id], method: .update, collectible: itemToUpdate) { _ in }
     }
     
-    func uploadCollectibleUserPhotos(collectibleId: String, photos: [Data], completion: @escaping (Result<[String], Error>) -> Void) {
+    func uploadCollectibleUserPhotos(collectibleId: String, photos: [Data], completion: @escaping (Collectible) -> Void) {
         showLoadingIndicator = true
         let uid = (try? UserProfileRepository.getCurrentUserProfile()?.uid) ?? ""
-        guard let url = URL(string: "http://192.168.1.17:3000/addUserPhotos/\(uid)") else {
+        guard let url = URL(string: "http://192.168.1.17:3000/add-user-photos/\(uid)") else {
             showLoadingIndicator = false
             errorMessage = NetworkError.invalidURL.userFacingMessage
-            completion(.failure(NetworkError.invalidURL))
             return
         }
         
@@ -251,7 +252,6 @@ class LazyGridViewModel: ObservableObject {
         } catch {
             showLoadingIndicator = false
             errorMessage = (error as? AuthError)?.localizedDescription
-            completion(.failure(error))
             return
         }
         
@@ -278,19 +278,18 @@ class LazyGridViewModel: ObservableObject {
         request.httpBody = body
         
         let task = URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
+            guard let self = self else { return }
             DispatchQueue.main.async {
-                self?.showLoadingIndicator = false
+                self.showLoadingIndicator = false
                 
                 // Handle errors
                 if let error = error {
-                    self?.errorMessage = NetworkError.requestFailed(error).userFacingMessage
-                    completion(.failure(error))
+                    self.errorMessage = NetworkError.requestFailed(error).userFacingMessage
                     return
                 }
                 
                 guard let data = data else {
-                    self?.errorMessage = NetworkError.noData.userFacingMessage
-                    completion(.failure(NetworkError.noData))
+                    self.errorMessage = NetworkError.noData.userFacingMessage
                     return
                 }
                 
@@ -298,23 +297,54 @@ class LazyGridViewModel: ObservableObject {
                     // First try to decode the success response
                     let decoder = JSONDecoder()
                     let response = try decoder.decode(PhotoUploadResponse.self, from: data)
-                        completion(.success(response.photos))
+                    
+                    let updatedItem = try self.updateItemUserPhotos(with: response.photos, collectibleId)
+                    
+                    self.showSuccessCheckmark = true
+                    completion(updatedItem)
                 } catch {
-                    // If that fails, try to decode an error response
-                    let decoder = JSONDecoder()
-                    if let errorResponse = try? decoder.decode(ErrorResponse.self, from: data) {
-                        self?.errorMessage = NetworkError.decodingFailed(error).userFacingMessage
-                        
-                        completion(.failure(NSError(domain: errorResponse.error, code: -2, userInfo: [
-                            NSLocalizedDescriptionKey: errorResponse.details ?? errorResponse.error
-                        ])))
-                    } else {
-                        completion(.failure(error))
-                    }
+                    self.errorMessage = NetworkError.decodingFailed(error).userFacingMessage
                 }
             }
         }
         
         task.resume()
+    }
+    
+    private func updateItemUserPhotos(with photoFilePaths: [String], _ collectibleId: String) throws -> Collectible {
+        guard var itemToUpdate = try CollectiblesRepository.item(by: collectibleId) else {
+            throw NSError(domain: "No collectible found for id: \(collectibleId)", code: 0)
+        }
+        
+        if itemToUpdate.customAttributes == nil {
+            itemToUpdate.customAttributes = CustomAttributes()
+        }
+        
+        if itemToUpdate.customAttributes?.userPhotos == nil {
+            itemToUpdate.customAttributes?.userPhotos = [ImageData]()
+        }
+        
+        let userPhotos = photoFilePaths.map { ImageData(filePath: $0) }
+        itemToUpdate.customAttributes?.userPhotos?.append(contentsOf: userPhotos)
+        
+        try CollectiblesRepository.updateItem(itemToUpdate)
+        
+        return itemToUpdate
+    }
+    
+    func combinedGalleryImages(for item: Collectible) -> [ImageData] {
+        let galleryImages = item.attributes.images.gallery ?? []
+        let userPhotos = item.customAttributes?.userPhotos ?? []
+        return galleryImages + userPhotos
+    }
+    
+    func imageURL(from imageData: ImageData) -> URL? {
+        if let url = URL(string: imageData.url) {
+            return url
+        } else if let filePath = imageData.filePath {
+            let stringUrl = baseUrl + "/collectibles/user-photos/" + filePath
+            return URL(string: stringUrl)
+        }
+        return nil
     }
 }

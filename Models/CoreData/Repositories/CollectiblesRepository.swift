@@ -125,6 +125,9 @@ extension CollectibleEntity {
         self.estimatedValueRange = collectible.attributes.estimatedValueRange.flatMap { try? JSONEncoder().encode($0) }
         self.productionStatus = collectible.attributes.productionStatus.flatMap { try? JSONEncoder().encode($0) }
         self.relatedSubjects = collectible.attributes.relatedSubjects.flatMap { try? JSONEncoder().encode($0) }
+        
+        // Handle array-type customAttributes
+        self.userPhotos = collectible.customAttributes?.userPhotos.flatMap { try? JSONEncoder().encode($0) }
     }
     
     func updateGallery(with gallery: [ImageData]) {
@@ -185,8 +188,9 @@ extension CollectibleEntity {
             productionStatus: productionStatus,
             refNumber: attrRefNumber
         )
-        
-        let customAttributes = CustomAttributes(pricePaid: pricePaid)
+        /// Decode array-type attributes
+        let userPhotos = self.userPhotos.flatMap { try? JSONDecoder().decode([ImageData].self, from: $0) }
+        let customAttributes = CustomAttributes(pricePaid: pricePaid, userPhotos: userPhotos)
         
         return Collectible(
             id: id,

@@ -1,9 +1,5 @@
 import Foundation
 
-struct Details: Codable, Hashable {
-    var gallery: [String] = []
-}
-
 enum SubjectType: String, Codable, Hashable {
     case aiClassified = "ai_classified"
     case userSelectionPrimary = "user_selection_primary"
@@ -19,9 +15,17 @@ struct ImageData: Codable, Hashable {
     let url: String
     let nudity: Bool
     let insensitive: Bool
+    let filePath: String?
     
     enum CodingKeys: String, CodingKey {
-        case url, nudity, insensitive
+        case url, nudity, insensitive, filePath
+    }
+    
+    init(url: String = "", nudity: Bool = false, insensitive: Bool = false, filePath: String = "") {
+        self.url = url
+        self.nudity = nudity
+        self.insensitive = insensitive
+        self.filePath = filePath
     }
 }
 

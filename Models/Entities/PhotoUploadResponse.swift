@@ -13,9 +13,3 @@ struct PhotoUploadResponse: Codable {
     let photos: [String]
     let count: Int
 }
-
-// Error response model
-struct ErrorResponse: Codable {
-    let error: String
-    let details: String?
-}

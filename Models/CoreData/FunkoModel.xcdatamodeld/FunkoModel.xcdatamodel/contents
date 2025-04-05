@@ -21,6 +21,7 @@
         <attribute name="searchNoBgImageInsensitive" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="searchNoBgImageNudity" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="searchNoBgImageUrl" optional="YES" attributeType="String"/>
+        <attribute name="userPhotos" optional="YES" attributeType="Binary"/>
     </entity>
     <entity name="UserProfileEntity" representedClassName="UserProfileEntity" syncable="YES" codeGenerationType="class">
         <attribute name="email" optional="YES" attributeType="String"/>
