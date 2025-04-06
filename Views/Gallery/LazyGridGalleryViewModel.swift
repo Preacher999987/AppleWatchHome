@@ -1,5 +1,5 @@
 //
-//  LazyGridViewModel.swift
+//  LazyGridGalleryViewModel.swift
 //  FunkoCollector
 //
 //  Created by Home on 25.03.2025.
@@ -9,14 +9,14 @@ import SwiftUI
 import Foundation
 
 // LazyGridViewModel.swift
-class LazyGridViewModel: ObservableObject {
+class LazyGridGalleryViewModel: ObservableObject {
     @Published var showLoadingIndicator = false
     @Published var errorMessage: String?
     
     @Published var showSuccessCheckmark: Bool = false
     
     private let baseUrl = "http://192.168.1.17:3000"
-    
+
     func getGridItemUrl(from item: Collectible) -> URL? {
         let stringUrl = !item.searchImageNoBgUrl.isEmpty
         ? baseUrl + item.searchImageNoBgUrl
@@ -25,16 +25,22 @@ class LazyGridViewModel: ObservableObject {
         return URL(string: stringUrl)
     }
     
+    
+    func showAcquisitionDetails(for collectibleId: String) -> Bool {
+        return (try? CollectiblesRepository.item(by: collectibleId) ?? nil) != nil
+    }
+    
     func getRelated(for itemId: String, completion: @escaping ([Collectible]) -> Void) {
         showLoadingIndicator = true
         
         // Validate inputs
-        guard let querySubject = try? CollectiblesRepository.item(by: itemId)?.querySubject,
-              let encodedQuery = querySubject.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) else {
+        guard let querySubject = try? CollectiblesRepository.item(by: itemId)?.querySubject else {
             showLoadingIndicator = false
             errorMessage = NetworkError.invalidQuery.userFacingMessage
             return
         }
+        
+        let encodedQuery = querySubject.urlSafeEncoded
         
         // Create request
         guard let url = URL(string: "http://192.168.1.17:3000/related/\(encodedQuery)") else {
@@ -67,7 +73,7 @@ class LazyGridViewModel: ObservableObject {
                 
                 // Validate data exists
                 guard let data = data else {
-                    self?.errorMessage = NetworkError.noData.userFacingMessage
+                    self?.errorMessage = NetworkError.noRelatedPopsFound(querySubject).userFacingMessage
                     return
                 }
                 

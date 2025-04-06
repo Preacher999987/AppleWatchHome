@@ -16,6 +16,7 @@ enum NetworkError: Error {
     case unauthorized
     case serverError
     case noRelatedPopsFound(String)
+    case noSearchResults(String)  // New case
     
     var localizedDescription: String {
         switch self {
@@ -58,11 +59,21 @@ enum NetworkError: Error {
         case .serverError:
             return NSLocalizedString(
                 "Server Error",
-                comment: "Error when server error occured")
+                comment: "Error when server error occurred"
+            )
         case .noRelatedPopsFound(let query):
             return NSLocalizedString(
                 "Hmm, nothing here",
-                comment: "Hmm, no pops found for \"\(query)\"")
+                comment: "Hmm, no pops found for \"\(query)\""
+            )
+        case .noSearchResults(let query):
+            return String(
+                format: NSLocalizedString(
+                    "No results found for '%@'",
+                    comment: "Error when search returns empty results"
+                ),
+                query
+            )
         }
     }
     
@@ -97,11 +108,18 @@ enum NetworkError: Error {
         case .serverError:
             return NSLocalizedString(
                 "We're experiencing server issues. Please try again later.",
-                comment: "Server Error")
+                comment: "Server Error"
+            )
         case .noRelatedPopsFound(let query):
             return NSLocalizedString(
                 "Hmm, nothing here",
-                comment: "Hmm, no pops found for \"\(query)\". Try searching another subject if known!")
+                comment: "Hmm, no pops found for \"\(query)\""
+            )
+        case .noSearchResults:
+            return NSLocalizedString(
+                "No items matched your search. Try different keywords or check back later.",
+                comment: "User message when search returns no results"
+            )
         }
     }
 }

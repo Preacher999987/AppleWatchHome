@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import PhotosUI // Import PhotosUI for PHPickerViewController
 
 struct LazyGridGalleryView: View {
     @Namespace private var animationNamespace // For matchedGeometryEffect
@@ -42,14 +41,11 @@ struct LazyGridGalleryView: View {
     
     @State private var showNavigationTitle = false
     
-    // Manual Entry View State
-    @State private var showManualEntryView = false
-    
     // Modal Safari browser view
     @State private var showSafariView = false
     
     // Create an instance of the ViewModel
-    @StateObject private var viewModel = LazyGridViewModel()
+    @StateObject private var viewModel = LazyGridGalleryViewModel()
     
     @EnvironmentObject var appState: AppState
     @Environment(\.dismiss) var dismiss
@@ -99,6 +95,7 @@ struct LazyGridGalleryView: View {
                             .font(.headline.weight(.semibold))
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 10)
+                            .foregroundColor(.black)
                     }
                     .buttonStyle(.borderedProminent)
                     .tint(.appPrimary)
@@ -249,8 +246,7 @@ struct LazyGridGalleryView: View {
             }
             
             Button(action: {
-                //                addNewItemTapped(.manually)
-                showManualEntryView = true
+                addNewItemTapped(.manually)
             }) {
                 Label("Add Manually", systemImage: "keyboard")
             }
@@ -313,10 +309,6 @@ struct LazyGridGalleryView: View {
                     dismissActionWrapped()
                     
                     appState.openMyCollection = true
-                    appState.showPlusButton = true
-                    appState.showEllipsisButton = true
-                    appState.showCollectionButton = false
-                    appState.showAddToCollectionButton = false
                 }
             }
         } catch {
@@ -327,98 +319,106 @@ struct LazyGridGalleryView: View {
     
     private func gridItemView(for index: Int, proxy: GeometryProxy) -> some View {
         ZStack {
-            AsyncImageLoader(
-                url: viewModel.getGridItemUrl(from: payload[index]),
-                placeholder: Image(.gridItemPlaceholder),
-                grayScale: !payload[index].inCollection
-            )
-            .scaledToFit()
-            .cornerRadius(Self.size/8)
-            .scaleEffect(scale(proxy: proxy, value: index))
-            .offset(x: offsetX(index), y: 0)
-            .onTapGesture {
-                withAnimation(.easeInOut(duration: 0.15)) {
-                    selectedItem = index
+            //TODO: Safety check: Prevents out-of-bounds crash when:
+            // 1. Dismissing this view via Home button (app backgrounding)
+            // 2. Returning from search results/gallery view after data changes
+            // 3. During async data updates while view is transitioning
+            if !payload.indices.contains(index) {
+                EmptyView()
+            } else {
+                AsyncImageLoader(
+                    url: viewModel.getGridItemUrl(from: payload[index]),
+                    placeholder: Image(.gridItemPlaceholder),
+                    grayScale: !payload[index].inCollection
+                )
+                .scaledToFit()
+                .cornerRadius(Self.size/8)
+                .scaleEffect(scale(proxy: proxy, value: index))
+                .offset(x: offsetX(index), y: 0)
+                .onTapGesture {
+                    withAnimation(.easeInOut(duration: 0.15)) {
+                        selectedItem = index
+                    }
                 }
-            }
-            
-            // MISSING label - matches xmark button position/size
-            if !payload[index].inCollection {
-                Text("MISSING")
-                    .font(.system(size: 12, weight: .bold))
-                    .foregroundColor(.white)
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 2)
                 
-                    .frame(width: .infinity, height: 24)
-                    .background(.red)
-                    .cornerRadius(12)
-                    .offset(x: offsetX(index) + Self.size / 4 - 10, y: -Self.size / 2 + 10)
-            }
-            
-            if selectedItem == index {
+                // MISSING label - matches xmark button position/size
                 if !payload[index].inCollection {
-                    Button(action: {
-                        ViewHelpers.hapticFeedback()
-                        withAnimation(.spring()) {
-//                            selectedItem = index
-//                            isFullScreen = true
-                            showSafariView = true
-                        }
-                    }) {
-                        Text("Shop")
-                            .font(.system(size: 14, weight: .medium))
-                            .foregroundColor(.appPrimary)
-                            .padding(.horizontal, 18)
-                            .padding(.vertical, 8)
-                            .background(.black.opacity(0.5))
-                            .cornerRadius(15)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 15)
-                                    .stroke(Color.appPrimary, lineWidth: 2)
-                            )
-                    }
-                    .offset(x: offsetX(index), y: 0)
-                } else {
-                    Button(action: {
-                        ViewHelpers.hapticFeedback()
-                        withAnimation(.spring()) {
-//                            selectedItem = index
-                            isFullScreen = true
-                        }
-                    }) {
-                        Text("View")
-                            .font(.system(size: 14, weight: .medium))
-                            .foregroundColor(.green)
-                            .padding(.horizontal, 18)
-                            .padding(.vertical, 8)
-                            .background(Color.black.opacity(0.5))
-                            .cornerRadius(15)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 15)
-                                    .stroke(.green, lineWidth: 2)
-                            )
-                    }
-                    .offset(x: offsetX(index), y: 0)
+                    Text("MISSING")
+                        .font(.system(size: 12, weight: .bold))
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                    
+                        .frame(width: .infinity, height: 24)
+                        .background(.red)
+                        .cornerRadius(12)
+                        .offset(x: offsetX(index) + Self.size / 4 - 10, y: -Self.size / 2 + 10)
                 }
-                if payload[index].inCollection {
-                    Button(action: {
-                        showCollectibleDeleteConfirmation = true
-                    }) {
-                        Image(systemName: "xmark.circle.fill")
-                            .font(.system(size: 22))
-                            .foregroundColor(.black).opacity(0.8)
-                            .background(.red)
-                            .clipShape(Circle())
+                
+                if selectedItem == index {
+                    if !payload[index].inCollection {
+                        Button(action: {
+                            ViewHelpers.hapticFeedback()
+                            withAnimation(.spring()) {
+                                //                            selectedItem = index
+                                //                            isFullScreen = true
+                                showSafariView = true
+                            }
+                        }) {
+                            Text("Shop")
+                                .font(.system(size: 14, weight: .medium))
+                                .foregroundColor(.appPrimary)
+                                .padding(.horizontal, 18)
+                                .padding(.vertical, 8)
+                                .background(.black.opacity(0.5))
+                                .cornerRadius(15)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 15)
+                                        .stroke(Color.appPrimary, lineWidth: 2)
+                                )
+                        }
+                        .offset(x: offsetX(index), y: 0)
+                    } else {
+                        Button(action: {
+                            ViewHelpers.hapticFeedback()
+                            withAnimation(.spring()) {
+                                //                            selectedItem = index
+                                isFullScreen = true
+                            }
+                        }) {
+                            Text("View")
+                                .font(.system(size: 14, weight: .medium))
+                                .foregroundColor(.green)
+                                .padding(.horizontal, 18)
+                                .padding(.vertical, 8)
+                                .background(Color.black.opacity(0.5))
+                                .cornerRadius(15)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 15)
+                                        .stroke(.green, lineWidth: 2)
+                                )
+                        }
+                        .offset(x: offsetX(index), y: 0)
                     }
-                    .frame(width: 44, height: 44) // Minimum tappable area
-                    .contentShape(Circle()) // Makes entire circle tappable
-                    .offset(x: offsetX(index) + Self.size / 2 - 10, y: -Self.size / 2 + 10)
-                    .alert("Delete \(payload[index].attributes.name)?", isPresented: $showCollectibleDeleteConfirmation) {
-                        Button("Delete", role: .destructive, action: confirmCollectibleDeletion)
-                        Button("Cancel", role: .cancel) {}
-                    } message: {
-                        Text("This will permanently remove the item from your collection.")
+                    if payload[index].inCollection {
+                        Button(action: {
+                            showCollectibleDeleteConfirmation = true
+                        }) {
+                            Image(systemName: "xmark.circle.fill")
+                                .font(.system(size: 22))
+                                .foregroundColor(.black).opacity(0.8)
+                                .background(.red)
+                                .clipShape(Circle())
+                        }
+                        .frame(width: 44, height: 44) // Minimum tappable area
+                        .contentShape(Circle()) // Makes entire circle tappable
+                        .offset(x: offsetX(index) + Self.size / 2 - 10, y: -Self.size / 2 + 10)
+                        .alert("Delete \(payload[index].attributes.name)?", isPresented: $showCollectibleDeleteConfirmation) {
+                            Button("Delete", role: .destructive, action: confirmCollectibleDeletion)
+                            Button("Cancel", role: .cancel) {}
+                        } message: {
+                            Text("This will permanently remove the item from your collection.")
+                        }
                     }
                 }
             }
@@ -661,32 +661,34 @@ struct LazyGridGalleryView: View {
                     let series = !currentItem.subject.isEmpty ? currentItem.subject : "-"
                     detailRow(title: "SERIES:", value: series)
                     
-                    HeaderView("Acquisition Details")
-                        .padding(.top, 8)
-                    
-                    detailRow(
-                        title: "PURCHASE PRICE:",
-                        value: {
-                            var price = ""
-                            if let floatPrice = currentItem.customAttributes?.pricePaid, floatPrice > 0 {
-                                price = String(Int(floatPrice))
-                            }
-                            
-                            return price
-                    }(),
-                              style: .input)
-                    
-                    detailRow(
-                        title: "CUSTOM PHOTOS:",
-                        value: {
-                            if let count = currentItem.customAttributes?.userPhotos?.count, count > 0 {
-                                let plural = count > 1 ? "s" : ""
-                                return "\(count) Photo\(plural)"
-                            } else {
-                                return ""
-                            }
-                        }(),
-                        style: .media)
+                    if viewModel.showAcquisitionDetails(for: currentItem.id) {
+                        HeaderView("Acquisition Details")
+                            .padding(.top, 8)
+                        
+                        detailRow(
+                            title: "PURCHASE PRICE:",
+                            value: {
+                                var price = ""
+                                if let floatPrice = currentItem.customAttributes?.pricePaid, floatPrice > 0 {
+                                    price = String(Int(floatPrice))
+                                }
+                                
+                                return price
+                            }(),
+                            style: .input)
+                        
+                        detailRow(
+                            title: "CUSTOM PHOTOS:",
+                            value: {
+                                if let count = currentItem.customAttributes?.userPhotos?.count, count > 0 {
+                                    let plural = count > 1 ? "s" : ""
+                                    return "\(count) Photo\(plural)"
+                                } else {
+                                    return ""
+                                }
+                            }(),
+                            style: .media)
+                    }
                 }
                 //                .padding(.top, 8)
                 .padding(.bottom, 90)
@@ -1048,14 +1050,8 @@ struct LazyGridGalleryView: View {
                     }
                 
                     .sheet(isPresented: $showSafariView) {
-                        if let url = createEbaySearchURL(for: payload[selectedItem]) {
+                        if let url = URLRequest.ebayAffiliateSearchURL(for: payload[selectedItem]) {
                             SafariView(url: url)
-                        }
-                    }
-                    .sheet(isPresented: $showManualEntryView) {
-                        ManualEntryView(isPresented: $showManualEntryView) { result in
-                            // Handle the search with the entered data
-                            // Perform your search logic here
                         }
                     }
                     .onChange(of: selectedCollectibleUserPhotos) {
@@ -1457,88 +1453,5 @@ struct LazyGridGalleryView: View {
     
     func angle(slope: CGFloat) -> CGFloat {
         return abs(atan(slope) * 180 / .pi)
-    }
-}
-
-struct Axes: View {
-    var body: some View {
-        
-        GeometryReader { geometry in
-            Path { path in
-                path.move(to: CGPoint(x: geometry.frame(in: .global).maxX, y: geometry.frame(in: .global).midY))
-                path.addLine(to: CGPoint(x: 0, y: geometry.frame(in: .global).midY))
-                path.move(to: CGPoint(x: geometry.frame(in: .global).midX, y: geometry.frame(in: .global).midY))
-                path.addLine(to: CGPoint(x: geometry.frame(in: .global).midX, y: geometry.frame(in: .global).maxY))
-                
-                path.addLine(to: CGPoint(x: geometry.frame(in: .global).midX, y: geometry.frame(in: .global).minY - 60))
-            }
-            .stroke(.blue, lineWidth: 3)
-        }
-    }
-}
-
-/// Image Picker using PHPickerViewController (multi-selection)
-struct ImagePicker: UIViewControllerRepresentable {
-    @Binding var selectedImages: [UIImage]?
-    var selectionLimit: Int
-
-    func makeUIViewController(context: Context) -> PHPickerViewController {
-        var configuration = PHPickerConfiguration()
-        configuration.filter = .images // Allow only images
-        configuration.selectionLimit = selectionLimit // 0 means unlimited selection
-
-        let picker = PHPickerViewController(configuration: configuration)
-        picker.delegate = context.coordinator
-        return picker
-    }
-
-    func updateUIViewController(_ uiViewController: PHPickerViewController, context: Context) {}
-
-    func makeCoordinator() -> Coordinator {
-        Coordinator(self)
-    }
-
-    class Coordinator: NSObject, PHPickerViewControllerDelegate {
-        let parent: ImagePicker
-
-        init(_ parent: ImagePicker) {
-            self.parent = parent
-        }
-
-        func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
-            picker.dismiss(animated: true)
-
-            let dispatchGroup = DispatchGroup()
-            var images: [UIImage] = []
-
-            for result in results {
-                if result.itemProvider.canLoadObject(ofClass: UIImage.self) {
-                    dispatchGroup.enter()
-                    result.itemProvider.loadObject(ofClass: UIImage.self) { object, error in
-                        defer { dispatchGroup.leave() }
-
-                        if let image = object as? UIImage {
-                            images.append(image)
-                        }
-                    }
-                }
-            }
-
-            dispatchGroup.notify(queue: .main) {
-                self.parent.selectedImages = images
-            }
-        }
-    }
-}
-
-// Custom View Modifier for Conditional Scaling
-extension View {
-    @ViewBuilder
-    func applyConditionalScaling(isScaledToFit: Bool) -> some View {
-        if isScaledToFit {
-            self.scaledToFit() // Apply .scaledToFit() if condition is true
-        } else {
-            self.scaledToFill() // Apply .scaledToFill() if condition is false
-        }
     }
 }

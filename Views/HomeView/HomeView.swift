@@ -203,9 +203,10 @@ struct HomeView: View {
             }
             .sheet(isPresented: $showManualEntryView) {
                 ManualEntryView(isPresented: $showManualEntryView) { itemData in
-                    // Handle the search with the entered data
-                    // Perform your search logic here
+                    appState.showAddToCollectionButton = true
+                    analysisResult = itemData
                 }
+                .presentationBackground(.clear)
             }
         }
     }
@@ -243,12 +244,7 @@ struct HomeView: View {
         LazyGridGalleryView(
             initialLogoRect: logoRect,
             payload: $analysisResult,
-            dismissAction: {
-                resetToInitialState()
-                if let result = try? CollectiblesRepository.loadItems(), !result.isEmpty {
-                    prepareCollectionView(with: result)
-                }
-            },
+            dismissAction: resetToInitialState,
             seeMissingPopsAction: { _ in },
             addNewItemAction: { _ in }
         )
@@ -363,14 +359,7 @@ struct HomeView: View {
         }
         
         withAnimation(.easeOut) {
-            if let result = try? CollectiblesRepository.loadItems() {
-                analysisResult = result
-            }
-            appState.openMyCollection = true
-            appState.showPlusButton = true
-            appState.showEllipsisButton = true
-            appState.showCollectionButton = false
-            appState.showAddToCollectionButton = false
+            showCollectionView()
         }
     }
     
@@ -389,15 +378,19 @@ struct HomeView: View {
         appState.showPlusButton = false
         appState.showEllipsisButton = false
         appState.openMyCollection = false
+        appState.showAddToCollectionButton = false
         // Show HomeView as Root View
         appState.showHomeView = true
     }
     
-    private func prepareCollectionView(with result: [Collectible]) {
-        analysisResult = result
+    private func showCollectionView() {
+        if let result = try? CollectiblesRepository.loadItems() {
+            analysisResult = result
+        }
         appState.openMyCollection = true
         appState.showPlusButton = true
         appState.showEllipsisButton = true
+        appState.showCollectionButton = false
         appState.showAddToCollectionButton = false
     }
 }

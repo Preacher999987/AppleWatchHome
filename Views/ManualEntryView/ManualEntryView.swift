@@ -19,17 +19,15 @@ struct ManualEntryView: View {
     var body: some View {
         ZStack {
             // Background dimming
-            Color.black.opacity(0.7)
-                .ignoresSafeArea()
-                .onTapGesture { isPresented = false }
+            Color.clear.blurredBackgroundRounded()
             
             // Content card
             VStack(spacing: 20) {
                 // Header with close button
                 HStack {
                     Text("Add New Item")
-                        .font(.title2.weight(.bold))
-                        .foregroundColor(.white)
+                        .font(.headline)
+                        .foregroundColor(.appPrimary)
                     
                     Spacer()
                     
@@ -78,7 +76,8 @@ struct ManualEntryView: View {
                 if let error = viewModel.errorMessage {
                     Text(error)
                         .foregroundColor(.red)
-                        .font(.caption)
+                        .font(.headline)
+                        .padding(.horizontal, 16)
                 }
                 
                 // Action buttons
@@ -94,12 +93,14 @@ struct ManualEntryView: View {
                             await viewModel.performSearch()
                             if !viewModel.searchResults.isEmpty {
                                 onSearchResults(viewModel.searchResults)
+                                isPresented = false
                             }
                         }
                     }
                     .buttonStyle(.borderedProminent)
                     .tint(.appPrimary)
                     .disabled(!viewModel.canSearch)
+                    .foregroundColor(.black)
                 }
                 .padding(.bottom, 20)
             }
@@ -121,4 +122,8 @@ struct ItemData {
     let reference: String
     let series: String
     let barcode: String
+}
+
+#Preview {
+    ManualEntryView(isPresented: .constant(true), onSearchResults: { _ in })
 }

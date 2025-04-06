@@ -118,4 +118,54 @@ extension URLRequest {
             throw AuthError.jwtTokenNotFound
         }
     }
+    
+    // MARK: - eBay URL Construction
+    static func ebayAffiliateSearchURL(for item: Collectible) -> URL? {
+        //TODO: Add eBay affiliation 
+        let rawQuery = "\(item.attributes.name) \(item.attributes.refNumber ?? "") funko pop"
+        let encodedQuery = rawQuery.urlSafeEncoded
+        let urlString = "https://www.ebay.com/sch/i.html?_nkw=\(encodedQuery)"
+        return URL(string: urlString)
+    }
+}
+
+extension String {
+    // MARK: - URL Encoding Utilities
+
+    /// Encodes a string for eBay search URLs, handling special cases
+    var urlSafeEncoded: String {
+        // Replace problematic characters that eBay interprets specially
+        let sanitized = self
+            .replacingOccurrences(of: "&", with: " ")
+            .replacingOccurrences(of: "?", with: " ")
+        
+        // Standard URL encoding while preserving spaces as %20
+        return sanitized
+            .addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)?
+            .replacingOccurrences(of: "+", with: "%20") ?? ""
+    }
+}
+
+enum Rarity {
+    case common, uncommon, rare, epic, legendary
+    
+    var color: Color {
+        switch self {
+        case .common: return .gray
+        case .uncommon: return .green
+        case .rare: return .blue
+        case .epic: return .purple
+        case .legendary: return .orange
+        }
+    }
+    
+    var iconName: String {
+        switch self {
+        case .common: return "circle.fill"
+        case .uncommon: return "diamond.fill"
+        case .rare: return "seal.fill"
+        case .epic: return "burst.fill"
+        case .legendary: return "star.fill"
+        }
+    }
 }

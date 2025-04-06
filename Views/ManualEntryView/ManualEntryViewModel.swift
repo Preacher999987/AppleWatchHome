@@ -37,7 +37,11 @@ class ManualEntryViewModel: ObservableObject {
             )
             
             DispatchQueue.main.async {
-                self.searchResults = results
+                if results.isEmpty {
+                    self.errorMessage = NetworkError.noSearchResults("").userFacingMessage
+                } else {
+                    self.searchResults = results
+                }
                 self.isLoading = false
             }
         } catch {

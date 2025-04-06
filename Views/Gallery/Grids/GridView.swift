@@ -55,3 +55,20 @@ struct GridView_Previews: PreviewProvider {
         GridView()
     }
 }
+
+struct Axes: View {
+    var body: some View {
+        
+        GeometryReader { geometry in
+            Path { path in
+                path.move(to: CGPoint(x: geometry.frame(in: .global).maxX, y: geometry.frame(in: .global).midY))
+                path.addLine(to: CGPoint(x: 0, y: geometry.frame(in: .global).midY))
+                path.move(to: CGPoint(x: geometry.frame(in: .global).midX, y: geometry.frame(in: .global).midY))
+                path.addLine(to: CGPoint(x: geometry.frame(in: .global).midX, y: geometry.frame(in: .global).maxY))
+                
+                path.addLine(to: CGPoint(x: geometry.frame(in: .global).midX, y: geometry.frame(in: .global).minY - 60))
+            }
+            .stroke(.blue, lineWidth: 3)
+        }
+    }
+}
