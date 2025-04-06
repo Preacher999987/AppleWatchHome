@@ -7,6 +7,7 @@
 
 import SwiftUI
 import GoogleSignInSwift
+import SafariServices
 
 struct ViewHelpers {
     static func hapticFeedback() {
@@ -115,6 +116,7 @@ extension View {
 // First, add this enum above your view struct
 enum DetailRowStyle {
     case regular
+    case browse
     case input
     case media
 }
@@ -202,5 +204,61 @@ extension View {
                 }
                     .cornerRadius(20)
             )
+    }
+    
+    func createEbaySearchURL(for item: Collectible) -> URL? {
+        let encodedQuery = "\(item.attributes.name) \(item.attributes.refNumber ?? "") funko pop"
+            .addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+        let urlString = "https://www.ebay.com/sch/i.html?_nkw=\(encodedQuery)"
+        return URL(string: urlString)
+    }
+}
+
+// Safari View Controller wrapper for SwiftUI
+struct SafariView: UIViewControllerRepresentable {
+    let url: URL
+    
+    func makeUIViewController(context: Context) -> SFSafariViewController {
+        let config = SFSafariViewController.Configuration()
+        config.entersReaderIfAvailable = false
+        config.barCollapsingEnabled = true
+        return SFSafariViewController(url: url, configuration: config)
+    }
+    
+    func updateUIViewController(_ uiViewController: SFSafariViewController, context: Context) {
+        // No updates needed
+    }
+}
+
+enum Rarity {
+    case common, uncommon, rare, epic, legendary
+    
+    var color: Color {
+        switch self {
+        case .common: return .gray
+        case .uncommon: return .green
+        case .rare: return .blue
+        case .epic: return .purple
+        case .legendary: return .orange
+        }
+    }
+    
+    var iconName: String {
+        switch self {
+        case .common: return "circle.fill"
+        case .uncommon: return "diamond.fill"
+        case .rare: return "seal.fill"
+        case .epic: return "burst.fill"
+        case .legendary: return "star.fill"
+        }
+    }
+}
+
+//TODO: -
+struct RarityIcon: View {
+    let estimatedValue: Int
+    
+    var body: some View {
+        Image(systemName: Rarity.common.iconName)
     }
 }

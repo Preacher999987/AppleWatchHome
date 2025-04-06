@@ -42,16 +42,11 @@ struct LazyGridGalleryView: View {
     
     @State private var showNavigationTitle = false
     
-    // Manual Entry View States
+    // Manual Entry View State
     @State private var showManualEntryView = false
-    private enum Field: Hashable {
-        case name, reference, series, barcode
-    }
-    @FocusState private var focusedField: Field?
-    @State private var manualEntryName = ""
-    @State private var manualEntryReference = ""
-    @State private var manualEntrySeries = ""
-    @State private var manualEntryBarcode = ""
+    
+    // Modal Safari browser view
+    @State private var showSafariView = false
     
     // Create an instance of the ViewModel
     @StateObject private var viewModel = LazyGridViewModel()
@@ -366,8 +361,9 @@ struct LazyGridGalleryView: View {
                     Button(action: {
                         ViewHelpers.hapticFeedback()
                         withAnimation(.spring()) {
-                            selectedItem = index
-                            isFullScreen = true
+//                            selectedItem = index
+//                            isFullScreen = true
+                            showSafariView = true
                         }
                     }) {
                         Text("Shop")
@@ -387,7 +383,7 @@ struct LazyGridGalleryView: View {
                     Button(action: {
                         ViewHelpers.hapticFeedback()
                         withAnimation(.spring()) {
-                            selectedItem = index
+//                            selectedItem = index
                             isFullScreen = true
                         }
                     }) {
@@ -647,7 +643,7 @@ struct LazyGridGalleryView: View {
                     HeaderView("General Info")
                         .padding(.top, 16)
                     detailRow(title: "ITEM:", value: currentItem.attributes.name)
-                    detailRow(title: "VALUE:", value: currentItem.estimatedValue ?? "-")
+                    detailRow(title: "VALUE:", value: currentItem.estimatedValue ?? "-", style: .browse)
                     detailRow(title: "RELEASE:", value: currentItem.attributes.dateFrom ?? "-")
                     detailRow(
                         title: "STATUS:",
@@ -796,7 +792,23 @@ struct LazyGridGalleryView: View {
                 Text(value)
                     .font(.body)
                     .foregroundColor(.white)
-                
+            case .browse:
+                Button(action: {
+                    ViewHelpers.hapticFeedback()
+                    withAnimation(.spring()) {
+                        showSafariView = true
+                    }
+                }) {
+                    HStack(spacing: 16) {
+                        //TODO: Add RarityImage based on item estimated value
+                        Text(value)
+                            .font(.body)
+                            .foregroundColor(.white)
+                        Text("Browse similar")
+                            .font(.body)
+                            .foregroundColor(.appPrimary)
+                    }
+                }
             case .input:
                 Button(action: {
                     withAnimation {
@@ -1000,7 +1012,7 @@ struct LazyGridGalleryView: View {
                     }
                     .padding(.trailing, Self.size/2 + 20) // Add proper padding
                     .padding(.top, Self.size/2 + 20)
-                    .padding(.bottom, Self.size/2)
+                    .padding(.bottom, Self.size/2 + 40)
                     .padding(.leading, 20)
                 }
                 .contentShape(Rectangle()) // Make entire scroll view tappable
@@ -1033,6 +1045,18 @@ struct LazyGridGalleryView: View {
                             itemDetails: payload[selectedItem]
                         )
                         .edgesIgnoringSafeArea(.all)
+                    }
+                
+                    .sheet(isPresented: $showSafariView) {
+                        if let url = createEbaySearchURL(for: payload[selectedItem]) {
+                            SafariView(url: url)
+                        }
+                    }
+                    .sheet(isPresented: $showManualEntryView) {
+                        ManualEntryView(isPresented: $showManualEntryView) { result in
+                            // Handle the search with the entered data
+                            // Perform your search logic here
+                        }
                     }
                     .onChange(of: selectedCollectibleUserPhotos) {
                         // Map each UIImage to PNG data with compression
@@ -1067,8 +1091,6 @@ struct LazyGridGalleryView: View {
                     informationFooter
                 }
             }
-            
-            manualEntryView
         }
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) { leadingNavigationButton }
@@ -1185,92 +1207,6 @@ struct LazyGridGalleryView: View {
             
             if appState.showCollectionButton {
                 myCollectionButton
-            }
-        }
-    }
-    
-    private var manualEntryView: some View {
-        Group {
-            if showManualEntryView {
-                ZStack {
-                    // Background dimming
-                    Color.black.opacity(0.7)
-                        .ignoresSafeArea()
-                        .onTapGesture { showManualEntryView = false }
-                    
-                    // Content card
-                    VStack(spacing: 20) {
-                        // Header with close button
-                        HStack {
-                            Text("Add New Item")
-                                .font(.title2.weight(.bold))
-                                .foregroundColor(.white)
-                            
-                            Spacer()
-                            
-                            Button {
-                                showManualEntryView = false
-                            } label: {
-                                Image(systemName: "xmark.circle.fill")
-                                    .font(.title2)
-                                    .foregroundColor(.white)
-                            }
-                        }
-                        .padding(.horizontal, 20)
-                        .padding(.top, 20)
-                        
-                        // Form fields
-                        VStack(spacing: 16) {
-                            TextField("Name", text: $manualEntryName)
-                                .textFieldStyle(.roundedBorder)
-                                .submitLabel(.next)
-                                .focused($focusedField, equals: .name)
-                            
-                            TextField("Reference #", text: $manualEntryReference)
-                                .textFieldStyle(.roundedBorder)
-                                .submitLabel(.next)
-                                .focused($focusedField, equals: .reference)
-                                .keyboardType(.numberPad)
-                            
-                            TextField("Series", text: $manualEntrySeries)
-                                .textFieldStyle(.roundedBorder)
-                                .submitLabel(.next)
-                                .focused($focusedField, equals: .series)
-                            
-                            TextField("Barcode (UPC)", text: $manualEntryBarcode)
-                                .textFieldStyle(.roundedBorder)
-                                .submitLabel(.done)
-                                .focused($focusedField, equals: .barcode)
-                                .keyboardType(.numberPad)
-                        }
-                        .padding(.horizontal, 20)
-                        
-                        // Action buttons
-                        HStack(spacing: 20) {
-                            Button("Cancel") {
-                                showManualEntryView = false
-                            }
-                            .buttonStyle(.bordered)
-                            .tint(.gray)
-                            
-                            Button("Search") {
-                                // Handle search action
-                                //TODO: -
-                            }
-                            .buttonStyle(.borderedProminent)
-                            .tint(.appPrimary)
-                            .disabled(manualEntryName.isEmpty)
-                        }
-                        .padding(.bottom, 20)
-                    }
-                    .blurredBackgroundRounded()
-                    .frame(width: 320)
-                    .onAppear {
-                        // Auto-focus first field when appears
-                        focusedField = .name
-                    }
-                }
-                .zIndex(10)
             }
         }
     }

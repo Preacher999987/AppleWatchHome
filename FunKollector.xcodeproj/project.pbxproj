@@ -12,6 +12,8 @@
 		B5CC8439270498D800DFB13B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B5CC8438270498D800DFB13B /* Assets.xcassets */; };
 		B5CC844427049E4600DFB13B /* GridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5CC844327049E4600DFB13B /* GridView.swift */; };
 		B5CC84472704D02E00DFB13B /* AppIcons.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5CC84462704D02E00DFB13B /* AppIcons.swift */; };
+		BB15268B2DA2097D002C1CD8 /* ManualEntryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB15268A2DA2097D002C1CD8 /* ManualEntryView.swift */; };
+		BB15268D2DA20F00002C1CD8 /* ManualEntryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB15268C2DA20F00002C1CD8 /* ManualEntryViewModel.swift */; };
 		BB1749BF2DA0CA4D00A64678 /* PhotoUploadResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1749BE2DA0CA4D00A64678 /* PhotoUploadResponse.swift */; };
 		BB1749C12DA19F9500A64678 /* FullScreenCarouselView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1749C02DA19F9500A64678 /* FullScreenCarouselView.swift */; };
 		BB1D1E862D97411F00153BB4 /* BarcodeScannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1D1E852D97411F00153BB4 /* BarcodeScannerView.swift */; };
@@ -61,6 +63,8 @@
 		B5CC8438270498D800DFB13B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		B5CC844327049E4600DFB13B /* GridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GridView.swift; sourceTree = "<group>"; };
 		B5CC84462704D02E00DFB13B /* AppIcons.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppIcons.swift; sourceTree = "<group>"; };
+		BB15268A2DA2097D002C1CD8 /* ManualEntryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManualEntryView.swift; sourceTree = "<group>"; };
+		BB15268C2DA20F00002C1CD8 /* ManualEntryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManualEntryViewModel.swift; sourceTree = "<group>"; };
 		BB1749BE2DA0CA4D00A64678 /* PhotoUploadResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoUploadResponse.swift; sourceTree = "<group>"; };
 		BB1749C02DA19F9500A64678 /* FullScreenCarouselView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FullScreenCarouselView.swift; sourceTree = "<group>"; };
 		BB1D1E852D97411F00153BB4 /* BarcodeScannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BarcodeScannerView.swift; sourceTree = "<group>"; };
@@ -157,6 +161,7 @@
 				BBBBF63D2D9C0BAA008CE85F /* Misc */,
 				BB62320B2D9190B80048BF67 /* PhotoPreviewView */,
 				BBBBF6692D9DA64E008CE85F /* ProfileInfoView */,
+				BB15268E2DA20F08002C1CD8 /* ManualEntryView */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -180,6 +185,15 @@
 				B5CC844227049E2E00DFB13B /* Grids */,
 			);
 			path = Gallery;
+			sourceTree = "<group>";
+		};
+		BB15268E2DA20F08002C1CD8 /* ManualEntryView */ = {
+			isa = PBXGroup;
+			children = (
+				BB15268C2DA20F00002C1CD8 /* ManualEntryViewModel.swift */,
+				BB15268A2DA2097D002C1CD8 /* ManualEntryView.swift */,
+			);
+			path = ManualEntryView;
 			sourceTree = "<group>";
 		};
 		BB1749C42DA1A21A00A64678 /* CarouselView */ = {
@@ -406,6 +420,7 @@
 				BBBBF6682D9DA648008CE85F /* ProfileInfoViewModel.swift in Sources */,
 				BB1D1E882D98271500153BB4 /* ViewHelpers.swift in Sources */,
 				BBBBF6392D9B100D008CE85F /* FunkoModel.xcdatamodeld in Sources */,
+				BB15268D2DA20F00002C1CD8 /* ManualEntryViewModel.swift in Sources */,
 				BB1D1E8A2D983A5300153BB4 /* LaunchView.swift in Sources */,
 				BBBBF6472D9C10E2008CE85F /* WelcomeFeatureCard.swift in Sources */,
 				BB2B5B302D93296A004461C4 /* LazyGridViewModel.swift in Sources */,
@@ -428,6 +443,7 @@
 				BB6232062D91901B0048BF67 /* Collectible.swift in Sources */,
 				B5CC84472704D02E00DFB13B /* AppIcons.swift in Sources */,
 				BBBBF6642D9D96A9008CE85F /* BaseRepository.swift in Sources */,
+				BB15268B2DA2097D002C1CD8 /* ManualEntryView.swift in Sources */,
 				BBBBF64D2D9C12D2008CE85F /* DarkModeHelper.swift in Sources */,
 				BBBBF6572D9C58BF008CE85F /* AuthViewModel.swift in Sources */,
 				BBBBF66B2D9DB053008CE85F /* ProfileImagePicker.swift in Sources */,

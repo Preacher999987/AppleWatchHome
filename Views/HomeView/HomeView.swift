@@ -24,6 +24,7 @@ struct HomeView: View {
     @State private var showCamera = false
     @State private var showPhotoPicker = false
     @State private var showBarcodeReader = false
+    @State private var showManualEntryView = false
     @State private var navigationPath = NavigationPath()
     
     @State private var logoRect: CGRect = .zero
@@ -40,7 +41,7 @@ struct HomeView: View {
         case .photoPicker:
             showPhotoPicker = true
         case .manually:
-            break
+            showManualEntryView = true
         }
     }
     
@@ -140,6 +141,17 @@ struct HomeView: View {
                                             }
                                         }
                                     )
+                                    
+                                    actionCard(
+                                            systemImage: "magnifyingglass",
+                                            title: "Lookup by Name",
+                                            description: "Search for collectibles by name or description",
+                                            action: {
+                                                hapticAction {
+                                                    addNewItemAction(.manually)
+                                                }
+                                            }
+                                        )
                                 }
                                 .padding(.horizontal)
                                 
@@ -187,6 +199,12 @@ struct HomeView: View {
                 BarcodeScannerView { items in
                     appState.showAddToCollectionButton = true
                     analysisResult = items
+                }
+            }
+            .sheet(isPresented: $showManualEntryView) {
+                ManualEntryView(isPresented: $showManualEntryView) { itemData in
+                    // Handle the search with the entered data
+                    // Perform your search logic here
                 }
             }
         }
