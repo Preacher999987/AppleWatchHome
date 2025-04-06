@@ -226,13 +226,7 @@ struct PremiumUnlockView: View {
                 }
                 .padding(.bottom, 16)
             }
-            .background(
-                ZStack {
-                    VisualEffectView(effect: UIBlurEffect(style: .systemUltraThinMaterialDark))
-                    Color.black.opacity(0.2)
-                }
-                    .cornerRadius(20)
-            )
+            .blurredBackgroundRounded()
             .padding(40)
         }
         .zIndex(10)

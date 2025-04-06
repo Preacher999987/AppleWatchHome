@@ -55,7 +55,7 @@ extension Color {
     }
     
     /// Primary app color (gold)
-    static let appPrimary = Color(hex: "d3a754")
+    static let appPrimary = Color(hex: "ffc559")
 }
 
 enum AddNewItemAction {

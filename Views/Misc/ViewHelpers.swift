@@ -21,6 +21,10 @@ extension UIDevice {
         // iPhone SE (1st gen): 1136, iPhone SE (2nd/3rd gen): 1334
         return screenHeight == 1136 || screenHeight == 1334
     }
+    static var isiPhone16Pro: Bool {
+        let screenHeight = UIScreen.main.nativeBounds.height
+        return screenHeight == 2622
+    }
 }
 
 
@@ -161,13 +165,7 @@ struct TextFieldAlert<Presenting>: View where Presenting: View {
                     }
                     .padding()
                 }
-                .background(
-                    ZStack {
-                        VisualEffectView(effect: UIBlurEffect(style: .systemUltraThinMaterialDark))
-                        Color.black.opacity(0.2)
-                    }
-                        .cornerRadius(20)
-                )
+                .blurredBackgroundRounded()
                 .frame(width: 240, height: 200)
                 .cornerRadius(20)
                 .shadow(radius: 10)
@@ -193,5 +191,16 @@ extension View {
             onSave: onSave,
             onCancel: onCancel
         )
+    }
+    
+    func blurredBackgroundRounded() -> some View {
+        self
+            .background(
+                ZStack {
+                    VisualEffectView(effect: UIBlurEffect(style: .systemUltraThinMaterialDark))
+                    Color.black.opacity(0.2)
+                }
+                    .cornerRadius(20)
+            )
     }
 }

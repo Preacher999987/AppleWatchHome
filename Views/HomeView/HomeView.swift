@@ -29,6 +29,7 @@ struct HomeView: View {
     @State private var logoRect: CGRect = .zero
     
     @EnvironmentObject var appState: AppState
+    @Environment(\.colorScheme) var colorScheme
     
     private func addNewItemAction (_ action: AddNewItemAction) {
         switch action {
@@ -71,7 +72,7 @@ struct HomeView: View {
                         VStack(spacing: 20) {
                             
                             // Logo header
-                            Image("logo-white")
+                            Image(colorScheme == .dark ? "logo-white" : "logo-dark")
                                 .resizable()
                                 .aspectRatio(contentMode: .fit)
                                 .frame(height: 60)

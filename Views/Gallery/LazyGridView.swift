@@ -58,6 +58,7 @@ struct LazyGridGalleryView: View {
     
     @EnvironmentObject var appState: AppState
     @Environment(\.dismiss) var dismiss
+    @Environment(\.colorScheme) var colorScheme
     
     private static let size: CGFloat = 150
     private static let spacingBetweenColumns: CGFloat = 12
@@ -109,16 +110,7 @@ struct LazyGridGalleryView: View {
                 }
                 .foregroundColor(.white)
                 .padding()
-                .background(
-                    ZStack {
-                        // Blur effect with vibrancy
-                        VisualEffectView(effect: UIBlurEffect(style: .systemUltraThinMaterialDark))
-                        
-                        // Subtle dark overlay for better contrast
-                        Color.black.opacity(0.2)
-                    }
-                        .cornerRadius(20)
-                )
+                .blurredBackgroundRounded()
                 .padding(.horizontal, 16)
                 .padding(.bottom, 60) // Adjusted bottom padding
                 .frame(maxWidth: .infinity)
@@ -155,16 +147,7 @@ struct LazyGridGalleryView: View {
                         .tint(.appPrimary)
                         .padding(.bottom, 16)
                     }
-                    .background(
-                        ZStack {
-                            // Blur effect with vibrancy
-                            VisualEffectView(effect: UIBlurEffect(style: .systemUltraThinMaterialDark))
-                            
-                            // Subtle dark overlay for better contrast
-                            Color.black.opacity(0.2)
-                        }
-                            .cornerRadius(20)
-                    )
+                    .blurredBackgroundRounded()
                     .padding(60)
                 }
                 .zIndex(10)
@@ -487,7 +470,6 @@ struct LazyGridGalleryView: View {
     }
     
     @State private var showFullScreenCarousel = false
-    @State private var initialCarouselIndex = 0
     
     // State for showing subject selection menu
     @State private var showSubjectMenu = false
@@ -605,7 +587,16 @@ struct LazyGridGalleryView: View {
                 .offset(y: !isFullScreen ? 40 : 0)
             }
         }
-            .frame(height: UIScreen.main.bounds.height*0.45)
+        // TODO: Investigate gesture conflict - when details view expands/collapses,
+        // it unexpectedly triggers the carousel's horizontal swipe gestures on iPhone 16 Pro models.
+        // Current workaround adjusts frame height (50% for 16 Pro, 45% for others).
+        // Possible solutions:
+        // 1. Add gesture recognizer delegate to prioritize vertical swipes
+        // 2. Implement custom swipe detection with velocity thresholding
+        // 3. Adjust zIndex or hit testing during details animation
+        // Reproducible: Only occurs on iPhone 16 Pro models in portrait orientation
+        // when details view is partially expanded (30-70% height).
+            .frame(height: UIScreen.main.bounds.height * (UIDevice.isiPhone16Pro ? 0.5 :0.45))
             .matchedGeometryEffect(id: index, in: animationNamespace)
         
         // Details View
@@ -693,7 +684,8 @@ struct LazyGridGalleryView: View {
                         title: "CUSTOM PHOTOS:",
                         value: {
                             if let count = currentItem.customAttributes?.userPhotos?.count, count > 0 {
-                                return "\(count) Photos"
+                                let plural = count > 1 ? "s" : ""
+                                return "\(count) Photo\(plural)"
                             } else {
                                 return ""
                             }
@@ -739,16 +731,7 @@ struct LazyGridGalleryView: View {
                 Spacer()
             }
         }
-        .background(
-            ZStack {
-                // Blur effect with vibrancy
-                VisualEffectView(effect: UIBlurEffect(style: .systemUltraThinMaterialDark))
-                
-                // Subtle dark overlay for better contrast
-                Color.black.opacity(0.2)
-            }
-                .cornerRadius(20)
-        )
+        .blurredBackgroundRounded()
         .cornerRadius(20)
         .padding(.bottom, 60)
         .padding(.horizontal, 20)
@@ -804,7 +787,7 @@ struct LazyGridGalleryView: View {
         HStack {
             Text(title)
                 .font(.body)
-                .foregroundColor(.primary)
+                .foregroundColor(.white)
             
             Spacer()
             
@@ -812,7 +795,7 @@ struct LazyGridGalleryView: View {
             case .regular:
                 Text(value)
                     .font(.body)
-                    .foregroundColor(.primary)
+                    .foregroundColor(.white)
                 
             case .input:
                 Button(action: {
@@ -821,10 +804,10 @@ struct LazyGridGalleryView: View {
                         showKeyboard = true
                     }
                 }) {
-                    HStack(spacing: 8) {
-                        Text(value.isEmpty ? "-" : "\(Locale.current.currency?.identifier ?? "") \(value)")
+                    HStack(spacing: 16) {
+                        Text(value.isEmpty ? "-" : "\(Locale.current.currencySymbol ?? "")\(value)")
                             .font(.body)
-                            .foregroundColor(.primary)
+                            .foregroundColor(.white)
                         Text(!value.isEmpty ? "Edit" : "Set")
                             .font(.body)
                             .foregroundColor(.appPrimary)
@@ -842,10 +825,10 @@ struct LazyGridGalleryView: View {
                             .font(.body)
                             .foregroundColor(.appPrimary)
                     } else {
-                        HStack(spacing: 8) {
+                        HStack(spacing: 16) {
                             Text(value)
                                 .font(.body)
-                                .foregroundColor(.primary)
+                                .foregroundColor(.white)
                             Text("Add")
                                 .font(.body)
                                 .foregroundColor(.appPrimary)
@@ -856,12 +839,19 @@ struct LazyGridGalleryView: View {
                 if !value.isEmpty {
                     Button(action: {
                         withAnimation {
+                            if let index = selectedItem {
+                                let defaultImagesCount = payload[index].gallery.count
+                                if currentImageIndex < defaultImagesCount {
+                                    currentImageIndex = defaultImagesCount // first index in user-uploaded collectible photos
+                                }
+                            }
                             editCollectibleUserPhotos = true
                         }
                     }) {
                         Text("Edit")
                             .font(.body)
                             .foregroundColor(.appPrimary)
+                            .padding(.leading, 8)
                     }
                 }
             }
@@ -917,13 +907,7 @@ struct LazyGridGalleryView: View {
             .foregroundColor(.appPrimary)
             .padding(.horizontal, 18)
             .padding(.vertical, 8)
-            .background(
-                ZStack {
-                    VisualEffectView(effect: UIBlurEffect(style: .systemUltraThinMaterialDark))
-                    Color.black.opacity(0.2)
-                }
-                    .cornerRadius(20)
-            )
+            .blurredBackgroundRounded()
             .cornerRadius(15)
             .overlay(
                 RoundedRectangle(cornerRadius: 15)
@@ -1044,7 +1028,7 @@ struct LazyGridGalleryView: View {
                     .sheet(isPresented: $showFullScreenCarousel) {
                         FullScreenCarouselView(
                             galleryImages: viewModel.combinedGalleryImages(for: payload[selectedItem]),
-                            initialIndex: initialCarouselIndex,
+                            initialIndex: currentImageIndex,
                             currentIndex: $currentImageIndex,
                             itemDetails: payload[selectedItem]
                         )
@@ -1279,13 +1263,7 @@ struct LazyGridGalleryView: View {
                         }
                         .padding(.bottom, 20)
                     }
-                    .background(
-                        ZStack {
-                            VisualEffectView(effect: UIBlurEffect(style: .systemUltraThinMaterialDark))
-                            Color.black.opacity(0.2)
-                        }
-                            .cornerRadius(20)
-                    )
+                    .blurredBackgroundRounded()
                     .frame(width: 320)
                     .onAppear {
                         // Auto-focus first field when appears

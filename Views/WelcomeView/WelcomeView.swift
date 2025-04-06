@@ -9,6 +9,7 @@ import SwiftUI
 
 // MARK: - Welcome View
 struct WelcomeView: View {
+    @Environment(\.colorScheme) var colorScheme
     //TODO: Add Testimonials Carousel later
     private let testimonials = [
         Testimonial(
@@ -79,7 +80,7 @@ struct WelcomeView: View {
                                 .padding(.top, 40)
                             
                             // App Logo with constrained width
-                            Image("logo-white")
+                            Image(colorScheme == .dark ? "logo-white" : "logo-dark")
                                 .resizable()
                                 .aspectRatio(contentMode: .fit)
                                 .frame(maxWidth: .infinity)

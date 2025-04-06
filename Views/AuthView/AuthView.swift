@@ -13,6 +13,7 @@ import GoogleSignIn
 
 struct AuthView: View {
     @Environment(\.dismiss) var dismiss
+    @Environment(\.colorScheme) var colorScheme
     @StateObject private var viewModel = AuthViewModel()
     @EnvironmentObject var appState: AppState
     
@@ -28,7 +29,7 @@ struct AuthView: View {
                 .ignoresSafeArea()
             VStack(spacing: 20) {
                 // App Logo with constrained width
-                Image("logo-white")
+                Image(colorScheme == .dark ? "logo-white" : "logo-dark")
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .frame(maxWidth: .infinity)
