@@ -30,6 +30,7 @@ struct ProfileInfoView: View {
                     if viewModel.isLoading {
                         ProgressView()
                             .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            .tint(.appPrimary)
                     } else if let profile = viewModel.userProfile {
                         menuContent(profile: profile)
                     } else {
