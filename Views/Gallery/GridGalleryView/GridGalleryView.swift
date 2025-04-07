@@ -1138,7 +1138,7 @@ struct GridGalleryView: View {
     }
     
     private var lazyGridContentView: some View {
-        LazyGridContentView(
+        ConfigurableGridView(
             payload: $payload,
             selectedItem: $selectedItem,
             isFullScreen: $isFullScreen,
@@ -1152,7 +1152,8 @@ struct GridGalleryView: View {
             },
             searchResultsSelectionModeOn: searchResultsSelectionModeOn,
             gridItems: gridItems,
-            viewModel: viewModel
+            viewModel: viewModel,
+            configViewModel: ConfigurableGridViewModel(items: payload)
         )
         .gesture(
             TapGesture()

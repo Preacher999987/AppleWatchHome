@@ -29,6 +29,7 @@
 		BB6232062D91901B0048BF67 /* Collectible.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB6232052D91901B0048BF67 /* Collectible.swift */; };
 		BB6232082D9190480048BF67 /* PhotoPreviewViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB6232072D9190480048BF67 /* PhotoPreviewViewModel.swift */; };
 		BB62320A2D9190810048BF67 /* PhotoPreviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB6232092D9190810048BF67 /* PhotoPreviewView.swift */; };
+		BB643EDD2DA439F80053250E /* ConfigurableGridViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB643EDC2DA439F80053250E /* ConfigurableGridViewModel.swift */; };
 		BB8E395A2D8F6F5F00CDC7BB /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB8E39592D8F6F5F00CDC7BB /* HomeView.swift */; };
 		BBBBF6392D9B100D008CE85F /* FunkoModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = BBBBF6372D9B100D008CE85F /* FunkoModel.xcdatamodeld */; };
 		BBBBF63C2D9C0B66008CE85F /* GIFView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBBBF63B2D9C0B66008CE85F /* GIFView.swift */; };
@@ -85,6 +86,7 @@
 		BB6232052D91901B0048BF67 /* Collectible.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Collectible.swift; sourceTree = "<group>"; };
 		BB6232072D9190480048BF67 /* PhotoPreviewViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoPreviewViewModel.swift; sourceTree = "<group>"; };
 		BB6232092D9190810048BF67 /* PhotoPreviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoPreviewView.swift; sourceTree = "<group>"; };
+		BB643EDC2DA439F80053250E /* ConfigurableGridViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigurableGridViewModel.swift; sourceTree = "<group>"; };
 		BB8E39592D8F6F5F00CDC7BB /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		BBBBF6382D9B100D008CE85F /* FunkoModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = FunkoModel.xcdatamodel; sourceTree = "<group>"; };
 		BBBBF63B2D9C0B66008CE85F /* GIFView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GIFView.swift; sourceTree = "<group>"; };
@@ -370,6 +372,7 @@
 		BBDFC0782DA3EE8A0051F0EC /* ConfigurableGridView */ = {
 			isa = PBXGroup;
 			children = (
+				BB643EDC2DA439F80053250E /* ConfigurableGridViewModel.swift */,
 				BBDFC07B2DA3F0130051F0EC /* ConfigurableGridView.swift */,
 			);
 			path = ConfigurableGridView;
@@ -510,6 +513,7 @@
 				BBBBF6592D9C58CF008CE85F /* AuthView.swift in Sources */,
 				BBBBF65F2D9D948C008CE85F /* UserProfile.swift in Sources */,
 				BBBBF64B2D9C1279008CE85F /* Testimonial.swift in Sources */,
+				BB643EDD2DA439F80053250E /* ConfigurableGridViewModel.swift in Sources */,
 				BBDFC0852DA402AA0051F0EC /* LazyGridContentView.swift in Sources */,
 				BBBBF6612D9D9597008CE85F /* UserProfileRepository.swift in Sources */,
 				BBBBF6492D9C11D7008CE85F /* KeychainHelper.swift in Sources */,
