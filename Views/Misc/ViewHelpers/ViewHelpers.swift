@@ -146,7 +146,7 @@ struct SafariView: UIViewControllerRepresentable {
     }
 }
 
-//TODO: -
+// TODO: -
 struct RarityIcon: View {
     let estimatedValue: Int
     

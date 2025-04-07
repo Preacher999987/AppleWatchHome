@@ -121,7 +121,7 @@ extension URLRequest {
     
     // MARK: - eBay URL Construction
     static func ebayAffiliateSearchURL(for item: Collectible) -> URL? {
-        //TODO: Add eBay affiliation 
+        // TODO: Add eBay affiliation 
         let rawQuery = "\(item.attributes.name) \(item.attributes.refNumber ?? "") funko pop"
         let encodedQuery = rawQuery.urlSafeEncoded
         let urlString = "https://www.ebay.com/sch/i.html?_nkw=\(encodedQuery)"

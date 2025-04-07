@@ -9,7 +9,7 @@ import SwiftUI
 import Foundation
 
 // LazyGridViewModel.swift
-class LazyGridGalleryViewModel: ObservableObject {
+class GridGalleryViewModel: ObservableObject {
     @Published var showLoadingIndicator = false
     @Published var errorMessage: String?
     

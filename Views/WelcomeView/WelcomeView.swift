@@ -10,7 +10,7 @@ import SwiftUI
 // MARK: - Welcome View
 struct WelcomeView: View {
     @Environment(\.colorScheme) var colorScheme
-    //TODO: Add Testimonials Carousel later
+    // TODO: Add Testimonials Carousel later
     private let testimonials = [
         Testimonial(
             text: "I cataloged 200+ Pops in minutes with the bulk photo feature!",

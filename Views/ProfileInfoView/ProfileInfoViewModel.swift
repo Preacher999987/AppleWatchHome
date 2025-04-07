@@ -13,7 +13,7 @@ class ProfileInfoViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var error: Error?
     
-    //TODO: Add Production URLs from Info.plist
+    // TODO: Add Production URLs from Info.plist
     var appShareURL: URL {
         guard let urlString = Bundle.main.object(forInfoDictionaryKey: "AppShareURL") as? String,
               let url = URL(string: urlString) else {

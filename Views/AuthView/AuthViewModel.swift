@@ -103,7 +103,7 @@ class AuthViewModel: ObservableObject {
             username: authResponse.username,
             email: authResponse.email,
             referralCode: authResponse.referralCode,
-            //TODO: convert URL to Data
+            // TODO: convert URL to Data
             profileImageData: nil,
             profilePicture: authResponse.profilePicture
         )

@@ -214,7 +214,7 @@ struct HomeView: View {
     // MARK: - Subviews
     
     private var collectionView: some View {
-        LazyGridGalleryView(
+        GridGalleryView(
             initialLogoRect: logoRect,
             payload: $analysisResult,
             dismissAction: resetToInitialState,
@@ -226,7 +226,7 @@ struct HomeView: View {
         )
         .navigationDestination(for: [Collectible].self) { newPayload in
             PayloadWrapperView(initialPayload: newPayload) {
-                LazyGridGalleryView(
+                GridGalleryView(
                     initialLogoRect: logoRect,
                     payload: $0,
                     dismissAction: {
@@ -241,7 +241,7 @@ struct HomeView: View {
     }
     
     private var galleryView: some View {
-        LazyGridGalleryView(
+        GridGalleryView(
             initialLogoRect: logoRect,
             payload: $analysisResult,
             dismissAction: resetToInitialState,

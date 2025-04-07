@@ -8,10 +8,9 @@
 
 /* Begin PBXBuildFile section */
 		B540F427271513860052A111 /* GeometryDemoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B540F426271513860052A111 /* GeometryDemoView.swift */; };
-		B5CC8437270498D700DFB13B /* LazyGridGalleryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5CC8436270498D700DFB13B /* LazyGridGalleryView.swift */; };
+		B5CC8437270498D700DFB13B /* GridGalleryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5CC8436270498D700DFB13B /* GridGalleryView.swift */; };
 		B5CC8439270498D800DFB13B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B5CC8438270498D800DFB13B /* Assets.xcassets */; };
 		B5CC844427049E4600DFB13B /* GridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5CC844327049E4600DFB13B /* GridView.swift */; };
-		B5CC84472704D02E00DFB13B /* AppIcons.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5CC84462704D02E00DFB13B /* AppIcons.swift */; };
 		BB15268B2DA2097D002C1CD8 /* ManualEntryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB15268A2DA2097D002C1CD8 /* ManualEntryView.swift */; };
 		BB15268D2DA20F00002C1CD8 /* ManualEntryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB15268C2DA20F00002C1CD8 /* ManualEntryViewModel.swift */; };
 		BB1749BF2DA0CA4D00A64678 /* PhotoUploadResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1749BE2DA0CA4D00A64678 /* PhotoUploadResponse.swift */; };
@@ -26,7 +25,7 @@
 		BB1EF1182DA2E252006B99F4 /* ImagePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1EF1172DA2E252006B99F4 /* ImagePicker.swift */; };
 		BB2B5B2D2D920752004461C4 /* AsyncImageLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB2B5B2C2D920752004461C4 /* AsyncImageLoader.swift */; };
 		BB2B5B2E2D920A11004461C4 /* CollectiblesRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB2B5B272D920638004461C4 /* CollectiblesRepository.swift */; };
-		BB2B5B302D93296A004461C4 /* LazyGridGalleryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB2B5B2F2D93296A004461C4 /* LazyGridGalleryViewModel.swift */; };
+		BB2B5B302D93296A004461C4 /* GridGalleryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB2B5B2F2D93296A004461C4 /* GridGalleryViewModel.swift */; };
 		BB6232062D91901B0048BF67 /* Collectible.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB6232052D91901B0048BF67 /* Collectible.swift */; };
 		BB6232082D9190480048BF67 /* PhotoPreviewViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB6232072D9190480048BF67 /* PhotoPreviewViewModel.swift */; };
 		BB62320A2D9190810048BF67 /* PhotoPreviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB6232092D9190810048BF67 /* PhotoPreviewView.swift */; };
@@ -58,15 +57,16 @@
 		BBBBF6762D9E10CF008CE85F /* AuthResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBBBF6752D9E10CF008CE85F /* AuthResponse.swift */; };
 		BBBBF6782D9F2399008CE85F /* NetworkError.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBBBF6772D9F2399008CE85F /* NetworkError.swift */; };
 		BBDFC0822DA3F6B80051F0EC /* ConfigurableGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBDFC07B2DA3F0130051F0EC /* ConfigurableGridView.swift */; };
+		BBDFC0852DA402AA0051F0EC /* LazyGridContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBDFC0842DA402AA0051F0EC /* LazyGridContentView.swift */; };
+		BBDFC0882DA402E40051F0EC /* LazyGridItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBDFC0872DA402E40051F0EC /* LazyGridItemView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		B540F426271513860052A111 /* GeometryDemoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeometryDemoView.swift; sourceTree = "<group>"; };
 		B5CC8431270498D700DFB13B /* FunKollector.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FunKollector.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		B5CC8436270498D700DFB13B /* LazyGridGalleryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LazyGridGalleryView.swift; sourceTree = "<group>"; };
+		B5CC8436270498D700DFB13B /* GridGalleryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GridGalleryView.swift; sourceTree = "<group>"; };
 		B5CC8438270498D800DFB13B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		B5CC844327049E4600DFB13B /* GridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GridView.swift; sourceTree = "<group>"; };
-		B5CC84462704D02E00DFB13B /* AppIcons.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppIcons.swift; sourceTree = "<group>"; };
 		BB15268A2DA2097D002C1CD8 /* ManualEntryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManualEntryView.swift; sourceTree = "<group>"; };
 		BB15268C2DA20F00002C1CD8 /* ManualEntryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManualEntryViewModel.swift; sourceTree = "<group>"; };
 		BB1749BE2DA0CA4D00A64678 /* PhotoUploadResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoUploadResponse.swift; sourceTree = "<group>"; };
@@ -81,7 +81,7 @@
 		BB1EF1172DA2E252006B99F4 /* ImagePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagePicker.swift; sourceTree = "<group>"; };
 		BB2B5B272D920638004461C4 /* CollectiblesRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectiblesRepository.swift; sourceTree = "<group>"; };
 		BB2B5B2C2D920752004461C4 /* AsyncImageLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncImageLoader.swift; sourceTree = "<group>"; };
-		BB2B5B2F2D93296A004461C4 /* LazyGridGalleryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LazyGridGalleryViewModel.swift; sourceTree = "<group>"; };
+		BB2B5B2F2D93296A004461C4 /* GridGalleryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GridGalleryViewModel.swift; sourceTree = "<group>"; };
 		BB6232052D91901B0048BF67 /* Collectible.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Collectible.swift; sourceTree = "<group>"; };
 		BB6232072D9190480048BF67 /* PhotoPreviewViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoPreviewViewModel.swift; sourceTree = "<group>"; };
 		BB6232092D9190810048BF67 /* PhotoPreviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoPreviewView.swift; sourceTree = "<group>"; };
@@ -111,6 +111,8 @@
 		BBBBF6752D9E10CF008CE85F /* AuthResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthResponse.swift; sourceTree = "<group>"; };
 		BBBBF6772D9F2399008CE85F /* NetworkError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkError.swift; sourceTree = "<group>"; };
 		BBDFC07B2DA3F0130051F0EC /* ConfigurableGridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigurableGridView.swift; sourceTree = "<group>"; };
+		BBDFC0842DA402AA0051F0EC /* LazyGridContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LazyGridContentView.swift; sourceTree = "<group>"; };
+		BBDFC0872DA402E40051F0EC /* LazyGridItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LazyGridItemView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -174,24 +176,22 @@
 			path = Views;
 			sourceTree = "<group>";
 		};
-		B5CC844227049E2E00DFB13B /* Grids */ = {
+		B5CC844227049E2E00DFB13B /* GridViewLayouts */ = {
 			isa = PBXGroup;
 			children = (
+				BBDFC0862DA402AE0051F0EC /* LazyGridView */,
 				BBDFC0782DA3EE8A0051F0EC /* ConfigurableGridView */,
 				B5CC844327049E4600DFB13B /* GridView.swift */,
 			);
-			path = Grids;
+			path = GridViewLayouts;
 			sourceTree = "<group>";
 		};
 		B5CC84452704C1C800DFB13B /* Gallery */ = {
 			isa = PBXGroup;
 			children = (
 				BB1749C42DA1A21A00A64678 /* CarouselView */,
-				BB2B5B2F2D93296A004461C4 /* LazyGridGalleryViewModel.swift */,
-				B5CC8436270498D700DFB13B /* LazyGridGalleryView.swift */,
-				BB2B5B2C2D920752004461C4 /* AsyncImageLoader.swift */,
-				B5CC84462704D02E00DFB13B /* AppIcons.swift */,
-				B5CC844227049E2E00DFB13B /* Grids */,
+				BBDFC0832DA401FC0051F0EC /* GridGalleryView */,
+				B5CC844227049E2E00DFB13B /* GridViewLayouts */,
 			);
 			path = Gallery;
 			sourceTree = "<group>";
@@ -278,9 +278,10 @@
 		BBBBF63D2D9C0BAA008CE85F /* Misc */ = {
 			isa = PBXGroup;
 			children = (
+				BB2B5B2C2D920752004461C4 /* AsyncImageLoader.swift */,
 				BB1EF1172DA2E252006B99F4 /* ImagePicker.swift */,
 				BBBBF65A2D9C7A33008CE85F /* SuccessCheckmarkView.swift */,
-				BBDFC06D2DA2EEE80051F0EC /* View */,
+				BBDFC06D2DA2EEE80051F0EC /* ViewHelpers */,
 				BBBBF64C2D9C12D2008CE85F /* DarkModeHelper.swift */,
 				BBBBF63B2D9C0B66008CE85F /* GIFView.swift */,
 			);
@@ -357,13 +358,13 @@
 			path = ProfileInfoView;
 			sourceTree = "<group>";
 		};
-		BBDFC06D2DA2EEE80051F0EC /* View */ = {
+		BBDFC06D2DA2EEE80051F0EC /* ViewHelpers */ = {
 			isa = PBXGroup;
 			children = (
 				BB1EF1152DA2E1B5006B99F4 /* View+Extensions.swift */,
 				BB1D1E872D98271000153BB4 /* ViewHelpers.swift */,
 			);
-			path = View;
+			path = ViewHelpers;
 			sourceTree = "<group>";
 		};
 		BBDFC0782DA3EE8A0051F0EC /* ConfigurableGridView */ = {
@@ -372,6 +373,24 @@
 				BBDFC07B2DA3F0130051F0EC /* ConfigurableGridView.swift */,
 			);
 			path = ConfigurableGridView;
+			sourceTree = "<group>";
+		};
+		BBDFC0832DA401FC0051F0EC /* GridGalleryView */ = {
+			isa = PBXGroup;
+			children = (
+				BB2B5B2F2D93296A004461C4 /* GridGalleryViewModel.swift */,
+				B5CC8436270498D700DFB13B /* GridGalleryView.swift */,
+			);
+			path = GridGalleryView;
+			sourceTree = "<group>";
+		};
+		BBDFC0862DA402AE0051F0EC /* LazyGridView */ = {
+			isa = PBXGroup;
+			children = (
+				BBDFC0872DA402E40051F0EC /* LazyGridItemView.swift */,
+				BBDFC0842DA402AA0051F0EC /* LazyGridContentView.swift */,
+			);
+			path = LazyGridView;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -459,12 +478,13 @@
 				BB15268D2DA20F00002C1CD8 /* ManualEntryViewModel.swift in Sources */,
 				BB1D1E8A2D983A5300153BB4 /* LaunchView.swift in Sources */,
 				BBBBF6472D9C10E2008CE85F /* WelcomeFeatureCard.swift in Sources */,
-				BB2B5B302D93296A004461C4 /* LazyGridGalleryViewModel.swift in Sources */,
+				BB2B5B302D93296A004461C4 /* GridGalleryViewModel.swift in Sources */,
+				BBDFC0882DA402E40051F0EC /* LazyGridItemView.swift in Sources */,
 				BB1EF1182DA2E252006B99F4 /* ImagePicker.swift in Sources */,
 				BBBBF6762D9E10CF008CE85F /* AuthResponse.swift in Sources */,
 				BB62320A2D9190810048BF67 /* PhotoPreviewView.swift in Sources */,
 				B540F427271513860052A111 /* GeometryDemoView.swift in Sources */,
-				B5CC8437270498D700DFB13B /* LazyGridGalleryView.swift in Sources */,
+				B5CC8437270498D700DFB13B /* GridGalleryView.swift in Sources */,
 				B5CC844427049E4600DFB13B /* GridView.swift in Sources */,
 				BB8E395A2D8F6F5F00CDC7BB /* HomeView.swift in Sources */,
 				BBBBF6452D9C10D2008CE85F /* WelcomeView.swift in Sources */,
@@ -479,7 +499,6 @@
 				BBBBF6662D9DA3CD008CE85F /* ProfileInfoView.swift in Sources */,
 				BB1749BF2DA0CA4D00A64678 /* PhotoUploadResponse.swift in Sources */,
 				BB6232062D91901B0048BF67 /* Collectible.swift in Sources */,
-				B5CC84472704D02E00DFB13B /* AppIcons.swift in Sources */,
 				BBBBF6642D9D96A9008CE85F /* BaseRepository.swift in Sources */,
 				BB15268B2DA2097D002C1CD8 /* ManualEntryView.swift in Sources */,
 				BBBBF64D2D9C12D2008CE85F /* DarkModeHelper.swift in Sources */,
@@ -491,6 +510,7 @@
 				BBBBF6592D9C58CF008CE85F /* AuthView.swift in Sources */,
 				BBBBF65F2D9D948C008CE85F /* UserProfile.swift in Sources */,
 				BBBBF64B2D9C1279008CE85F /* Testimonial.swift in Sources */,
+				BBDFC0852DA402AA0051F0EC /* LazyGridContentView.swift in Sources */,
 				BBBBF6612D9D9597008CE85F /* UserProfileRepository.swift in Sources */,
 				BBBBF6492D9C11D7008CE85F /* KeychainHelper.swift in Sources */,
 				BB6232082D9190480048BF67 /* PhotoPreviewViewModel.swift in Sources */,
