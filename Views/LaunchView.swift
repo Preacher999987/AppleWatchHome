@@ -15,7 +15,7 @@ struct FunkoCollector: App {
     
     var body: some Scene {
         WindowGroup {
-            LaunchView()
+            ConfigurableGridView()
                 .environmentObject(AppState())
                 .onOpenURL { url in
                           GIDSignIn.sharedInstance.handle(url)

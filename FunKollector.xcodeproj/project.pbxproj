@@ -57,6 +57,7 @@
 		BBBBF6722D9DD9E2008CE85F /* animated-logo.gif in Resources */ = {isa = PBXBuildFile; fileRef = BBBBF6712D9DD9E2008CE85F /* animated-logo.gif */; };
 		BBBBF6762D9E10CF008CE85F /* AuthResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBBBF6752D9E10CF008CE85F /* AuthResponse.swift */; };
 		BBBBF6782D9F2399008CE85F /* NetworkError.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBBBF6772D9F2399008CE85F /* NetworkError.swift */; };
+		BBDFC0822DA3F6B80051F0EC /* ConfigurableGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBDFC07B2DA3F0130051F0EC /* ConfigurableGridView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -109,6 +110,7 @@
 		BBBBF6712D9DD9E2008CE85F /* animated-logo.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = "animated-logo.gif"; sourceTree = "<group>"; };
 		BBBBF6752D9E10CF008CE85F /* AuthResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthResponse.swift; sourceTree = "<group>"; };
 		BBBBF6772D9F2399008CE85F /* NetworkError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkError.swift; sourceTree = "<group>"; };
+		BBDFC07B2DA3F0130051F0EC /* ConfigurableGridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigurableGridView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -175,6 +177,7 @@
 		B5CC844227049E2E00DFB13B /* Grids */ = {
 			isa = PBXGroup;
 			children = (
+				BBDFC0782DA3EE8A0051F0EC /* ConfigurableGridView */,
 				B5CC844327049E4600DFB13B /* GridView.swift */,
 			);
 			path = Grids;
@@ -363,6 +366,14 @@
 			path = View;
 			sourceTree = "<group>";
 		};
+		BBDFC0782DA3EE8A0051F0EC /* ConfigurableGridView */ = {
+			isa = PBXGroup;
+			children = (
+				BBDFC07B2DA3F0130051F0EC /* ConfigurableGridView.swift */,
+			);
+			path = ConfigurableGridView;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -475,6 +486,7 @@
 				BBBBF6572D9C58BF008CE85F /* AuthViewModel.swift in Sources */,
 				BBBBF66B2D9DB053008CE85F /* ProfileImagePicker.swift in Sources */,
 				BB1EF1142DA297F5006B99F4 /* Collectible+Extensions.swift in Sources */,
+				BBDFC0822DA3F6B80051F0EC /* ConfigurableGridView.swift in Sources */,
 				BB2B5B2E2D920A11004461C4 /* CollectiblesRepository.swift in Sources */,
 				BBBBF6592D9C58CF008CE85F /* AuthView.swift in Sources */,
 				BBBBF65F2D9D948C008CE85F /* UserProfile.swift in Sources */,
