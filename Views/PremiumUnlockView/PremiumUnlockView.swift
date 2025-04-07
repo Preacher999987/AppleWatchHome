@@ -27,6 +27,7 @@ struct PremiumUnlockView: View {
                     HStack {
                         Spacer()
                         Button(action: {
+                            ViewHelpers.hapticFeedback()
                             viewModel.showExitConfirmation = true
                         }) {
                             Image(systemName: "xmark")
@@ -51,6 +52,9 @@ struct PremiumUnlockView: View {
                                 )
                                 .tag(index)
                                 .padding(.horizontal, 20)
+                                .onTapGesture {
+                                    ViewHelpers.hapticFeedback()
+                                }
                             }
                         }
                         .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
@@ -111,7 +115,9 @@ struct PremiumUnlockView: View {
                                 .padding(.top, 4)
                             
                             Button(action: {
-                                    // Handle trial subscription
+                                // Handle trial subscription
+                                
+                                ViewHelpers.hapticFeedback()
                                 viewModel.startFreeTrial()
                             }) {
                                 HStack(spacing: 8) {

@@ -140,7 +140,7 @@ struct AuthView: View {
             }) {
                 if viewModel.isLoading {
                     ProgressView()
-                        .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                        .progressViewStyle(CircularProgressViewStyle(tint: .appPrimary))
                 } else {
                     Text("Continue")
                 }
@@ -249,7 +249,7 @@ struct AuthView: View {
             }) {
                 if viewModel.isLoading {
                     ProgressView()
-                        .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                        .progressViewStyle(CircularProgressViewStyle(tint: .appPrimary))
                 } else {
                     Text("Create Account")
                 }

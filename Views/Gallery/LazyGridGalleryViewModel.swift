@@ -15,8 +15,50 @@ class LazyGridGalleryViewModel: ObservableObject {
     
     @Published var showSuccessCheckmark: Bool = false
     
+    @Published var selectedItems: [Collectible] = []
+    
+    var selectedItemsCount: Int {
+        selectedItems.count
+    }
+    
     private let baseUrl = "http://192.168.1.17:3000"
-
+    
+    func cancelSearchResultsSelectionButtonTapped() {
+        selectedItems.removeAll()
+    }
+    
+    func toggleItemSelection(_ item: Collectible) {
+        if let index = selectedItems.firstIndex(where: { $0.id == item.id }) {
+            selectedItems.remove(at: index)
+        } else {
+            selectedItems.append(item)
+        }
+    }
+    
+    func isItemSelected(_ id: String) -> Bool {
+        selectedItems.contains(where: { $0.id == id })
+    }
+    
+    func addToCollectionConfirmed(_ completion: @escaping (Result<Bool, Error>) -> Void) {
+        // Implement your Collection saving logic here
+        print("Adding items to Collection: \(selectedItems)")
+        let itemIds = selectedItems.map { $0.id }
+        
+        manageCollection(itemIds: itemIds, method: .add) { [weak self] result in
+            guard let self = self else { return }
+            
+            switch result {
+            case .success:
+                self.addToCollection(self.selectedItems)
+                completion(result)
+                
+            case .failure(let error):
+                print("Error saving to Collection:", error.localizedDescription)
+                errorMessage = error.localizedDescription
+            }
+        }
+    }
+    
     func getGridItemUrl(from item: Collectible) -> URL? {
         let stringUrl = !item.searchImageNoBgUrl.isEmpty
         ? baseUrl + item.searchImageNoBgUrl
@@ -94,12 +136,12 @@ class LazyGridGalleryViewModel: ObservableObject {
     }
     
     func getGalleryImages(for id: String, completion: @escaping (Result<[ImageData], Error>) -> Void) {
-        showLoadingIndicator = true
+//        showLoadingIndicator = true
         
         // Construct URL with path parameter
         guard let apiUrl = URL(string: "http://192.168.1.17:3000/gallery/\(id)") else {
             completion(.failure(NSError(domain: "InvalidURL", code: -3, userInfo: nil)))
-            showLoadingIndicator = false
+//            showLoadingIndicator = false
             return
         }
         
@@ -109,7 +151,7 @@ class LazyGridGalleryViewModel: ObservableObject {
         
         URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
             DispatchQueue.main.async {
-                self?.showLoadingIndicator = false
+//                self?.showLoadingIndicator = false
             }
             
             if let error = error {
@@ -212,7 +254,7 @@ class LazyGridGalleryViewModel: ObservableObject {
         (try? CollectiblesRepository.loadItems()) ?? []
     }
     
-    func addToCollection(_ items: [Collectible]) {
+    private func addToCollection(_ items: [Collectible]) {
         // Add all current payload items to Collection
         try? CollectiblesRepository.addItems(items)
     }

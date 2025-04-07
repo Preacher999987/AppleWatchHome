@@ -123,13 +123,15 @@ struct ZoomableImage: View {
 
     var body: some View {
         GeometryReader { proxy in
-            AsyncImageLoader(
-                url: url,
-                placeholder: placeholder,
-                grayScale: false
-            )
-            .scaledToFit()
-            .frame(width: proxy.size.width, height: proxy.size.height)
+            ZStack {
+                AsyncImageLoader(
+                    url: url,
+                    placeholder: placeholder,
+                    grayScale: false
+                )
+                .scaledToFit()
+                .frame(width: proxy.size.width, height: proxy.size.height)
+            }
             .scaleEffect(currentScale)
             .offset(offset)
             .simultaneousGesture(

@@ -71,6 +71,7 @@ struct ManualEntryView: View {
                 // Loading and error states
                 if viewModel.isLoading {
                     ProgressView()
+                        .tint(.appPrimary)
                 }
                 
                 if let error = viewModel.errorMessage {

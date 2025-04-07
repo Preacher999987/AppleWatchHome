@@ -44,6 +44,9 @@ struct LazyGridGalleryView: View {
     // Modal Safari browser view
     @State private var showSafariView = false
     
+    // Search results selection mode
+    @State private var searchResultsSelectionModeOn = false
+    
     // Create an instance of the ViewModel
     @StateObject private var viewModel = LazyGridGalleryViewModel()
     
@@ -51,7 +54,7 @@ struct LazyGridGalleryView: View {
     @Environment(\.dismiss) var dismiss
     @Environment(\.colorScheme) var colorScheme
     
-    private static let size: CGFloat = 150
+    private static let gridItemSize: CGFloat = 150
     private static let spacingBetweenColumns: CGFloat = 12
     private static let spacingBetweenRows: CGFloat = 12
     private static let totalColumns: Int = 4
@@ -81,32 +84,46 @@ struct LazyGridGalleryView: View {
         UIDevice.isiPhoneSE ? 6 : 40
     }
     
+    private var informationFooterTitle: String {
+        let count = viewModel.selectedItemsCount
+        
+        if count == 0 {
+            return "Select"
+        }
+        
+        return  "Add \(count) item\(count > 1 ? "s" : "") to Collection"
+    }
+    
     private var informationFooter: some View {
-        Group {
-            if appState.showAddToCollectionButton && !isFullScreen && !payload.isEmpty {
-                VStack(spacing: 8) {
-                    Text("\(payload.count) items found")
-                        .font(.headline.weight(.medium))
-                    Text("Tap items to remove unwanted ones")
-                        .font(.subheadline)
-                    
-                    Button(action: addToCollectionButtonTapped) {
-                        Text("Add All to Collection")
-                            .font(.headline.weight(.semibold))
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 10)
-                            .foregroundColor(.black)
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .tint(.appPrimary)
-                }
-                .foregroundColor(.white)
-                .padding()
-                .blurredBackgroundRounded()
-                .padding(.horizontal, 16)
-                .padding(.bottom, 60) // Adjusted bottom padding
-                .frame(maxWidth: .infinity)
+        VStack(spacing: 8) {
+            Text("\(payload.count) items found")
+                .font(.headline.weight(.medium))
+            Text("Select items to add to your collection")
+                .font(.subheadline)
+            
+            Button(action: addToCollectionButtonTapped) {
+                Text(informationFooterTitle)
+                    .font(.headline.weight(.semibold))
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 10)
+                    .foregroundColor(.black)
             }
+            .buttonStyle(.borderedProminent)
+            .tint(.appPrimary)
+            .disabled(searchResultsSelectionModeOn && viewModel.selectedItemsCount == 0)
+        }
+        .foregroundColor(.white)
+        .padding()
+        .blurredBackgroundRounded()
+        .padding(.horizontal, 16)
+        .padding(.bottom, 60) // Adjusted bottom padding
+        .frame(maxWidth: .infinity)
+        .alert("Add \(viewModel.selectedItemsCount) item\(viewModel.selectedItemsCount > 1 ? "s" : "") to your collection?",
+               isPresented: $showAddToCollectionConfirmation) {
+            Button("Add item\(viewModel.selectedItemsCount > 1 ? "s" : "")", action: addToCollection)
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("This will add all selected items to your collection.")
         }
     }
     
@@ -181,7 +198,7 @@ struct LazyGridGalleryView: View {
     
     var gridItems = Array(
         repeating: GridItem(
-            .fixed(size),
+            .fixed(gridItemSize),
             spacing: spacingBetweenColumns,
             alignment: .center
         ),
@@ -220,9 +237,9 @@ struct LazyGridGalleryView: View {
     }
     
     private func dismissInputView() {
-            isInputFieldFocused = false
-            showKeyboard = false
-            editedPricePaid = ""
+        isInputFieldFocused = false
+        showKeyboard = false
+        editedPricePaid = ""
     }
     
     private func addItemButtonDropDownView() -> some View {
@@ -297,23 +314,19 @@ struct LazyGridGalleryView: View {
     }
     
     private func addToCollection() {
-        // Implement your Collection saving logic here
-        print("Adding items to Collection: \(payload)")
-        do {
-            let itemIds = payload.map { $0.id }
-            
-            viewModel.manageCollection(itemIds: itemIds, method: .add) { result in
-                if case .success = result {
-                    viewModel.addToCollection(payload)
-                    
-                    dismissActionWrapped()
-                    
-                    appState.openMyCollection = true
-                }
+        viewModel.addToCollectionConfirmed { result in
+            if case .success = result {
+                searchResultsSelectionModeOn = false
+                selectedItem = nil
+                
+                dismissActionWrapped()
+                // TODO: Optimize my collection loading flow
+                // Problem: state change and collection datasource load triggered in LazyGridGalleryView
+                // Solution:
+                // - Move loading responsibility to HomeView
+                payload = viewModel.loadMyCollection()
+                appState.openMyCollection = true
             }
-        } catch {
-            //TODO: -
-            print("Error saving to Collection:", error.localizedDescription)
         }
     }
     
@@ -332,11 +345,18 @@ struct LazyGridGalleryView: View {
                     grayScale: !payload[index].inCollection
                 )
                 .scaledToFit()
-                .cornerRadius(Self.size/8)
+                .cornerRadius(Self.gridItemSize/8)
                 .scaleEffect(scale(proxy: proxy, value: index))
                 .offset(x: offsetX(index), y: 0)
+                .overlay(selectionIndicator(for: index))
                 .onTapGesture {
                     withAnimation(.easeInOut(duration: 0.15)) {
+                        // Toggle selection state
+                        if searchResultsSelectionModeOn {
+                            ViewHelpers.hapticFeedback()
+                            viewModel.toggleItemSelection(payload[index])
+                        }
+                        
                         selectedItem = index
                     }
                 }
@@ -352,7 +372,7 @@ struct LazyGridGalleryView: View {
                         .frame(width: .infinity, height: 24)
                         .background(.red)
                         .cornerRadius(12)
-                        .offset(x: offsetX(index) + Self.size / 4 - 10, y: -Self.size / 2 + 10)
+                        .offset(x: offsetX(index) + Self.gridItemSize / 4 - 10, y: -Self.gridItemSize / 2 + 10)
                 }
                 
                 if selectedItem == index {
@@ -400,7 +420,9 @@ struct LazyGridGalleryView: View {
                         }
                         .offset(x: offsetX(index), y: 0)
                     }
-                    if payload[index].inCollection {
+                    
+                    // Show collectible delete option only if not in search results gallery mode
+                    if payload[index].inCollection && !appState.showAddToCollectionButton{
                         Button(action: {
                             showCollectibleDeleteConfirmation = true
                         }) {
@@ -412,7 +434,7 @@ struct LazyGridGalleryView: View {
                         }
                         .frame(width: 44, height: 44) // Minimum tappable area
                         .contentShape(Circle()) // Makes entire circle tappable
-                        .offset(x: offsetX(index) + Self.size / 2 - 10, y: -Self.size / 2 + 10)
+                        .offset(x: offsetX(index) + Self.gridItemSize / 2 - 10, y: -Self.gridItemSize / 2 + 10)
                         .alert("Delete \(payload[index].attributes.name)?", isPresented: $showCollectibleDeleteConfirmation) {
                             Button("Delete", role: .destructive, action: confirmCollectibleDeletion)
                             Button("Cancel", role: .cancel) {}
@@ -421,6 +443,25 @@ struct LazyGridGalleryView: View {
                         }
                     }
                 }
+            }
+        }
+    }
+    
+    private func selectionIndicator(for index: Int) -> some View {
+        Group {
+            if searchResultsSelectionModeOn {
+                Image(systemName: viewModel.isItemSelected(payload[index].id) ?
+                      "checkmark.circle" : "circle")
+                .symbolEffect(.bounce, value: viewModel.isItemSelected(payload[index].id))
+                .font(.system(size: 22))
+                .foregroundColor(viewModel.isItemSelected(payload[index].id) ?
+                                 Color(.black) : Color(.systemGray3))
+                .background(viewModel.isItemSelected(payload[index].id) ?
+                            Color.appPrimary : Color(.clear))
+                .clipShape(Circle())
+                .frame(width: 44, height: 44)
+                .offset(x: offsetX(index) + Self.gridItemSize / 2 - 22, y: Self.gridItemSize / 2 - 22)
+                .transition(.scale.combined(with: .opacity))
             }
         }
     }
@@ -487,7 +528,7 @@ struct LazyGridGalleryView: View {
                             grayScale: false
                         )
                         // NOTE: For better visual feedback during swiping, consider adding this modifier:
-//                        .animation(.interactiveSpring(), value: currentImageIndex)
+                        //                        .animation(.interactiveSpring(), value: currentImageIndex)
                         .scaledToFit()
                         .clipShape(RoundedRectangle(cornerRadius: 20))
                         .frame(width: geometry.size.width, height: geometry.size.height, alignment: .center)
@@ -990,7 +1031,7 @@ struct LazyGridGalleryView: View {
             if viewModel.showLoadingIndicator {
                 ProgressView()
                     .scaleEffect(2)
-                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                    .progressViewStyle(CircularProgressViewStyle(tint: .appPrimary))
                     .zIndex(3) // Show above other content
             }
             
@@ -1005,16 +1046,16 @@ struct LazyGridGalleryView: View {
                             GeometryReader { proxy in
                                 gridItemView(for: index, proxy: proxy)
                             }
-                            .frame(height: Self.size)
+                            .frame(height: Self.gridItemSize)
                             .transition(.asymmetric(
                                 insertion: .scale.combined(with: .opacity),
                                 removal: .scale.combined(with: .opacity).combined(with: .move(edge: .trailing))
                             ))
                         }
                     }
-                    .padding(.trailing, Self.size/2 + 20) // Add proper padding
-                    .padding(.top, Self.size/2 + 20)
-                    .padding(.bottom, Self.size/2 + 40)
+                    .padding(.trailing, Self.gridItemSize/2 + 20) // Add proper padding
+                    .padding(.top, Self.gridItemSize/2 + 20)
+                    .padding(.bottom, Self.gridItemSize/2 + 40)
                     .padding(.leading, 20)
                 }
                 .contentShape(Rectangle()) // Make entire scroll view tappable
@@ -1035,7 +1076,7 @@ struct LazyGridGalleryView: View {
             
             if let selectedItem = selectedItem {
                 fullScreenView(for: selectedItem)
-                    .offset(y: !isFullScreen ? UIScreen.main.bounds.height*0.45 : 0)  // Half of 300 to maintain visual balance
+                    .offset(y: fullScreenViewOffsetY)  // Half of 300 to maintain visual balance
                     .sheet(isPresented: $chooseCollectibleUserPhotos) {
                         ImagePicker(selectedImages: $selectedCollectibleUserPhotos, selectionLimit: 5)
                     }
@@ -1068,6 +1109,7 @@ struct LazyGridGalleryView: View {
                                 }
                         }
                     }
+                
                 // Success Checkmark Overlay
                 if viewModel.showSuccessCheckmark {
                     SuccessCheckmarkView()
@@ -1081,7 +1123,9 @@ struct LazyGridGalleryView: View {
                             }
                         }
                 }
-            } else {
+            }
+            
+            if appState.showAddToCollectionButton && !isFullScreen && !payload.isEmpty {
                 VStack {
                     Spacer()
                     informationFooter
@@ -1187,8 +1231,8 @@ struct LazyGridGalleryView: View {
     
     private var trailingNavigationButtons: some View {
         HStack(spacing: 12) {
-            if appState.showAddToCollectionButton {
-                addToCollectionButton
+            if appState.showAddToCollectionButton && searchResultsSelectionModeOn {
+                cancelSearchResultsSelectionButton
             }
             
             if appState.showPlusButton {
@@ -1209,13 +1253,14 @@ struct LazyGridGalleryView: View {
     
     // MARK: - Button Components
     
-    private var addToCollectionButton: some View {
-        Button(action: addToCollectionButtonTapped) {
+    private var cancelSearchResultsSelectionButton: some View {
+        Button(action: {
+            viewModel.cancelSearchResultsSelectionButtonTapped()
+            searchResultsSelectionModeOn.toggle()
+        }) {
             HStack(spacing: 4) {
-                Text("Add All")
+                Text(searchResultsSelectionModeOn ? "Cancel" : "Select")
                     .font(.system(size: 14, weight: .medium))
-                Text("(\(payload.count))")
-                    .font(.system(size: 12, weight: .bold))
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 8)
@@ -1229,12 +1274,6 @@ struct LazyGridGalleryView: View {
                 Capsule()
                     .stroke(Color.appPrimary, lineWidth: 2)
             )
-        }
-        .alert("Add \(payload.count) items to your collection?", isPresented: $showAddToCollectionConfirmation) {
-            Button("Add All", action: addToCollection)
-            Button("Cancel", role: .cancel) {}
-        } message: {
-            Text("Only remaining items will be added. Remove any you don't want first.")
         }
     }
     
@@ -1263,6 +1302,11 @@ struct LazyGridGalleryView: View {
     }
     
     private func addToCollectionButtonTapped() {
+        guard viewModel.selectedItemsCount > 0 else {
+            searchResultsSelectionModeOn = true
+            return
+        }
+        
         // Check if user is logged in
         if KeychainHelper.hasValidJWTToken {
             // Existing collection saving logic
@@ -1356,18 +1400,48 @@ struct LazyGridGalleryView: View {
         }
     }
     
+    /**
+     Fullscreen View Behavior Rules:
+     
+     1. Presentation Rules:
+        - Always shown at full height when expanded (`isFullScreen = true`)
+        - Hidden below screen when in collection selection mode
+        - Partially visible (peeking) in all other cases
+     
+     2. Interaction Logic:
+        - Card taps only toggle selection in search mode
+        - Requires explicit "View" action to show details
+        - Never interrupts selection workflow
+        - Maintains consistent selection controls
+     
+     3. Visual Treatment:
+        - Default peeking position mimics Funko box figurine display
+        - Fully hidden during collection management
+        - Smooth transitions between states
+     */
+    private var fullScreenViewOffsetY: CGFloat {
+        let screenHeight = UIScreen.main.bounds.height
+        
+        // Rule 1a: Fullscreen mode
+        if isFullScreen { return 0 }
+        
+        // Rule 1b: Collection selection mode
+        if appState.showAddToCollectionButton {
+            return screenHeight * 0.8// Completely hidden
+        }
+        
+        // Rule 1c: Default peeking position
+        return screenHeight * 0.45 // Funko box display style
+    }
+    
     func offsetX(_ value: Int) -> CGFloat {
         let rowNumber = value / gridItems.count
         
         if rowNumber % 2 == 0 {
-            return Self.size/2 + Self.spacingBetweenColumns/2
+            return Self.gridItemSize/2 + Self.spacingBetweenColumns/2
         }
         
         return 0
-    }
-    
-    func appName(_ value: Int) -> String {
-        apps[value%apps.count]
     }
     
     var center: CGPoint {
