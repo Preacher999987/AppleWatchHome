@@ -10,8 +10,8 @@ import SwiftUI
 
 // MARK: - ViewModel
 class ConfigurableGridViewModel: ObservableObject {
-    @Published var items: [Collectible]
-    @Published var filteredItems: [Collectible]
+    @Binding var items: [Collectible]
+    @Binding var filteredItems: [Collectible]
     @Published private(set) var columnCount: Int = 2 {
             didSet {
                 // Ensure column count stays within bounds
@@ -51,10 +51,10 @@ class ConfigurableGridViewModel: ObservableObject {
         case dateOldest = "Added (Oldest)"
     }
     
-    init(items: [Collectible]) {
-        self.items = items
-        self.filteredItems = items
-        applySortAndFilter()
+    init(items: Binding<[Collectible]>) {
+        self._items = items
+        self._filteredItems = items
+        self.applySortAndFilter()
     }
     
     func increaseColumns() {
@@ -106,9 +106,11 @@ class ConfigurableGridViewModel: ObservableObject {
     }
     
     func setColumnCount(_ count: Int) {
-        let newCount = min(max(count, minColumns), maxColumns)
-        if newCount != columnCount {
-            columnCount = newCount
+        withAnimation(.spring()) {
+            let newCount = min(max(count, minColumns), maxColumns)
+            if newCount != columnCount {
+                columnCount = newCount
+            }
         }
     }
 }

@@ -17,8 +17,8 @@ struct LazyGridItemView: View {
     let gridItems: [GridItem]
     
     var showAddToCollectionButton: Bool
-    var onViewAction: (() -> Void)?
-    var onDeleteAction: (() -> Void)?
+    var onViewAction: (() -> Void)
+    var onDeleteAction: (() -> Void)
     
     @State private var showDeleteConfirmation = false
     
@@ -36,121 +36,32 @@ struct LazyGridItemView: View {
             .cornerRadius(Self.gridItemSize/8)
             .scaleEffect(scale)
             .offset(x: offsetX, y: 0)
-            .overlay(selectionIndicator)
+            .overlay(
+                ImageOverlaySelectionIndicator(
+                    isItemSelected: viewModel.isItemSelected(collectible.id),
+                    inSelectionMode: inSelectionMode)
+                .offset(x: offsetX + Self.gridItemSize / 2 - 22, y: Self.gridItemSize / 2 - 22)
+            )
             
             if !collectible.inCollection {
-                missingLabel
+                ImageOverlayMissingLabel()
+                .offset(x: offsetX + Self.gridItemSize / 4 - 10, y: -Self.gridItemSize / 2 + 10)
             }
             
             if isSelected {
-                actionButton
+                ImageOverlayActionButton(
+                    onViewAction: onViewAction,
+                    inCollection: collectible.inCollection)
+                .offset(x: offsetX, y: 0)
             }
             
             if isSelected && collectible.inCollection && !showAddToCollectionButton {
-                deleteButton
-            }
-        }
-    }
-    
-    // MARK: - Delete Button Components
-    
-    private var deleteButton: some View {
-        Button(action: {
-            showDeleteConfirmation = true
-        }) {
-            Image(systemName: "xmark.circle.fill")
-                .font(.system(size: 22))
-                .foregroundColor(.black.opacity(0.8))
-                .background(.red)
-                .clipShape(Circle())
-        }
-        .frame(width: 44, height: 44)
-        .contentShape(Circle())
-        .offset(x: offsetX + Self.gridItemSize / 2 - 10, y: -Self.gridItemSize / 2 + 10)
-        .alert(
-            "Delete \(collectible.attributes.name)?",
-            isPresented: $showDeleteConfirmation
-        ) {
-            Button("Delete", role: .destructive) {
-                showDeleteConfirmation = false
-                onDeleteAction?()
-            }
-            Button("Cancel", role: .cancel) {
-                showDeleteConfirmation = false
-            }
-        } message: {
-            Text("This will permanently remove the item from your collection.")
-        }
-    }
-    
-    private var missingLabel: some View {
-        Text("MISSING")
-            .font(.system(size: 12, weight: .bold))
-            .foregroundColor(.white)
-            .padding(.horizontal, 6)
-            .padding(.vertical, 2)
-            .frame(width: .infinity, height: 24)
-            .background(.red)
-            .cornerRadius(12)
-            .offset(x: offsetX + Self.gridItemSize / 4 - 10, y: -Self.gridItemSize / 2 + 10)
-    }
-    
-    private var actionButton: some View {
-        Group {
-            if !collectible.inCollection {
-                Button(action: {
-                    ViewHelpers.hapticFeedback()
-                    onViewAction?()
-                }) {
-                    Text("Shop")
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundColor(.appPrimary)
-                        .padding(.horizontal, 18)
-                        .padding(.vertical, 8)
-                        .background(.black.opacity(0.5))
-                        .cornerRadius(15)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 15)
-                                .stroke(Color.appPrimary, lineWidth: 2)
-                        )
-                }
-            } else {
-                Button(action: {
-                    ViewHelpers.hapticFeedback()
-                    onViewAction?()
-                }) {
-                    Text("View")
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundColor(.green)
-                        .padding(.horizontal, 18)
-                        .padding(.vertical, 8)
-                        .background(Color.black.opacity(0.5))
-                        .cornerRadius(15)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 15)
-                                .stroke(.green, lineWidth: 2)
-                        )
-                }
-            }
-        }
-        .offset(x: offsetX, y: 0)
-    }
-    
-    private var selectionIndicator: some View {
-        Group {
-            if inSelectionMode {
-                Image(systemName: viewModel.isItemSelected(collectible.id) ?
-                      "checkmark.circle" : "circle")
-                .symbolEffect(.bounce, value: viewModel.isItemSelected(collectible.id))
-                .font(.system(size: 22))
-                .foregroundColor(viewModel.isItemSelected(collectible.id) ?
-                               Color(.black) : Color(.systemGray3))
-                .background(viewModel.isItemSelected(collectible.id) ?
-                          Color.appPrimary : Color(.clear))
-                .clipShape(Circle())
-                .frame(width: 44, height: 44)
-                .offset(x: offsetX + Self.gridItemSize / 2 - 22, y: Self.gridItemSize / 2 - 22)
-                .transition(.scale.combined(with: .opacity))
+                ImageOverlayDeleteButton(
+                    showDeleteConfirmation: $showDeleteConfirmation,
+                    onDeleteAction: onDeleteAction,
+                    item: collectible
+                )
+                .offset(x: offsetX + Self.gridItemSize / 2 - 10, y: -Self.gridItemSize / 2 + 10)
             }
         }
     }

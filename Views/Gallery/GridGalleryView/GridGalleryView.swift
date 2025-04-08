@@ -261,7 +261,7 @@ struct GridGalleryView: View {
                                 .font(.largeTitle)
                             Text("Review Your Results")
                                 .font(.title3.weight(.bold))
-                            Text("Tap items to remove ones you don't want, then press 'Add All' to save the remaining items")
+                            Text("Build your collection! Tap to choose items, then select 'Add' when you're done.")
                                 .multilineTextAlignment(.center)
                                 .fixedSize(horizontal: false, vertical: true) // Allow vertical expansion
                                 .padding(.horizontal, 16)
@@ -655,7 +655,7 @@ struct GridGalleryView: View {
             // Details content
             ScrollView() {
                 Group {
-                    HeaderView("General Info")
+                    headerView("General Info")
                         .padding(.top, 16)
                     detailRow(title: "ITEM:", value: currentItem.attributes.name)
                     detailRow(title: "VALUE:", value: currentItem.estimatedValue ?? "-", style: .browse)
@@ -677,7 +677,7 @@ struct GridGalleryView: View {
                     detailRow(title: "SERIES:", value: series)
                     
                     if viewModel.showAcquisitionDetails(for: currentItem.id) {
-                        HeaderView("Acquisition Details")
+                        headerView("Acquisition Details")
                             .padding(.top, 8)
                         
                         detailRow(
@@ -753,7 +753,7 @@ struct GridGalleryView: View {
     }
     
     // Separator
-    private func HeaderView(_ title: String) -> some View {
+    private func headerView(_ title: String) -> some View {
         HStack {
             Rectangle()
                 .frame(height: 1)
@@ -1139,7 +1139,6 @@ struct GridGalleryView: View {
     
     private var lazyGridContentView: some View {
         ConfigurableGridView(
-            payload: $payload,
             selectedItem: $selectedItem,
             isFullScreen: $isFullScreen,
             showSafariView: $showSafariView,
@@ -1152,9 +1151,25 @@ struct GridGalleryView: View {
             },
             searchResultsSelectionModeOn: searchResultsSelectionModeOn,
             gridItems: gridItems,
-            viewModel: viewModel,
-            configViewModel: ConfigurableGridViewModel(items: payload)
+            parentViewModel: viewModel,
+            viewModel: ConfigurableGridViewModel(items: $payload)
         )
+//        LazyGridContentView(
+//            payload: $payload,
+//            selectedItem: $selectedItem,
+//            isFullScreen: $isFullScreen,
+//            showSafariView: $showSafariView,
+//            showAddToCollectionButton: $appState.showAddToCollectionButton,
+//            onItemTap: {
+//                selectedItem = $0
+//            },
+//            confirmCollectibleDeletion: { index in
+//                confirmCollectibleDeletion(index)
+//            },
+//            searchResultsSelectionModeOn: searchResultsSelectionModeOn,
+//            gridItems: gridItems,
+//            viewModel: viewModel
+//        )
         .gesture(
             TapGesture()
                 .onEnded {
