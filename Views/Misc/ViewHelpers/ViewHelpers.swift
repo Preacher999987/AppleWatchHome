@@ -48,6 +48,7 @@ enum DetailRowStyle {
     case browse
     case input
     case media
+    case returnValue
 }
 
 struct TextFieldAlert<Presenting>: View where Presenting: View {

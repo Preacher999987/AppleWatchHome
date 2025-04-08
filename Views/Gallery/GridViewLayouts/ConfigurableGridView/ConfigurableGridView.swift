@@ -155,7 +155,9 @@ struct ConfigurableGridView: View {
                 ForEach(viewModel.filteredItems.indices, id: \.self) { index in
                     gridItemView(for: index)
                         .transition(.scale.combined(with: .opacity))
-                        .aspectRatio(0.75, contentMode: .fill) // Make items rectangle
+                        .aspectRatio(GridItemViewLayout
+                            .layout(for: viewModel.columnCount) == .compact ? 1 : 0.75,
+                                     contentMode: .fill) // Make items rectangle
                 }
             }
                       .padding(.top, 72)
@@ -168,7 +170,8 @@ struct ConfigurableGridView: View {
     
     private func gridItemView(for index: Int) -> some View {
         return ConfigurableGridItemView(
-            layout: viewModel.columnCount < 4 ? .regular : .compact,
+            layout: GridItemViewLayout
+                .layout(for: viewModel.columnCount),
             collectible: viewModel.filteredItems[index],
             isSelected: selectedItem == index,
             inSelectionMode: searchResultsSelectionModeOn,
@@ -244,7 +247,27 @@ struct ConfigurableGridView: View {
 }
 
 enum GridItemViewLayout {
-    case compact, regular
+    case compact     // Best for 4 columns (smallest items)
+    case regular     // Best for 3 columns (balanced size)
+    case large      // Best for 2 columns (bigger items)
+    case extraLarge // Best for 1 column (full-width)
+    
+    /// Returns a layout based on the column count (1 to 4).
+    static func layout(for columns: Int) -> GridItemViewLayout {
+        switch columns {
+        case 1:
+            return .extraLarge
+        case 2:
+            return .large
+        case 3:
+            return .regular
+        case 4:
+            return .compact
+        default:
+            // Fallback to a reasonable default (e.g., regular)
+            return .regular
+        }
+    }
 }
 
 // MARK: - Preview

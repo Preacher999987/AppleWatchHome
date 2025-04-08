@@ -94,7 +94,7 @@ extension CollectibleEntity {
         
         // Attributes
         self.attrName = collectible.attributes.name
-        self.attrEstimatedValue = collectible.attributes._estimatedValue
+        self.attrEstimatedValue = collectible.attributes.estimatedValue
         self.attrDateFrom = collectible.attributes.dateFrom
         self.attrRefNumber = collectible.attributes.refNumber
         
@@ -181,7 +181,7 @@ extension CollectibleEntity {
         let attributes = CollectibleAttributes(
             images: images,
             name: attrName ?? "",
-            _estimatedValue: attrEstimatedValue,
+            estimatedValue: attrEstimatedValue,
             estimatedValueRange: estimatedValueRange,
             relatedSubjects: relatedSubjects,
             dateFrom: attrDateFrom,

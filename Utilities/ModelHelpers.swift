@@ -144,6 +144,33 @@ extension String {
             .addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)?
             .replacingOccurrences(of: "+", with: "%20") ?? ""
     }
+    
+    var currencyColor: Color {
+        // Create a number formatter that understands both decimal styles
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .decimal
+        formatter.locale = Locale(identifier: "en_US") // Force dot decimal for parsing
+        
+        // Clean the string (handle both comma and dot decimals)
+        let cleaned = self
+            .replacingOccurrences(of: "$", with: "")
+            .replacingOccurrences(of: ",", with: ".") // Convert EU comma to dot
+            .trimmingCharacters(in: .whitespaces)
+        
+        // Parse the number
+        guard let number = formatter.number(from: cleaned) else {
+            return .white // Default for invalid numbers
+        }
+        
+        let value = number.floatValue
+        if value == 0 {
+            return .white
+        } else if value > 0 {
+            return .green
+        } else {
+            return .red
+        }
+    }
 }
 
 enum Rarity {

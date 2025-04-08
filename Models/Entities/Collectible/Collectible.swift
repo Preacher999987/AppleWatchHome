@@ -32,7 +32,7 @@ struct ImageData: Codable, Hashable {
 struct CollectibleAttributes: Codable, Hashable {
     var images: Images
     let name: String
-    var _estimatedValue: String? // New property
+    var estimatedValue: String? // New property
     var estimatedValueRange: [String?]? // Updated to handle nulls
     var relatedSubjects: [RelatedSubject]?
     var dateFrom: String?
@@ -53,7 +53,7 @@ struct CollectibleAttributes: Codable, Hashable {
     
     enum CodingKeys: String, CodingKey {
         case images, name
-        case _estimatedValue = "estimated_value"
+        case estimatedValue = "estimated_value"
         case estimatedValueRange = "estimated_value_range"
         case relatedSubjects = "related_subjects"
         case dateFrom = "date_from"
@@ -65,7 +65,7 @@ struct CollectibleAttributes: Codable, Hashable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         images = try container.decode(Images.self, forKey: .images)
         name = try container.decode(String.self, forKey: .name)
-        _estimatedValue = try container.decodeIfPresent(String.self, forKey: ._estimatedValue)
+        estimatedValue = try container.decodeIfPresent(String.self, forKey: .estimatedValue)
         relatedSubjects = try container.decodeIfPresent([RelatedSubject].self, forKey: .relatedSubjects)
         dateFrom = try container.decodeIfPresent(String.self, forKey: .dateFrom)
         productionStatus = try container.decodeIfPresent([String].self, forKey: .productionStatus)
@@ -90,7 +90,7 @@ struct CollectibleAttributes: Codable, Hashable {
     
     init(images: Images,
              name: String,
-             _estimatedValue: String? = nil,
+             estimatedValue: String? = nil,
              estimatedValueRange: [String?]? = nil,
              relatedSubjects: [RelatedSubject]? = nil,
              dateFrom: String? = nil,
@@ -98,7 +98,7 @@ struct CollectibleAttributes: Codable, Hashable {
              refNumber: String? = nil) {
             self.images = images
             self.name = name
-            self._estimatedValue = _estimatedValue
+            self.estimatedValue = estimatedValue
             self.estimatedValueRange = estimatedValueRange
             self.relatedSubjects = relatedSubjects
             self.dateFrom = dateFrom
@@ -150,7 +150,7 @@ struct Collectible: Codable, Hashable {
             .name ?? nil
     }
     
-    var estimatedValue: String? {
+    var estimatedValueDisplay: String? {
         // First try to use estimatedValueRange if valid
         if let range = attributes.estimatedValueRange?.compactMap({ $0 }), !range.isEmpty {
             let cleanValues = range.map { $0.components(separatedBy: ".").first ?? $0 }
@@ -161,16 +161,57 @@ struct Collectible: Codable, Hashable {
             case 1:
                 return "$\(cleanValues[0])"
             default:
-                break // Fall through to _estimatedValue check
+                break // Fall through to estimatedValue check
             }
         }
         
-        // Fall back to _estimatedValue if available
-        if let value = attributes._estimatedValue {
+        // Fall back to estimatedValue if available
+        if let value = attributes.estimatedValue {
             return value.hasPrefix("$") ? value : "$\(value)"
         }
         
         return nil
+    }
+    
+    var returnValue: Float? {
+        // Extract the base value (from estimatedValue or first non-nil estimatedValueRange item)
+        let baseValue: Float
+        if let estimatedValue = attributes.estimatedValue.flatMap({ Float($0) }) {
+            baseValue = estimatedValue
+        } else if let firstValidRangeValue = attributes.estimatedValueRange?.compactMap({ $0 }).first.flatMap({ Float($0) }) {
+            baseValue = firstValidRangeValue
+        } else {
+            return nil  // No valid base value found
+        }
+        
+        // Calculate return value if pricePaid exists
+        if let pricePaid = customAttributes?.pricePaid, pricePaid > 0 {
+            return baseValue - pricePaid
+        }
+        
+        return nil
+    }
+    
+    var returnValueDisplay: String {
+        formatDisplayPriceValue(returnValue)
+    }
+    
+    var pricePaidDisplay: String {
+        guard let pricePaid = customAttributes?.pricePaid, pricePaid > 0 else { return "-" }
+           
+        return formatDisplayPriceValue(pricePaid)
+    }
+    
+    private func formatDisplayPriceValue(_ value: Float?) -> String {
+        guard let value = value else { return "-" }
+        
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .currency
+        formatter.currencySymbol = "$"
+        formatter.minimumFractionDigits = 2
+        formatter.maximumFractionDigits = 2
+        
+        return formatter.string(from: NSNumber(value: value)) ?? "-"
     }
     
     func toDictionary() -> [String: Any] {
@@ -183,7 +224,7 @@ struct Collectible: Codable, Hashable {
             ],
             "attributes": [
                 "name": attributes.name,
-                "estimated_value": attributes._estimatedValue as Any,
+                "estimated_value": attributes.estimatedValue as Any,
                 "estimated_value_range": attributes.estimatedValueRange as Any,
                 "date_from": attributes.dateFrom as Any,
                 "production_status": attributes.productionStatus as Any,

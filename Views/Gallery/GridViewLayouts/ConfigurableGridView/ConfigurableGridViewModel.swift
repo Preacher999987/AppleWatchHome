@@ -84,9 +84,9 @@ class ConfigurableGridViewModel: ObservableObject {
         case .nameZA:
             result.sort { $0.attributes.name > $1.attributes.name }
         case .priceLowHigh:
-            result.sort { Int($0.estimatedValue ?? "") ?? 0 < Int($1.estimatedValue ?? "") ?? 0 }
+            result.sort { Int($0.estimatedValueDisplay ?? "") ?? 0 < Int($1.estimatedValueDisplay ?? "") ?? 0 }
         case .priceHighLow:
-            result.sort { Int($0.estimatedValue ?? "") ?? 0 > Int($1.estimatedValue ?? "") ?? 0 }
+            result.sort { Int($0.estimatedValueDisplay ?? "") ?? 0 > Int($1.estimatedValueDisplay ?? "") ?? 0 }
         case .dateNewest:
             // TODO: Fix to dateFrom
             result.sort { $0.attributes.dateFrom ?? "" > $1.attributes.dateFrom ?? "" }

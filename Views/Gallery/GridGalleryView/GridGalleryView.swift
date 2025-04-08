@@ -116,14 +116,6 @@ struct GridGalleryView: View {
         ZStack {
             backgroundView
             interactiveTutorial
-            // Animated logo transition
-            if !appState.openRelated {
-                logo
-            }
-            
-            if viewModel.showLoadingIndicator {
-                progressView
-            }
             
             if !isFullScreen {
                 lazyGridContentView
@@ -153,6 +145,15 @@ struct GridGalleryView: View {
                     informationFooter
                 }
             }
+            
+            // Animated logo transition
+            if !appState.openRelated {
+                logo
+            }
+            
+            if viewModel.showLoadingIndicator {
+                progressView
+            }
         }
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) { leadingNavigationButton }
@@ -165,7 +166,7 @@ struct GridGalleryView: View {
                     .kerning(0.5) // Slight letter spacing for better readability
             }
         }
-        .toolbarBackground(.hidden, for: .navigationBar)
+//        .toolbarBackground(.hidden, for: .navigationBar)
         .navigationBarBackButtonHidden(true)  // Hides the back button
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {
@@ -647,7 +648,6 @@ struct GridGalleryView: View {
     }
     
     @State private var isDetailsExpanded = false
-    private let collapsedRowCount = 3 // Number of rows to show when collapsed
     
     // Modify the detailsView to be expandable
     private func detailsView(_ currentItem: Collectible) -> some View {
@@ -658,7 +658,7 @@ struct GridGalleryView: View {
                     headerView("General Info")
                         .padding(.top, 16)
                     detailRow(title: "ITEM:", value: currentItem.attributes.name)
-                    detailRow(title: "VALUE:", value: currentItem.estimatedValue ?? "-", style: .browse)
+                    detailRow(title: "VALUE:", value: currentItem.estimatedValueDisplay ?? "-", style: .browse)
                     detailRow(title: "RELEASE:", value: currentItem.attributes.dateFrom ?? "-")
                     detailRow(
                         title: "STATUS:",
@@ -683,14 +683,14 @@ struct GridGalleryView: View {
                         detailRow(
                             title: "PURCHASE PRICE:",
                             value: {
-                                var price = ""
-                                if let floatPrice = currentItem.customAttributes?.pricePaid, floatPrice > 0 {
-                                    price = String(Int(floatPrice))
-                                }
-                                
-                                return price
+                                currentItem.pricePaidDisplay
                             }(),
                             style: .input)
+                        
+                        detailRow(
+                            title: "RETURN:",
+                            value: currentItem.returnValueDisplay,
+                            style: .returnValue)
                         
                         detailRow(
                             title: "CUSTOM PHOTOS:",
@@ -729,7 +729,7 @@ struct GridGalleryView: View {
                             isDetailsExpanded.toggle()
                         }
                     }) {
-                        Image(systemName: isDetailsExpanded ? "chevron.up.circle.fill" : "chevron.down.circle.fill")
+                        Image(systemName: isDetailsExpanded ? "chevron.down.circle.fill" : "chevron.up.circle.fill")
                             .font(.system(size: 22))
                             .foregroundColor(.white)
                         //                            .padding(8)
@@ -834,7 +834,7 @@ struct GridGalleryView: View {
                     }
                 }) {
                     HStack(spacing: 16) {
-                        Text(value.isEmpty ? "-" : "\(Locale.current.currencySymbol ?? "")\(value)")
+                        Text(value)
                             .font(.body)
                             .foregroundColor(.white)
                         Text(!value.isEmpty ? "Edit" : "Set")
@@ -883,6 +883,11 @@ struct GridGalleryView: View {
                             .padding(.leading, 8)
                     }
                 }
+                
+            case .returnValue:
+                Text(value)
+                    .foregroundColor(value.currencyColor)
+                    .font(.body)
             }
         }
         .padding(.horizontal, 20)

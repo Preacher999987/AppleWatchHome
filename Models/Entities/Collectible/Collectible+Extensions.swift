@@ -59,7 +59,7 @@ extension Collectible {
                 gallery: galleryImages
             ),
             name: "Rare Digital Artwork #42",
-            _estimatedValue: "1250.00",
+            estimatedValue: "1250.00",
             estimatedValueRange: ["1000.00", "1500.00"],
             relatedSubjects: relatedSubjects,
             dateFrom: "2023-05-15",
