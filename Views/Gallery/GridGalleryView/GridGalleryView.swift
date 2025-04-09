@@ -45,6 +45,22 @@ struct GridGalleryView: View {
     // Search results selection mode
     @State private var searchResultsSelectionModeOn = false
     
+    @State var isHoneycombGridViewLayoutActive: Bool = false
+    
+    //DetailsView - DetailsRow - TextField State
+    @FocusState private var showKeyboard: Bool
+    @State private var isTextFieldPresented = false
+    @State private var textFieldTextInput = ""
+    @State private var onTextFieldSaveAction = {}
+    @State private var textFieldTitle = ""
+    
+    // DetailsView - DetailsRow - User Photo Selection states
+    @State private var chooseCollectibleUserPhotos: Bool = false
+    @State private var selectedCollectibleUserPhotos: [UIImage]?
+    @State private var editCollectibleUserPhotos: Bool = false
+    
+    @State private var isDetailsExpanded = false
+    
     // Create an instance of the ViewModel
     @StateObject private var viewModel = GridGalleryViewModel()
     
@@ -53,8 +69,6 @@ struct GridGalleryView: View {
     @Environment(\.colorScheme) var colorScheme
     
     @Binding var payload: [Collectible]
-    
-    @State var isHoneycombGridViewLayoutActive: Bool = false
     
     private var disablePlusButton: Bool {
         appState.openRelated || isFullScreen
@@ -313,9 +327,11 @@ struct GridGalleryView: View {
     }
     
     private func dismissInputView() {
-        isInputFieldFocused = false
         showKeyboard = false
-        editedPricePaid = ""
+        isTextFieldPresented = false
+        textFieldTextInput = ""
+        onTextFieldSaveAction = {}
+        textFieldTitle = ""
     }
     
     private func addItemButtonDropDownView() -> some View {
@@ -595,23 +611,11 @@ struct GridGalleryView: View {
             isDetailsExpanded = false // Reset expansion state when view appears
         }
         .textFieldAlert(
-            isPresented: $isInputFieldFocused,
-            title: "PURCHASE PRICE",
-            text: $editedPricePaid,
-            onSave: {
-                // Save the edited value when done
-                //            if title == "PURCHASE PRICE" {
-                guard let newPrice = Float(editedPricePaid) else {
-                    dismissInputView()
-                    return
-                }
-                
-                viewModel.purchasePriceUpdated(newPrice, for: currentItem)
-                payload[index].pricePaid = newPrice
-                
-                dismissInputView()
-                //            }
-            }, onCancel: {
+            isPresented: $isTextFieldPresented,
+            title: textFieldTitle,
+            text: $textFieldTextInput,
+            onSave: onTextFieldSaveAction,
+            onCancel: {
                 dismissInputView()
             })
         .keyboardType(.decimalPad)
@@ -651,7 +655,19 @@ struct GridGalleryView: View {
         }
     }
     
-    @State private var isDetailsExpanded = false
+    private func onPricePaidInput(_ inputText: String) {
+        guard let newPrice = Float(inputText) else {
+            self.dismissInputView()
+            return
+        }
+        
+        if let index = selectedItem {
+            viewModel.purchasePriceUpdated(newPrice, for: payload[index])
+            payload[index].pricePaid = newPrice
+        }
+        
+        dismissInputView()
+    }
     
     // Modify the detailsView to be expandable
     private func detailsView(_ currentItem: Collectible) -> some View {
@@ -677,8 +693,12 @@ struct GridGalleryView: View {
                     
                     detailRow(title: "REF #:", value: currentItem.attributes.refNumber ?? "-")
                     
-                    let series = !currentItem.subject.isEmpty ? currentItem.subject : "-"
-                    detailRow(title: "SERIES:", value: series)
+                    detailRow(
+                        title: "SERIES:",
+                        value: {
+                           !(currentItem.querySubject?.isEmpty ?? true) ? currentItem.querySubject! : "-"
+                        }(),
+                        style: .menu)
                     
                     if viewModel.showAcquisitionDetails(for: currentItem.id) {
                         headerView("Acquisition Details")
@@ -689,7 +709,8 @@ struct GridGalleryView: View {
                             value: {
                                 currentItem.pricePaidDisplay
                             }(),
-                            style: .input)
+                            style: .input,
+                            onComplete: onPricePaidInput)
                         
                         detailRow(
                             title: "RETURN:",
@@ -790,17 +811,65 @@ struct GridGalleryView: View {
         }
     }
     
-    // DetailsView - DetailsRow - Price Paid states
-    @State private var editedPricePaid: String = ""
-    @State private var isInputFieldFocused: Bool = false
-    @FocusState private var showKeyboard: Bool
+    private var filteredRelatedSubjects: [RelatedSubject]? {
+        // 1. Check if we have a valid selected item
+        guard let index = selectedItem else { return nil }
+        
+        // 2. Safely access the current item's related subjects
+        guard let relatedSubjects = payload[index].attributes.relatedSubjects else { return nil }
+        
+        // 4. Apply filters
+        let filtered = relatedSubjects.filter { subject in
+            let hasName = subject.name?.isEmpty == false
+            let isNotPrimaryType = subject.type != .userSelectionPrimary
+            return hasName && isNotPrimaryType
+        }
+        
+        // 5. Return nil if empty, otherwise return filtered array
+        return filtered.isEmpty ? nil : filtered
+    }
     
-    // DetailsView - DetailsRow - User Photo Selection states
-    @State private var chooseCollectibleUserPhotos: Bool = false
-    @State private var selectedCollectibleUserPhotos: [UIImage]?
-    @State private var editCollectibleUserPhotos: Bool = false
+    private func detailsViewMenu(title: String, value: String, style: DetailRowStyle) -> some View {
+        HStack(spacing: 16) {
+            Text(value)
+                .font(.body)
+                .foregroundColor(.white)
+            
+            if let relatedSubjects = filteredRelatedSubjects, let index = selectedItem {
+                // Menu version when subject is empty
+                relatedSubjectsMenu(
+                    subjects: relatedSubjects,
+                    label: selectSubjectLabel,
+                    listItemImageIcon: "",
+                    action: { handleSubjectSelection($0, for: payload[index]) })
+            }
+        }
+    }
     
-    private func detailRow(title: String, value: String, style: DetailRowStyle = .regular) -> some View {
+    private func detailsViewInput(title: String, value: String, onComplete: ((String) -> Void)?) -> some View {
+        Button(action: {
+            withAnimation {
+                onTextFieldSaveAction = { onComplete?(textFieldTextInput) }
+                textFieldTitle = title
+                isTextFieldPresented = true
+                showKeyboard = true
+            }
+        }) {
+            HStack(spacing: 16) {
+                Text(value)
+                    .font(.body)
+                    .foregroundColor(.white)
+                Text(!value.isEmpty ? "Edit" : "Set")
+                    .font(.body)
+                    .foregroundColor(.appPrimary)
+            }
+        }
+    }
+    
+    private func detailRow(title: String,
+                           value: String,
+                           style: DetailRowStyle = .regular,
+                           onComplete: ((String) -> Void)? = nil) -> some View {
         HStack {
             Text(title)
                 .font(.body)
@@ -831,21 +900,7 @@ struct GridGalleryView: View {
                     }
                 }
             case .input:
-                Button(action: {
-                    withAnimation {
-                        isInputFieldFocused = true
-                        showKeyboard = true
-                    }
-                }) {
-                    HStack(spacing: 16) {
-                        Text(value)
-                            .font(.body)
-                            .foregroundColor(.white)
-                        Text(!value.isEmpty ? "Edit" : "Set")
-                            .font(.body)
-                            .foregroundColor(.appPrimary)
-                    }
-                }
+                detailsViewInput(title: title, value: value, onComplete: onComplete)
                 
             case .media:
                 Button(action: {
@@ -892,10 +947,38 @@ struct GridGalleryView: View {
                 Text(value)
                     .foregroundColor(value.currencyColor)
                     .font(.body)
+                
+            case .menu:
+                detailsViewMenu(title: title, value: value, style: style)
             }
         }
         .padding(.horizontal, 20)
         .padding(.vertical, 4)
+    }
+    
+    private func relatedSubjectsMenu(subjects relatedSubjects: [RelatedSubject],
+                                     label: some View,
+                                     listItemImageIcon: String = "magnifyingglass",
+                                     action: @escaping (RelatedSubject) -> Void) -> some View {
+        Menu {
+            Section {
+                ForEach(relatedSubjects, id: \.name) { subject in
+                    Button(action: {
+                        action(subject)
+                    }) {
+                        Label(subject.name ?? "Untitled", systemImage: listItemImageIcon)
+                    }
+                }
+            } header: {
+                Text("Select subject")
+                    .font(.title)
+                    .foregroundColor(.primary)
+            }
+        } label: {
+            label
+        }
+        .menuStyle(BorderlessButtonMenuStyle())
+        .menuIndicator(.hidden)
     }
     
     private func viewRelatedButton(_ currentItem: Collectible) -> some View {
@@ -906,27 +989,13 @@ struct GridGalleryView: View {
                     $0.type != .userSelectionPrimary
                 }
             
-            if currentItem.subject.isEmpty {
+            if currentItem.querySubject == nil {
                 // Menu version when subject is empty
-                Menu {
-                    Section {
-                        ForEach(relatedSubjects, id: \.name) { subject in
-                            Button(action: {
-                                handleSubjectSelection(subject, for: currentItem)
-                            }) {
-                                Label(subject.name ?? "Untitled", systemImage: "magnifyingglass")
-                            }
-                        }
-                    } header: {
-                        Text("Choose a Category")
-                            .font(.title)
-                            .foregroundColor(.primary)
+                relatedSubjectsMenu(subjects: relatedSubjects, label: menuButtonLabel) {
+                    if let updatedItem = handleSubjectSelection($0, for: currentItem) {
+                        seeMissingPopsAction(updatedItem)
                     }
-                } label: {
-                    menuButtonLabel
                 }
-                .menuStyle(BorderlessButtonMenuStyle())
-                .menuIndicator(.hidden)
             } else {
                 // Regular button when subject exists
                 Button(action: {
@@ -953,9 +1022,15 @@ struct GridGalleryView: View {
             )
     }
     
+    private var selectSubjectLabel: some View {
+        Text("Select")
+            .font(.body)
+            .foregroundColor(.appPrimary)
+    }
+    
     // Extracted subject selection logic
-    private func handleSubjectSelection(_ subject: RelatedSubject, for currentItem: Collectible) {
-        guard let index = payload.firstIndex(where: { $0.id == currentItem.id }) else { return }
+    private func handleSubjectSelection(_ subject: RelatedSubject, for currentItem: Collectible) -> Collectible? {
+        guard let index = payload.firstIndex(where: { $0.id == currentItem.id }) else { return nil }
         
         var itemToUpdate = currentItem
         
@@ -977,7 +1052,8 @@ struct GridGalleryView: View {
         viewModel.updateItem(itemToUpdate)
         
         payload[index] = itemToUpdate
-        seeMissingPopsAction(itemToUpdate)
+        
+        return itemToUpdate
     }
     
     private var logo: some View {
@@ -1009,7 +1085,7 @@ struct GridGalleryView: View {
     // MARK: - Toolbar Components
     
     private var navigationTitle: String {
-        showNavigationTitle ? (payload.first?.subject ?? "") : ""
+        showNavigationTitle ? (payload.first?.querySubject ?? "") : ""
     }
     
     private var backNavigationItemIcon: String {
