@@ -17,6 +17,20 @@ struct ToolbarView<ViewModel: GridViewToolbarProtocol & ObservableObject>: View 
             honeycombGridLayoutButton
             if columnLayoutActive {
                 columnCountMenu
+                
+                Button {
+                    viewModel.showSections.toggle()
+                } label: {
+                    Image(systemName: viewModel.showSections ? "rectangle.grid.1x2.fill" : "rectangle.grid.1x2")
+                        .padding(8)
+                        .background(
+                            Capsule()
+                                .fill(.black.opacity(0.5))
+                                .shadow(radius: 2)
+                        )
+                        .clipShape(Circle())
+                        .foregroundColor(.appPrimary)
+                }
             }
             
             Spacer()

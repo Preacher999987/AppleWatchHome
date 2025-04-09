@@ -1,10 +1,9 @@
 //
-//  Item.swift
+//  ResponsiveGridView.swift
 //  FunKollector
 //
 //  Created by Home on 07.04.2025.
 //
-
 
 import SwiftUI
 
@@ -25,6 +24,9 @@ struct ResponsiveGridView: View {
     @State private var scale: CGFloat = 1.0
     @GestureState private var magnifyBy = 1.0
     
+    // Section related properties
+    @State private var expandedSections: Set<String> = []
+    
     var body: some View {
         ZStack(alignment: .bottom) {
             gridContentView
@@ -35,7 +37,16 @@ struct ResponsiveGridView: View {
         }
     }
     
+    @ViewBuilder
     private var gridContentView: some View {
+        if viewModel.showSections {
+            sectionedGridView
+        } else {
+            plainGridView
+        }
+    }
+    
+    private var plainGridView: some View {
         ScrollView(.vertical) {
             LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 16),
                                      count: viewModel.columnCount),
@@ -45,46 +56,113 @@ struct ResponsiveGridView: View {
                         .transition(.scale.combined(with: .opacity))
                         .aspectRatio(ResponsiveGridViewLayout
                             .layout(for: viewModel.columnCount) == .compact ? 1 : 0.75,
-                                     contentMode: .fill) // Make items rectangle
+                                     contentMode: .fill)
                 }
             }
                       .padding(.top, 72)
                       .padding(.bottom, 110)
         }
         .padding(.horizontal, 16)
-        //        .scaleEffect(magnifyBy)
         .gesture(magnificationGesture)
+    }
+    
+    private var sectionedGridView: some View {
+        ScrollView(.vertical) {
+            LazyVStack(pinnedViews: [.sectionHeaders]) {
+                ForEach(groupedItems.keys.sorted(), id: \.self) { section in
+                    Section(header: sectionHeader(for: section)) {
+                        if expandedSections.contains(section) {
+                            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 16),
+                                                     count: viewModel.columnCount),
+                                      spacing: 16) {
+                                ForEach(groupedItems[section] ?? [], id: \.self) { index in
+                                    gridItemView(for: index)
+                                        .transition(.scale.combined(with: .opacity))
+                                        .aspectRatio(ResponsiveGridViewLayout
+                                            .layout(for: viewModel.columnCount) == .compact ? 1 : 0.75,
+                                                     contentMode: .fill)
+                                }
+                            }
+                                      .padding(.bottom, 16)
+                        }
+                    }
+                }
+            }
+            .padding(.top, 72)
+            .padding(.bottom, 110)
+        }
+        .padding(.horizontal, 16)
+        .gesture(magnificationGesture)
+    }
+    
+    private func sectionHeader(for section: String) -> some View {
+        HStack {
+            Text(section)
+                .font(.headline)
+                .foregroundColor(.appPrimary)
+            
+            Spacer()
+            
+            Image(systemName: expandedSections.contains(section) ? "chevron.down" : "chevron.right")
+                .foregroundColor(.appPrimary)
+        }
+        .padding(.vertical, 12) // Reduced vertical padding
+        .padding(.horizontal, 12)
+        .blurredBackgroundRounded() // Your custom modifier
+        .cornerRadius(12)
+        .contentShape(Rectangle())
+        .onTapGesture {
+            withAnimation {
+                if expandedSections.contains(section) {
+                    expandedSections.remove(section)
+                } else {
+                    expandedSections.insert(section)
+                }
+            }
+        }
+    }
+    
+    private var groupedItems: [String: [Int]] {
+        var groups = [String: [Int]]()
+        
+        for (index, item) in viewModel.filteredItems.enumerated() {
+            // You'll need to replace this with your actual grouping logic
+            // For example, you might group by category, collection, or date
+            let section = item.querySubject ?? "Uncategorized"
+            
+            if groups[section] == nil {
+                groups[section] = []
+            }
+            groups[section]?.append(index)
+        }
+        
+        return groups
     }
     
     private func gridItemView(for index: Int) -> some View {
         ZStack {
-            // TODO: Safety check: Prevents out-of-bounds crash when:
-            // 1. Dismissing this view via Home button (app backgrounding)
-            // 2. Returning from search results/gallery view after data changes
-            // 3. During async data updates while view is transitioning
             if !viewModel.filteredItems.indices.contains(index) {
                 EmptyView()
             } else {
                 ResponsiveGridItemView(
-                layout: ResponsiveGridViewLayout
-                    .layout(for: viewModel.columnCount),
-                collectible: viewModel.filteredItems[index],
-                isSelected: selectedItem != nil ? viewModel.items[selectedItem!].id == viewModel.filteredItems[index].id : false,
-                inSelectionMode: searchResultsSelectionModeOn,
-                showAddToCollectionButton: showAddToCollectionButton,
-                viewModel: parentViewModel,
-                index: index,
-                onViewAction: {
-                    handleViewAction(for: index)
-                },
-                onDeleteAction: {
-                    handleDeleteAction(for: index)
+                    layout: ResponsiveGridViewLayout
+                        .layout(for: viewModel.columnCount),
+                    collectible: viewModel.filteredItems[index],
+                    isSelected: selectedItem != nil ? viewModel.items[selectedItem!].id == viewModel.filteredItems[index].id : false,
+                    inSelectionMode: searchResultsSelectionModeOn,
+                    showAddToCollectionButton: showAddToCollectionButton,
+                    viewModel: parentViewModel,
+                    index: index,
+                    onViewAction: {
+                        handleViewAction(for: index)
+                    },
+                    onDeleteAction: {
+                        handleDeleteAction(for: index)
+                    }
+                )
+                .onTapGesture {
+                    handleItemTap(for: index)
                 }
-            )
-            .onTapGesture {
-                handleItemTap(for: index)
-            }
-                //        .transition(gridItemTransition)
             }
         }
     }
@@ -103,13 +181,6 @@ struct ResponsiveGridView: View {
                 handleMagnificationEnd(value)
             }
     }
-    
-    //    private var gridItemTransition: AnyTransition {
-    //        .asymmetric(
-    //            insertion: .scale.combined(with: .opacity),
-    //            removal: .scale.combined(with: .opacity).combined(with: .move(edge: .trailing))
-    //        )
-    //    }
     
     // MARK: - Action Handlers
     
@@ -157,7 +228,6 @@ enum ResponsiveGridViewLayout {
     case large      // Best for 2 columns (bigger items)
     case extraLarge // Best for 1 column (full-width)
     
-    /// Returns a layout based on the column count (1 to 4).
     static func layout(for columns: Int) -> ResponsiveGridViewLayout {
         switch columns {
         case 1:
@@ -169,7 +239,6 @@ enum ResponsiveGridViewLayout {
         case 4:
             return .compact
         default:
-            // Fallback to a reasonable default (e.g., regular)
             return .regular
         }
     }
@@ -178,6 +247,16 @@ enum ResponsiveGridViewLayout {
 // MARK: - Preview
 struct ResponsiveGridView_Previews: PreviewProvider {
     static var previews: some View {
-        ResponsiveGridView(selectedItem: .constant(nil), isFullScreen: .constant(false), showSafariView: .constant(false), showAddToCollectionButton: .constant(false), items: .constant([Collectible.mock(), Collectible.mock(), Collectible.mock(), Collectible.mock(), Collectible.mock()]), onCollectibleDeletion: {_ in}, searchResultsSelectionModeOn: false, parentViewModel: GridGalleryViewModel(), viewModel: BaseGridViewModel(isHoneycombGridViewLayoutActive: .constant(false), appState: AppState()))
+        ResponsiveGridView(
+            selectedItem: .constant(nil),
+            isFullScreen: .constant(false),
+            showSafariView: .constant(false),
+            showAddToCollectionButton: .constant(false),
+            items: .constant([Collectible.mock(), Collectible.mock(), Collectible.mock(), Collectible.mock(), Collectible.mock()]),
+            onCollectibleDeletion: {_ in},
+            searchResultsSelectionModeOn: false,
+            parentViewModel: GridGalleryViewModel(),
+            viewModel: BaseGridViewModel(isHoneycombGridViewLayoutActive: .constant(false), appState: AppState())
+        )
     }
 }

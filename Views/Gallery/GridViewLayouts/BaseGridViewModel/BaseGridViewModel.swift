@@ -45,6 +45,8 @@ class BaseGridViewModel: GridViewToolbarProtocol {
         }
     }
     
+    @Published var showSections: Bool = false
+    
     func onItemsUpdate(_ newItems: [Collectible]) {
         self.items = newItems
         withAnimation {

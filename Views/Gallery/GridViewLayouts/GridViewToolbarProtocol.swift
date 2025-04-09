@@ -12,6 +12,8 @@ protocol GridViewToolbarProtocol: ObservableObject {
     var isHoneycombGridViewLayoutActive: Bool { get set }
     var selectedFilter: String? { get set }
     var selectedSortOption: SortOption { get set }
+    var showSections: Bool { get set }
+
     
     func setColumnCount(_ columns: Int)
     func toggleHoneycombGridLayout()
