@@ -11,17 +11,26 @@ struct HoneycombGridView: View {
     private static let gridItemSize: CGFloat = 150
     private static let spacingBetweenColumns: CGFloat = 12
     private static let spacingBetweenRows: CGFloat = 12
+    private static let totalColumns: Int = 4
     
-    @Binding var payload: [Collectible]
+    let gridItems = Array(
+        repeating: GridItem(
+            .fixed(gridItemSize),
+            spacing: spacingBetweenColumns,
+            alignment: .center
+        ),
+        count: totalColumns
+    )
+    
     @Binding var selectedItem: Int?
     @Binding var isFullScreen: Bool
     @Binding var showSafariView: Bool
     @Binding var showAddToCollectionButton: Bool
+    @Binding var items: [Collectible]
     
     var onCollectibleDeletion: (Int) -> Void
     
     var searchResultsSelectionModeOn: Bool
-    let gridItems: [GridItem]
     
     let parentViewModel: GridGalleryViewModel
     
@@ -35,8 +44,8 @@ struct HoneycombGridView: View {
                     alignment: .center,
                     spacing: Self.spacingBetweenRows
                 ) {
-                    ForEach(payload.indices, id: \.self) { index in
-                        gridItem(for: index)
+                    ForEach(viewModel.filteredItems.indices, id: \.self) { index in
+                        gridItemView(for: index)
                     }
                 }
                 .padding(.trailing, Self.gridItemSize/2 + 20)
@@ -48,21 +57,24 @@ struct HoneycombGridView: View {
             
             ToolbarView(viewModel: viewModel, columnLayoutActive: false)
         }
+        .onChange(of: items, initial: true) { oldValue, newValue in
+            viewModel.onItemsUpdate(newValue)
+        }
     }
     
-    private func gridItem(for index: Int) -> some View {
+    private func gridItemView(for index: Int) -> some View {
         GeometryReader { proxy in
             ZStack {
                 // TODO: Safety check: Prevents out-of-bounds crash when:
                 // 1. Dismissing this view via Home button (app backgrounding)
                 // 2. Returning from search results/gallery view after data changes
                 // 3. During async data updates while view is transitioning
-                if !payload.indices.contains(index) {
+                if !viewModel.filteredItems.indices.contains(index) {
                     EmptyView()
                 } else {
                     HoneycombGridItemView(
-                        collectible: payload[index],
-                        isSelected: selectedItem == index,
+                        collectible: viewModel.filteredItems[index],
+                        isSelected: selectedItem != nil ? viewModel.items[selectedItem!].id == viewModel.filteredItems[index].id : false,
                         inSelectionMode: searchResultsSelectionModeOn,
                         viewModel: parentViewModel,
                         proxy: proxy,
@@ -89,10 +101,12 @@ struct HoneycombGridView: View {
         ))
     }
     
+    // MARK: - Action Handlers
+    
     private func handleViewAction(for index: Int) {
         withAnimation(.spring()) {
-            if payload[index].inCollection {
-                selectedItem = index
+            if viewModel.filteredItems[index].inCollection {
+                selectedItem = viewModel.correspondingIndexInItems(for: index)
                 isFullScreen = true
             } else {
                 showSafariView = true
@@ -100,19 +114,20 @@ struct HoneycombGridView: View {
         }
     }
 
-    private func handleDeleteAction(for index: Int) {
-        // Store the index temporarily if needed
-        // Then show confirmation or call deletion directly
-        onCollectibleDeletion(index)
-    }
-
     private func handleItemTap(for index: Int) {
         withAnimation(.easeInOut(duration: 0.15)) {
             if searchResultsSelectionModeOn {
                 ViewHelpers.hapticFeedback()
-                parentViewModel.toggleItemSelection(payload[index])
+                parentViewModel.toggleItemSelection(viewModel.filteredItems[index])
             }
-            selectedItem = index
+            
+            selectedItem = viewModel.correspondingIndexInItems(for: index)
+        }
+    }
+    
+    private func handleDeleteAction(for index: Int) {
+        if let correspondingIndex = viewModel.correspondingIndexInItems(for: index) {
+            onCollectibleDeletion(correspondingIndex)
         }
     }
 }

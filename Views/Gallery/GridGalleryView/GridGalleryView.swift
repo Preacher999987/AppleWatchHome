@@ -7,12 +7,7 @@
 
 import SwiftUI
 
-struct GridGalleryView: View {
-    private static let gridItemSize: CGFloat = 150
-    private static let spacingBetweenColumns: CGFloat = 12
-    private static let spacingBetweenRows: CGFloat = 12
-    private static let totalColumns: Int = 4
-    
+struct GridGalleryView: View {    
     @Namespace private var animationNamespace // For matchedGeometryEffect
     @State private var selectedItem: Int? // Track the selected grid item
     @State private var isFullScreen: Bool = false { // Track full-screen state
@@ -104,15 +99,6 @@ struct GridGalleryView: View {
     
     var seeMissingPopsAction: (Collectible) -> Void
     var addNewItemAction: (AddNewItemAction) -> Void
-    
-    var gridItems = Array(
-        repeating: GridItem(
-            .fixed(gridItemSize),
-            spacing: spacingBetweenColumns,
-            alignment: .center
-        ),
-        count: totalColumns
-    )
     
     private var isCurrentImageDefault: Bool {
         if let index = selectedItem, currentImageIndex < payload[index].gallery.count {
@@ -259,8 +245,8 @@ struct GridGalleryView: View {
         .frame(maxWidth: .infinity)
         .alert("Add \(viewModel.selectedItemsCount) item\(viewModel.selectedItemsCount > 1 ? "s" : "") to your collection?",
                isPresented: $showAddToCollectionConfirmation) {
-            Button("Add item\(viewModel.selectedItemsCount > 1 ? "s" : "")", role: .cancel, action: addToCollection)
-            Button("Cancel") {}
+            Button("Add item\(viewModel.selectedItemsCount > 1 ? "s" : "")", action: addToCollection)
+            Button("Cancel", role: .cancel) {}
         } message: {
             Text("This will add all selected items to your collection.")
         }
@@ -1226,16 +1212,15 @@ struct GridGalleryView: View {
         Group {
             if isHoneycombGridViewLayoutActive {
                 HoneycombGridView(
-                    payload: $payload,
                     selectedItem: $selectedItem,
                     isFullScreen: $isFullScreen,
                     showSafariView: $showSafariView,
                     showAddToCollectionButton: $appState.showAddToCollectionButton,
+                    items: $payload,
                     onCollectibleDeletion: { index in
                         onCollectibleDeletion(index)
                     },
                     searchResultsSelectionModeOn: searchResultsSelectionModeOn,
-                    gridItems: gridItems,
                     parentViewModel: viewModel,
                     viewModel: BaseGridViewModel(
                         isHoneycombGridViewLayoutActive: $isHoneycombGridViewLayoutActive,
@@ -1252,7 +1237,6 @@ struct GridGalleryView: View {
                         onCollectibleDeletion(index)
                     },
                     searchResultsSelectionModeOn: searchResultsSelectionModeOn,
-                    gridItems: gridItems,
                     parentViewModel: viewModel,
                     viewModel: BaseGridViewModel(
                         isHoneycombGridViewLayoutActive: $isHoneycombGridViewLayoutActive,

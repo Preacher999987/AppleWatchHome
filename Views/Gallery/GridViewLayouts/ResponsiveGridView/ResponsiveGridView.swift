@@ -17,7 +17,6 @@ struct ResponsiveGridView: View {
     @Binding var items: [Collectible]
     var onCollectibleDeletion: (Int) -> Void
     var searchResultsSelectionModeOn: Bool
-    var gridItems: [GridItem]
     var parentViewModel: GridGalleryViewModel
     
     @StateObject var viewModel: BaseGridViewModel
@@ -127,7 +126,6 @@ struct ResponsiveGridView: View {
     
     private func handleItemTap(for index: Int) {
         withAnimation(.easeInOut(duration: 0.15)) {
-            
             if searchResultsSelectionModeOn {
                 ViewHelpers.hapticFeedback()
                 parentViewModel.toggleItemSelection(viewModel.filteredItems[index])
@@ -138,12 +136,9 @@ struct ResponsiveGridView: View {
     }
     
     private func handleDeleteAction(for index: Int) {
-        // Store the index temporarily if needed
-        // Then show confirmation or call deletion directly
         if let correspondingIndex = viewModel.correspondingIndexInItems(for: index) {
             onCollectibleDeletion(correspondingIndex)
         }
-//        viewModel.filteredItems.remove(at: index)
     }
     
     private func handleMagnificationEnd(_ value: CGFloat) {
@@ -183,6 +178,6 @@ enum ResponsiveGridViewLayout {
 // MARK: - Preview
 struct ResponsiveGridView_Previews: PreviewProvider {
     static var previews: some View {
-        ResponsiveGridView(selectedItem: .constant(nil), isFullScreen: .constant(false), showSafariView: .constant(false), showAddToCollectionButton: .constant(false), items: .constant([Collectible.mock(), Collectible.mock(), Collectible.mock(), Collectible.mock(), Collectible.mock()]), onCollectibleDeletion: {_ in}, searchResultsSelectionModeOn: false, gridItems: [], parentViewModel: GridGalleryViewModel(), viewModel: BaseGridViewModel(isHoneycombGridViewLayoutActive: .constant(false), appState: AppState()))
+        ResponsiveGridView(selectedItem: .constant(nil), isFullScreen: .constant(false), showSafariView: .constant(false), showAddToCollectionButton: .constant(false), items: .constant([Collectible.mock(), Collectible.mock(), Collectible.mock(), Collectible.mock(), Collectible.mock()]), onCollectibleDeletion: {_ in}, searchResultsSelectionModeOn: false, parentViewModel: GridGalleryViewModel(), viewModel: BaseGridViewModel(isHoneycombGridViewLayoutActive: .constant(false), appState: AppState()))
     }
 }
