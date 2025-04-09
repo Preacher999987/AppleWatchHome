@@ -19,7 +19,7 @@ struct PhotoPreviewView: View {
     
     var body: some View {
         ZStack {
-            // Background Image (unchanged)
+            // Background Image
             Image(uiImage: image)
                 .resizable()
                 .scaledToFill()
@@ -35,7 +35,15 @@ struct PhotoPreviewView: View {
             VStack {
                 Spacer()
                 
-                // Enhanced AI Analysis Button
+                // Hint Text above the button
+                Text("Identify collectible using computer vision")
+                    .font(.headline)
+                    .foregroundColor(.white.opacity(0.8))
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 20)
+                    .padding(.bottom, 8)
+                
+                // AI Analysis Button (simplified)
                 Button(action: {
                     isLoading = true
                     viewModel.analyzePhoto(image: image) { result in
@@ -44,20 +52,14 @@ struct PhotoPreviewView: View {
                 }) {
                     HStack(spacing: 12) {
                         Image(systemName: "sparkles")
-                            .font(.body.weight(.medium))
+                            .font(.headline)
                             .foregroundColor(.appPrimary)
                             .frame(width: 24, height: 24)
                             .background(Circle().fill(Color.white.opacity(0.2)))
                         
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(isLoading ? "Analyzing..." : "AI Analysis")
-                                .font(.system(size: 18, weight: .semibold))
-                                .foregroundColor(.white)
-                            
-                            Text("Identify collectible using computer vision")
-                                .font(.subheadline)
-                                .foregroundColor(.white.opacity(0.8))
-                        }
+                        Text(isLoading ? "Analyzing..." : "Lookup with AI")
+                            .font(.system(size: 16, weight: .medium))
+                            .foregroundColor(.appPrimary)
                     }
                     .padding(.vertical, 12)
                     .padding(.horizontal, 16)
@@ -69,10 +71,10 @@ struct PhotoPreviewView: View {
                     )
                 }
                 .disabled(isLoading)
-                .padding(.horizontal, 40) // Matches retake button's leading padding
+                .padding(.horizontal, 40)
                 .padding(.bottom, 24)
                 
-                // Retake Button
+                // Retake Button (unchanged)
                 HStack {
                     Button(action: retakeAction) {
                         HStack(spacing: 12) {
@@ -97,6 +99,7 @@ struct PhotoPreviewView: View {
                 .padding(.bottom, 30)
             }
             
+            // Loading Indicator
             if isLoading {
                 ProgressView()
                     .scaleEffect(2)
@@ -110,8 +113,6 @@ struct PhotoPreviewView: View {
         }
     }
     
-    // MARK: - Private Methods
-    
     private func handleAnalysisResult(_ result: Result<[Collectible], Error>) {
         isLoading = false
         switch result {
@@ -121,42 +122,5 @@ struct PhotoPreviewView: View {
             errorMessage = error.localizedDescription
             showError = true
         }
-    }
-    
-    // MARK: - Action Card Component
-    private func actionCard(
-        systemImage: String,
-        title: String,
-        description: String,
-        color: Color,
-        action: @escaping () -> Void,
-        isPrimary: Bool = false
-    ) -> some View {
-        Button(action: action) {
-            HStack(spacing: 16) {
-                Image(systemName: systemImage)
-                    .font(.title2)
-                    .foregroundColor(color)
-                    .frame(width: 44, height: 44)
-                    .background(color.opacity(0.1))
-                    .clipShape(Circle())
-                
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(title)
-                        .font(.system(size: 18, weight: .semibold)) // Larger text
-                        .foregroundColor(.white)
-                    
-                    Text(description)
-                        .font(.subheadline)
-                        .foregroundColor(.white.opacity(0.8))
-                }
-                
-                Spacer()
-            }
-            .padding()
-            .background(isPrimary ? .appPrimary.opacity(0.7) : Color(.secondarySystemGroupedBackground).opacity(0.9))
-            .cornerRadius(12)
-        }
-        .buttonStyle(.plain)
     }
 }

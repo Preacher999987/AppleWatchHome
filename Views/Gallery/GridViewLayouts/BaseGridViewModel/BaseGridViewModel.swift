@@ -14,6 +14,8 @@ import Combine
 // MARK: - ViewModel
 class BaseGridViewModel: GridViewToolbarProtocol {
     private let appState: AppState
+    let minColumns = 1
+    let maxColumns = 4
     
     @Published private(set) var items: [Collectible] = []
     
@@ -22,6 +24,8 @@ class BaseGridViewModel: GridViewToolbarProtocol {
     
     @Published var columnCount: Int = 2 {
         didSet {
+            appState.gridViewColumnCount = columnCount
+            
             // Ensure column count stays within bounds
             if columnCount < minColumns {
                 columnCount = minColumns
@@ -40,16 +44,33 @@ class BaseGridViewModel: GridViewToolbarProtocol {
     
     @Published var selectedFilter: String? {
         didSet {
-            appState.gridViewfilter = selectedFilter
+            appState.gridViewFilter = selectedFilter
             applySortAndFilter()
         }
     }
     
-    @Published var showSections: Bool = false
+    @Published var showSections: Bool = false {
+        didSet {
+            appState.gridViewShowSections = showSections
+        }
+    }
+    
+    private var allSubjects: [String] {
+        Array(Set(items.map { $0.querySubject }.compactMap{ $0 })).sorted()
+    }
+    
+    init(isHoneycombGridViewLayoutActive: Binding<Bool>, appState: AppState) {
+        self._isHoneycombGridViewLayoutActive = isHoneycombGridViewLayoutActive
+        self.appState = appState
+        
+        self.restoreSortAndFilter()
+        self.applySortAndFilter()
+    }
     
     func onItemsUpdate(_ newItems: [Collectible]) {
-        self.items = newItems
+        items = newItems
         withAnimation {
+            showSections = appState.gridViewShowSections
             applySortAndFilter()
             print("Items updated externally!")
         }
@@ -66,19 +87,8 @@ class BaseGridViewModel: GridViewToolbarProtocol {
         return items.firstIndex(where: { $0.id == filteredItemId })
     }
     
-    let minColumns = 1
-    let maxColumns = 4
-    
-    private var allSubjects: [String] {
-        Array(Set(items.map { $0.querySubject }.compactMap{ $0 })).sorted()
-    }
-    
-    init(isHoneycombGridViewLayoutActive: Binding<Bool>, appState: AppState) {
-        self._isHoneycombGridViewLayoutActive = isHoneycombGridViewLayoutActive
-        self.appState = appState
-        
-        self.restoreSortAndFilter()
-        self.applySortAndFilter()
+    func sectionHeaderTitle(for item: Collectible, searchResultsMode: Bool) -> String {
+        (searchResultsMode ? item.searchQuery : item.querySubject) ?? "Uncategorized"
     }
     
     func increaseColumns() {
@@ -122,12 +132,6 @@ class BaseGridViewModel: GridViewToolbarProtocol {
         filteredItems = result
     }
     
-    private func dateFromString(_ dateString: String) -> Date {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "MMM yyyy"
-        return dateFormatter.date(from: dateString) ?? Date.distantPast
-    }
-    
     func filterOptions() -> [String] {
         allSubjects
     }
@@ -145,8 +149,16 @@ class BaseGridViewModel: GridViewToolbarProtocol {
         }
     }
     
+    private func dateFromString(_ dateString: String) -> Date {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "MMM yyyy"
+        return dateFormatter.date(from: dateString) ?? Date.distantPast
+    }
+    
     private func restoreSortAndFilter() {
-        selectedFilter = appState.gridViewfilter
+        selectedFilter = appState.gridViewFilter
         selectedSortOption = appState.gridViewSortOption
+        columnCount = appState.gridViewColumnCount
+        showSections = appState.gridViewShowSections
     }
 }

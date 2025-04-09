@@ -110,6 +110,28 @@ struct CollectibleAttributes: Codable, Hashable {
 struct CustomAttributes: Codable, Hashable {
     var pricePaid: Float?
     var userPhotos: [ImageData]?
+    var searchQuery: String?
+    
+    enum CodingKeys: String, CodingKey {
+        case pricePaid = "price_paid"
+        case userPhotos = "user_photos"
+        case searchQuery = "search_query"
+    }
+    
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        pricePaid = try container.decodeIfPresent(Float.self, forKey: .pricePaid)
+        userPhotos = try container.decodeIfPresent([ImageData].self, forKey: .userPhotos)
+        searchQuery = try container.decodeIfPresent(String.self, forKey: .searchQuery)
+    }
+    
+    init(pricePaid: Float? = nil,
+         userPhotos: [ImageData]? = nil,
+         searchQuery: String? = nil) {
+        self.pricePaid = pricePaid
+        self.userPhotos = userPhotos
+        self.searchQuery = searchQuery
+    }
 }
 
 struct Collectible: Codable, Hashable {
@@ -123,6 +145,8 @@ struct Collectible: Codable, Hashable {
     var searchImageNoBgUrl: String { attributes.images.searchNoBg?.url ?? "" }
     var mainImageUrl: String { attributes.images.main?.url ?? "" }
     var gallery: [ImageData] { attributes.images.gallery ?? [] }
+    
+    // MARK: Computed Properties
     
     var pricePaid: Float? {
         didSet {
@@ -218,6 +242,12 @@ struct Collectible: Codable, Hashable {
         return formatDisplayPriceValue(pricePaid)
     }
     
+    var searchQuery: String? {
+        customAttributes?.searchQuery
+    }
+    
+    // MARK: Methods
+    
     private func formatDisplayPriceValue(_ value: Float?) -> String {
         guard let value = value else { return "-" }
         
@@ -236,7 +266,8 @@ struct Collectible: Codable, Hashable {
             "inCollection": inCollection,
             "custom_attributes": [
                 "price_paid": customAttributes?.pricePaid as Any,
-                "user_photos": customAttributes?.userPhotos?.map { $0.url } as Any
+                "user_photos": customAttributes?.userPhotos?.map { $0.url } as Any,
+                "search_query": customAttributes?.searchQuery as Any
             ],
             "attributes": [
                 "name": attributes.name,
@@ -277,6 +308,7 @@ struct Collectible: Codable, Hashable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         id = try container.decode(String.self, forKey: .id)
         attributes = try container.decode(CollectibleAttributes.self, forKey: .attributes)
+        customAttributes = try? container.decode(CustomAttributes.self, forKey: .customAttributes)
         inCollection = (try? container.decode(Bool.self, forKey: .inCollection)) ?? true
     }
     
@@ -288,6 +320,6 @@ struct Collectible: Codable, Hashable {
     }
     
     enum CodingKeys: String, CodingKey {
-        case id, attributes, inCollection
+        case id, attributes, customAttributes = "custom_attributes", inCollection
     }
 }

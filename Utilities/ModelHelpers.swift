@@ -25,6 +25,7 @@ class AppState: ObservableObject {
         didSet {
             if showAddToCollectionButton {
                 resetGridViewSortAndFilter()
+                gridViewShowSections = true
             }
         }
     }
@@ -38,14 +39,18 @@ class AppState: ObservableObject {
     @Published var showProfileInfo = false
     
     @Published var gridViewSortOption: SortOption = .series
-    @Published var gridViewfilter: String? = nil
+    @Published var gridViewFilter: String? = nil
+    @Published var gridViewColumnCount: Int = 2
+    @Published var gridViewShowSections: Bool = false
     
     @AppStorage("showSearchResultsInteractiveTutorial")
     var showSearchResultsInteractiveTutorial: Bool = true
     
     func resetGridViewSortAndFilter() {
         gridViewSortOption = .series
-        gridViewfilter = nil
+        gridViewFilter = nil
+        gridViewColumnCount = 2
+        gridViewShowSections = false
     }
 }
 

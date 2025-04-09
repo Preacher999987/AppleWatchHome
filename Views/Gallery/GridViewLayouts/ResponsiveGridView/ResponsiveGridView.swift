@@ -35,6 +35,10 @@ struct ResponsiveGridView: View {
         .onChange(of: items, initial: true) { oldValue, newValue in
             viewModel.onItemsUpdate(newValue)
         }
+        .onAppear {
+            // Expand all sections when view appears
+            expandAllSections()
+        }
     }
     
     @ViewBuilder
@@ -44,6 +48,10 @@ struct ResponsiveGridView: View {
         } else {
             plainGridView
         }
+    }
+    
+    private func expandAllSections() {
+        expandedSections = Set(groupedItems.keys)
     }
     
     private var plainGridView: some View {
@@ -126,9 +134,7 @@ struct ResponsiveGridView: View {
         var groups = [String: [Int]]()
         
         for (index, item) in viewModel.filteredItems.enumerated() {
-            // You'll need to replace this with your actual grouping logic
-            // For example, you might group by category, collection, or date
-            let section = item.querySubject ?? "Uncategorized"
+            let section = viewModel.sectionHeaderTitle(for: item, searchResultsMode: showAddToCollectionButton)
             
             if groups[section] == nil {
                 groups[section] = []
