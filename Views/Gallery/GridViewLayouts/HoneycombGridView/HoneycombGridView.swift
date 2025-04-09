@@ -1,5 +1,5 @@
 //
-//  LazyGridContentView.swift
+//  HoneycombGridView.swift
 //  FunKollector
 //
 //  Created by Home on 07.04.2025.
@@ -7,41 +7,47 @@
 
 import SwiftUI
 
-struct LazyGridContentView: View {
+struct HoneycombGridView: View {
+    private static let gridItemSize: CGFloat = 150
+    private static let spacingBetweenColumns: CGFloat = 12
+    private static let spacingBetweenRows: CGFloat = 12
+    
     @Binding var payload: [Collectible]
     @Binding var selectedItem: Int?
     @Binding var isFullScreen: Bool
     @Binding var showSafariView: Bool
     @Binding var showAddToCollectionButton: Bool
     
-    var onItemTap: (Int) -> Void
-    var confirmCollectibleDeletion: (Int) -> Void
+    var onCollectibleDeletion: (Int) -> Void
     
     var searchResultsSelectionModeOn: Bool
     let gridItems: [GridItem]
-    let viewModel: GridGalleryViewModel
     
-    private static let gridItemSize: CGFloat = 150
-    private static let spacingBetweenColumns: CGFloat = 12
-    private static let spacingBetweenRows: CGFloat = 12
+    let parentViewModel: GridGalleryViewModel
+    
+    @StateObject var viewModel: BaseGridViewModel
     
     var body: some View {
-        ScrollView([.horizontal, .vertical], showsIndicators: false) {
-            LazyVGrid(
-                columns: gridItems,
-                alignment: .center,
-                spacing: Self.spacingBetweenRows
-            ) {
-                ForEach(payload.indices, id: \.self) { index in
-                    gridItem(for: index)
+        ZStack(alignment: .bottom) {
+            ScrollView([.horizontal, .vertical], showsIndicators: false) {
+                LazyVGrid(
+                    columns: gridItems,
+                    alignment: .center,
+                    spacing: Self.spacingBetweenRows
+                ) {
+                    ForEach(payload.indices, id: \.self) { index in
+                        gridItem(for: index)
+                    }
                 }
+                .padding(.trailing, Self.gridItemSize/2 + 20)
+                .padding(.top, Self.gridItemSize/2 + 20)
+                .padding(.bottom, Self.gridItemSize/2 + 40)
+                .padding(.leading, 20)
             }
-            .padding(.trailing, Self.gridItemSize/2 + 20)
-            .padding(.top, Self.gridItemSize/2 + 20)
-            .padding(.bottom, Self.gridItemSize/2 + 40)
-            .padding(.leading, 20)
+            .contentShape(Rectangle())
+            
+            ToolbarView(viewModel: viewModel, columnLayoutActive: false)
         }
-        .contentShape(Rectangle())
     }
     
     private func gridItem(for index: Int) -> some View {
@@ -54,11 +60,11 @@ struct LazyGridContentView: View {
                 if !payload.indices.contains(index) {
                     EmptyView()
                 } else {
-                    LazyGridItemView(
+                    HoneycombGridItemView(
                         collectible: payload[index],
                         isSelected: selectedItem == index,
                         inSelectionMode: searchResultsSelectionModeOn,
-                        viewModel: viewModel,
+                        viewModel: parentViewModel,
                         proxy: proxy,
                         index: index,
                         gridItems: gridItems,
@@ -71,7 +77,6 @@ struct LazyGridContentView: View {
                         }
                     )
                     .onTapGesture {
-                        onItemTap(index)
                         handleItemTap(for: index)
                     }
                 }
@@ -98,14 +103,14 @@ struct LazyGridContentView: View {
     private func handleDeleteAction(for index: Int) {
         // Store the index temporarily if needed
         // Then show confirmation or call deletion directly
-        confirmCollectibleDeletion(index)
+        onCollectibleDeletion(index)
     }
 
     private func handleItemTap(for index: Int) {
         withAnimation(.easeInOut(duration: 0.15)) {
             if searchResultsSelectionModeOn {
                 ViewHelpers.hapticFeedback()
-                viewModel.toggleItemSelection(payload[index])
+                parentViewModel.toggleItemSelection(payload[index])
             }
             selectedItem = index
         }

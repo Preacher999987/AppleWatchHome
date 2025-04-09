@@ -10,12 +10,24 @@ import CommonCrypto
 
 class AppState: ObservableObject {
     @Published var openMyCollection = false 
-    @Published var openRelated = false
+    @Published var openRelated = false {
+        didSet {
+            if openRelated {
+                resetGridViewSortAndFilter()
+            }
+        }
+    }
     
     // Toolbar's navigationBar items visibility settings
     @Published var showCollectionButton = false
     @Published var showBackButton = true
-    @Published var showAddToCollectionButton = false
+    @Published var showAddToCollectionButton = false {
+        didSet {
+            if showAddToCollectionButton {
+                resetGridViewSortAndFilter()
+            }
+        }
+    }
     @Published var showPlusButton = false
     @Published var showEllipsisButton = false
     
@@ -25,8 +37,16 @@ class AppState: ObservableObject {
     
     @Published var showProfileInfo = false
     
+    @Published var gridViewSortOption: SortOption = .series
+    @Published var gridViewfilter: String? = nil
+    
     @AppStorage("showSearchResultsInteractiveTutorial")
     var showSearchResultsInteractiveTutorial: Bool = true
+    
+    func resetGridViewSortAndFilter() {
+        gridViewSortOption = .series
+        gridViewfilter = nil
+    }
 }
 
 extension Color {

@@ -17,7 +17,7 @@ struct AIPoweredBadge: View {
         }
         .padding(.horizontal, 8)
         .padding(.vertical, 4)
-        .background(Color(hex: "d3a754").opacity(0.9))
+        .background(Color.appPrimary)
         .foregroundColor(.white)
         .cornerRadius(8)
         .shadow(color: .black.opacity(0.2), radius: 2, x: 0, y: 1)

@@ -30,11 +30,13 @@
 		BB6232082D9190480048BF67 /* PhotoPreviewViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB6232072D9190480048BF67 /* PhotoPreviewViewModel.swift */; };
 		BB62320A2D9190810048BF67 /* PhotoPreviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB6232092D9190810048BF67 /* PhotoPreviewView.swift */; };
 		BB624A142DA4B5720093B9CF /* GridItemImageOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB624A132DA4B5720093B9CF /* GridItemImageOverlay.swift */; };
-		BB643EDD2DA439F80053250E /* ConfigurableGridViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB643EDC2DA439F80053250E /* ConfigurableGridViewModel.swift */; };
-		BB7065832DA49B4900C5DB2E /* ConfigurableGridItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB7065822DA49B4900C5DB2E /* ConfigurableGridItemView.swift */; };
+		BB7065832DA49B4900C5DB2E /* ResponsiveGridItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB7065822DA49B4900C5DB2E /* ResponsiveGridItemView.swift */; };
 		BB7065852DA4B05F00C5DB2E /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = BB7065842DA4B05F00C5DB2E /* GoogleSignIn */; };
 		BB7065872DA4B05F00C5DB2E /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = BB7065862DA4B05F00C5DB2E /* GoogleSignInSwift */; };
 		BB8E395A2D8F6F5F00CDC7BB /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB8E39592D8F6F5F00CDC7BB /* HomeView.swift */; };
+		BBAC4E952DA59EC10076EB7D /* ToolbarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBAC4E942DA59EC10076EB7D /* ToolbarView.swift */; };
+		BBAC4E972DA59EF00076EB7D /* GridViewToolbarProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBAC4E962DA59EF00076EB7D /* GridViewToolbarProtocol.swift */; };
+		BBAC4E9C2DA5AAD30076EB7D /* BaseGridViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBAC4E9B2DA5AAD30076EB7D /* BaseGridViewModel.swift */; };
 		BBBBF6392D9B100D008CE85F /* FunkoModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = BBBBF6372D9B100D008CE85F /* FunkoModel.xcdatamodeld */; };
 		BBBBF63C2D9C0B66008CE85F /* GIFView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBBBF63B2D9C0B66008CE85F /* GIFView.swift */; };
 		BBBBF63F2D9C0F19008CE85F /* PhotoPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBBBF63E2D9C0F19008CE85F /* PhotoPicker.swift */; };
@@ -61,9 +63,9 @@
 		BBBBF6722D9DD9E2008CE85F /* animated-logo.gif in Resources */ = {isa = PBXBuildFile; fileRef = BBBBF6712D9DD9E2008CE85F /* animated-logo.gif */; };
 		BBBBF6762D9E10CF008CE85F /* AuthResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBBBF6752D9E10CF008CE85F /* AuthResponse.swift */; };
 		BBBBF6782D9F2399008CE85F /* NetworkError.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBBBF6772D9F2399008CE85F /* NetworkError.swift */; };
-		BBDFC0822DA3F6B80051F0EC /* ConfigurableGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBDFC07B2DA3F0130051F0EC /* ConfigurableGridView.swift */; };
-		BBDFC0852DA402AA0051F0EC /* LazyGridContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBDFC0842DA402AA0051F0EC /* LazyGridContentView.swift */; };
-		BBDFC0882DA402E40051F0EC /* LazyGridItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBDFC0872DA402E40051F0EC /* LazyGridItemView.swift */; };
+		BBDFC0822DA3F6B80051F0EC /* ResponsiveGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBDFC07B2DA3F0130051F0EC /* ResponsiveGridView.swift */; };
+		BBDFC0852DA402AA0051F0EC /* HoneycombGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBDFC0842DA402AA0051F0EC /* HoneycombGridView.swift */; };
+		BBDFC0882DA402E40051F0EC /* HoneycombGridItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBDFC0872DA402E40051F0EC /* HoneycombGridItemView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -91,9 +93,11 @@
 		BB6232072D9190480048BF67 /* PhotoPreviewViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoPreviewViewModel.swift; sourceTree = "<group>"; };
 		BB6232092D9190810048BF67 /* PhotoPreviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoPreviewView.swift; sourceTree = "<group>"; };
 		BB624A132DA4B5720093B9CF /* GridItemImageOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GridItemImageOverlay.swift; sourceTree = "<group>"; };
-		BB643EDC2DA439F80053250E /* ConfigurableGridViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigurableGridViewModel.swift; sourceTree = "<group>"; };
-		BB7065822DA49B4900C5DB2E /* ConfigurableGridItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigurableGridItemView.swift; sourceTree = "<group>"; };
+		BB7065822DA49B4900C5DB2E /* ResponsiveGridItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResponsiveGridItemView.swift; sourceTree = "<group>"; };
 		BB8E39592D8F6F5F00CDC7BB /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
+		BBAC4E942DA59EC10076EB7D /* ToolbarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolbarView.swift; sourceTree = "<group>"; };
+		BBAC4E962DA59EF00076EB7D /* GridViewToolbarProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GridViewToolbarProtocol.swift; sourceTree = "<group>"; };
+		BBAC4E9B2DA5AAD30076EB7D /* BaseGridViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseGridViewModel.swift; sourceTree = "<group>"; };
 		BBBBF6382D9B100D008CE85F /* FunkoModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = FunkoModel.xcdatamodel; sourceTree = "<group>"; };
 		BBBBF63B2D9C0B66008CE85F /* GIFView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GIFView.swift; sourceTree = "<group>"; };
 		BBBBF63E2D9C0F19008CE85F /* PhotoPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoPicker.swift; sourceTree = "<group>"; };
@@ -118,9 +122,9 @@
 		BBBBF6712D9DD9E2008CE85F /* animated-logo.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = "animated-logo.gif"; sourceTree = "<group>"; };
 		BBBBF6752D9E10CF008CE85F /* AuthResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthResponse.swift; sourceTree = "<group>"; };
 		BBBBF6772D9F2399008CE85F /* NetworkError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkError.swift; sourceTree = "<group>"; };
-		BBDFC07B2DA3F0130051F0EC /* ConfigurableGridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigurableGridView.swift; sourceTree = "<group>"; };
-		BBDFC0842DA402AA0051F0EC /* LazyGridContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LazyGridContentView.swift; sourceTree = "<group>"; };
-		BBDFC0872DA402E40051F0EC /* LazyGridItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LazyGridItemView.swift; sourceTree = "<group>"; };
+		BBDFC07B2DA3F0130051F0EC /* ResponsiveGridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResponsiveGridView.swift; sourceTree = "<group>"; };
+		BBDFC0842DA402AA0051F0EC /* HoneycombGridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HoneycombGridView.swift; sourceTree = "<group>"; };
+		BBDFC0872DA402E40051F0EC /* HoneycombGridItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HoneycombGridItemView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -189,9 +193,12 @@
 		B5CC844227049E2E00DFB13B /* GridViewLayouts */ = {
 			isa = PBXGroup;
 			children = (
+				BBAC4E9A2DA5AAC50076EB7D /* BaseGridViewModel */,
+				BBAC4E962DA59EF00076EB7D /* GridViewToolbarProtocol.swift */,
+				BBAC4E942DA59EC10076EB7D /* ToolbarView.swift */,
 				BB624A122DA4B5470093B9CF /* GridItemImageOverlay */,
-				BBDFC0862DA402AE0051F0EC /* LazyGridView */,
-				BBDFC0782DA3EE8A0051F0EC /* ConfigurableGridView */,
+				BBDFC0862DA402AE0051F0EC /* HoneycombGridView */,
+				BBDFC0782DA3EE8A0051F0EC /* ResponsiveGridView */,
 				B5CC844327049E4600DFB13B /* GridView.swift */,
 			);
 			path = GridViewLayouts;
@@ -283,6 +290,14 @@
 				BB624A132DA4B5720093B9CF /* GridItemImageOverlay.swift */,
 			);
 			path = GridItemImageOverlay;
+			sourceTree = "<group>";
+		};
+		BBAC4E9A2DA5AAC50076EB7D /* BaseGridViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				BBAC4E9B2DA5AAD30076EB7D /* BaseGridViewModel.swift */,
+			);
+			path = BaseGridViewModel;
 			sourceTree = "<group>";
 		};
 		BBBBF63A2D9B10A3008CE85F /* Models */ = {
@@ -386,14 +401,13 @@
 			path = ViewHelpers;
 			sourceTree = "<group>";
 		};
-		BBDFC0782DA3EE8A0051F0EC /* ConfigurableGridView */ = {
+		BBDFC0782DA3EE8A0051F0EC /* ResponsiveGridView */ = {
 			isa = PBXGroup;
 			children = (
-				BB7065822DA49B4900C5DB2E /* ConfigurableGridItemView.swift */,
-				BB643EDC2DA439F80053250E /* ConfigurableGridViewModel.swift */,
-				BBDFC07B2DA3F0130051F0EC /* ConfigurableGridView.swift */,
+				BB7065822DA49B4900C5DB2E /* ResponsiveGridItemView.swift */,
+				BBDFC07B2DA3F0130051F0EC /* ResponsiveGridView.swift */,
 			);
-			path = ConfigurableGridView;
+			path = ResponsiveGridView;
 			sourceTree = "<group>";
 		};
 		BBDFC0832DA401FC0051F0EC /* GridGalleryView */ = {
@@ -405,13 +419,13 @@
 			path = GridGalleryView;
 			sourceTree = "<group>";
 		};
-		BBDFC0862DA402AE0051F0EC /* LazyGridView */ = {
+		BBDFC0862DA402AE0051F0EC /* HoneycombGridView */ = {
 			isa = PBXGroup;
 			children = (
-				BBDFC0872DA402E40051F0EC /* LazyGridItemView.swift */,
-				BBDFC0842DA402AA0051F0EC /* LazyGridContentView.swift */,
+				BBDFC0872DA402E40051F0EC /* HoneycombGridItemView.swift */,
+				BBDFC0842DA402AA0051F0EC /* HoneycombGridView.swift */,
 			);
-			path = LazyGridView;
+			path = HoneycombGridView;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -487,10 +501,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				BB7065832DA49B4900C5DB2E /* ConfigurableGridItemView.swift in Sources */,
+				BB7065832DA49B4900C5DB2E /* ResponsiveGridItemView.swift in Sources */,
 				BB1749C12DA19F9500A64678 /* FullScreenCarouselView.swift in Sources */,
 				BB1D1E862D97411F00153BB4 /* BarcodeScannerView.swift in Sources */,
 				BB1D1E912D9A00C000153BB4 /* ModelHelpers.swift in Sources */,
+				BBAC4E9C2DA5AAD30076EB7D /* BaseGridViewModel.swift in Sources */,
 				BB2B5B2D2D920752004461C4 /* AsyncImageLoader.swift in Sources */,
 				BBBBF6412D9C0F58008CE85F /* CameraView.swift in Sources */,
 				BBBBF6782D9F2399008CE85F /* NetworkError.swift in Sources */,
@@ -501,7 +516,7 @@
 				BB1D1E8A2D983A5300153BB4 /* LaunchView.swift in Sources */,
 				BBBBF6472D9C10E2008CE85F /* WelcomeFeatureCard.swift in Sources */,
 				BB2B5B302D93296A004461C4 /* GridGalleryViewModel.swift in Sources */,
-				BBDFC0882DA402E40051F0EC /* LazyGridItemView.swift in Sources */,
+				BBDFC0882DA402E40051F0EC /* HoneycombGridItemView.swift in Sources */,
 				BB1EF1182DA2E252006B99F4 /* ImagePicker.swift in Sources */,
 				BBBBF6762D9E10CF008CE85F /* AuthResponse.swift in Sources */,
 				BB62320A2D9190810048BF67 /* PhotoPreviewView.swift in Sources */,
@@ -523,18 +538,19 @@
 				BB1749BF2DA0CA4D00A64678 /* PhotoUploadResponse.swift in Sources */,
 				BB6232062D91901B0048BF67 /* Collectible.swift in Sources */,
 				BBBBF6642D9D96A9008CE85F /* BaseRepository.swift in Sources */,
+				BBAC4E972DA59EF00076EB7D /* GridViewToolbarProtocol.swift in Sources */,
 				BB15268B2DA2097D002C1CD8 /* ManualEntryView.swift in Sources */,
 				BBBBF64D2D9C12D2008CE85F /* DarkModeHelper.swift in Sources */,
+				BBAC4E952DA59EC10076EB7D /* ToolbarView.swift in Sources */,
 				BBBBF6572D9C58BF008CE85F /* AuthViewModel.swift in Sources */,
 				BBBBF66B2D9DB053008CE85F /* ProfileImagePicker.swift in Sources */,
 				BB1EF1142DA297F5006B99F4 /* Collectible+Extensions.swift in Sources */,
-				BBDFC0822DA3F6B80051F0EC /* ConfigurableGridView.swift in Sources */,
+				BBDFC0822DA3F6B80051F0EC /* ResponsiveGridView.swift in Sources */,
 				BB2B5B2E2D920A11004461C4 /* CollectiblesRepository.swift in Sources */,
 				BBBBF6592D9C58CF008CE85F /* AuthView.swift in Sources */,
 				BBBBF65F2D9D948C008CE85F /* UserProfile.swift in Sources */,
 				BBBBF64B2D9C1279008CE85F /* Testimonial.swift in Sources */,
-				BB643EDD2DA439F80053250E /* ConfigurableGridViewModel.swift in Sources */,
-				BBDFC0852DA402AA0051F0EC /* LazyGridContentView.swift in Sources */,
+				BBDFC0852DA402AA0051F0EC /* HoneycombGridView.swift in Sources */,
 				BBBBF6612D9D9597008CE85F /* UserProfileRepository.swift in Sources */,
 				BBBBF6492D9C11D7008CE85F /* KeychainHelper.swift in Sources */,
 				BB6232082D9190480048BF67 /* PhotoPreviewViewModel.swift in Sources */,

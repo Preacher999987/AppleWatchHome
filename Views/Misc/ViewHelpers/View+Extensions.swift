@@ -119,4 +119,13 @@ extension View {
             self.scaledToFill() // Apply .scaledToFill() if condition is false
         }
     }
+    
+    @ViewBuilder
+    func modifier<T: View>(if condition: Bool, transform: (Self) -> T) -> some View {
+        if condition {
+            transform(self)
+        } else {
+            self
+        }
+    }
 }

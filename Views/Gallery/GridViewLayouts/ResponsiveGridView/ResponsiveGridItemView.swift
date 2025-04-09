@@ -1,5 +1,5 @@
 //
-//  ConfigurableGridItemView.swift
+//  ResponsiveGridItemView.swift
 //  FunKollector
 //
 //  Created by Home on 08.04.2025.
@@ -7,9 +7,9 @@
 
 import SwiftUI
 
-// MARK: - ConfigurableGridItemView
-struct ConfigurableGridItemView: View {
-    let layout: GridItemViewLayout
+// MARK: - ResponsiveGridItemView
+struct ResponsiveGridItemView: View {
+    let layout: ResponsiveGridViewLayout
     let collectible: Collectible
     let isSelected: Bool
     let inSelectionMode: Bool
@@ -39,19 +39,23 @@ struct ConfigurableGridItemView: View {
                 .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2)
                 
                 if showMissingLabel {
-                    ImageOverlayMissingLabel()
+                    GridItemOverlayMissingLabel()
                         .padding(8)
                 }
                 
                 if showDeteleButton {
-                    ImageOverlayDeleteButton(showDeleteConfirmation: $showDeleteConfirmation,
+                    GridItemOverlayDeleteButton(showDeleteConfirmation: $showDeleteConfirmation,
                                              onDeleteAction: onDeleteAction,
-                                             item: collectible)
+                                                item: collectible)
                 }
+                
+                GridItemOverlaySelectionIndicator(
+                    isItemSelected: viewModel.isItemSelected(collectible.id),
+                    inSelectionMode: inSelectionMode)
             }
             
             if isSelected {
-                ImageOverlayActionButton(onViewAction: onViewAction, inCollection: collectible.inCollection)
+                GridItemOverlayActionButton(onViewAction: onViewAction, inCollection: collectible.inCollection)
             }
         }
     }
@@ -101,7 +105,7 @@ struct ConfigurableGridItemView: View {
             .font(.headline)
     }
     
-    private func valueLabel(_ value: String?, layout: GridItemViewLayout) -> some View {
+    private func valueLabel(_ value: String?, layout: ResponsiveGridViewLayout) -> some View {
         Text("\(layout == .regular ? "" : "Value: ")\(value ?? "N/A")")
             .font(.subheadline)
             .foregroundColor(.secondary)

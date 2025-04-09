@@ -1,5 +1,5 @@
 //
-//  LazyGridItemView.swift
+//  HoneycombGridItemView.swift
 //  FunKollector
 //
 //  Created by Home on 07.04.2025.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct LazyGridItemView: View {
+struct HoneycombGridItemView: View {
     let collectible: Collectible
     let isSelected: Bool
     let inSelectionMode: Bool
@@ -37,26 +37,26 @@ struct LazyGridItemView: View {
             .scaleEffect(scale)
             .offset(x: offsetX, y: 0)
             .overlay(
-                ImageOverlaySelectionIndicator(
+                GridItemOverlaySelectionIndicator(
                     isItemSelected: viewModel.isItemSelected(collectible.id),
                     inSelectionMode: inSelectionMode)
                 .offset(x: offsetX + Self.gridItemSize / 2 - 22, y: Self.gridItemSize / 2 - 22)
             )
             
             if !collectible.inCollection {
-                ImageOverlayMissingLabel()
+                GridItemOverlayMissingLabel()
                 .offset(x: offsetX + Self.gridItemSize / 4 - 10, y: -Self.gridItemSize / 2 + 10)
             }
             
             if isSelected {
-                ImageOverlayActionButton(
+                GridItemOverlayActionButton(
                     onViewAction: onViewAction,
                     inCollection: collectible.inCollection)
                 .offset(x: offsetX, y: 0)
             }
             
             if isSelected && collectible.inCollection && !showAddToCollectionButton {
-                ImageOverlayDeleteButton(
+                GridItemOverlayDeleteButton(
                     showDeleteConfirmation: $showDeleteConfirmation,
                     onDeleteAction: onDeleteAction,
                     item: collectible

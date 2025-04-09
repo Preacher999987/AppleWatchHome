@@ -14,13 +14,7 @@ struct GridGalleryView: View {
     private static let totalColumns: Int = 4
     
     @Namespace private var animationNamespace // For matchedGeometryEffect
-    @State private var selectedItem: Int? = nil {
-        didSet {
-            if selectedItem != oldValue {
-                loadGalleryImages()
-            }
-        }
-    } // Track the selected grid item
+    @State private var selectedItem: Int? // Track the selected grid item
     @State private var isFullScreen: Bool = false { // Track full-screen state
         didSet {
             dismissInputView()
@@ -60,6 +54,8 @@ struct GridGalleryView: View {
     
     @Binding var payload: [Collectible]
     
+    @State var isHoneycombGridViewLayoutActive: Bool = false
+    
     private var disablePlusButton: Bool {
         appState.openRelated || isFullScreen
     }
@@ -81,6 +77,7 @@ struct GridGalleryView: View {
                         selectedItem = nil
                     }
                 } else {
+                    appState.resetGridViewSortAndFilter()
                     withAnimation {
                         showNavigationTitle = false
                         animateLogo = false
@@ -118,7 +115,7 @@ struct GridGalleryView: View {
             interactiveTutorial
             
             if !isFullScreen {
-                lazyGridContentView
+                gridContentView
             }
             
             if let selectedItem = selectedItem {
@@ -166,7 +163,9 @@ struct GridGalleryView: View {
                     .kerning(0.5) // Slight letter spacing for better readability
             }
         }
-//        .toolbarBackground(.hidden, for: .navigationBar)
+        .modifier(if: isHoneycombGridViewLayoutActive) {
+            $0.toolbarBackground(.hidden, for: .navigationBar)
+        }
         .navigationBarBackButtonHidden(true)  // Hides the back button
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {
@@ -181,6 +180,11 @@ struct GridGalleryView: View {
             }
         } message: {
             Text(viewModel.errorMessage ?? "")
+        }
+        .onChange(of: selectedItem) { oldValue, newValue in
+            if newValue != oldValue {
+                loadGalleryImages()
+            }
         }
     }
     
@@ -241,8 +245,8 @@ struct GridGalleryView: View {
         .frame(maxWidth: .infinity)
         .alert("Add \(viewModel.selectedItemsCount) item\(viewModel.selectedItemsCount > 1 ? "s" : "") to your collection?",
                isPresented: $showAddToCollectionConfirmation) {
-            Button("Add item\(viewModel.selectedItemsCount > 1 ? "s" : "")", action: addToCollection)
-            Button("Cancel", role: .cancel) {}
+            Button("Add item\(viewModel.selectedItemsCount > 1 ? "s" : "")", role: .cancel, action: addToCollection)
+            Button("Cancel") {}
         } message: {
             Text("This will add all selected items to your collection.")
         }
@@ -393,7 +397,7 @@ struct GridGalleryView: View {
                 
                 dismissActionWrapped()
                 // TODO: Optimize my collection loading flow
-                // Problem: state change and collection datasource load triggered in LazyGridGalleryView
+                // Problem: state change and collection datasource load triggered in GridGalleryView
                 // Solution:
                 // - Move loading responsibility to HomeView
                 showCollectionView()
@@ -411,7 +415,7 @@ struct GridGalleryView: View {
         appState.showAddToCollectionButton = false
     }
     
-    private func confirmCollectibleDeletion(_ index: Int) {
+    private func onCollectibleDeletion(_ index: Int) {
         let itemId = payload[index].id
         viewModel.manageCollection(itemIds: [itemId], method: .delete) { result in
             // NOTE: Errors are handled by the ViewModel before reaching the completion handler
@@ -978,7 +982,7 @@ struct GridGalleryView: View {
     
     private var logo: some View {
         // TODO: Negative frame coordinates detected in leadingNavigationButtonRect
-        // when navigating to LazyGridView after "Add All" action.
+        // when navigating to GridGalleryView after "Add All" action.
         // Symptom: Logo animation moves off-screen during transition
         // Potential causes:
         // - Safe area insets not accounted for
@@ -1142,39 +1146,44 @@ struct GridGalleryView: View {
         }
     }
     
-    private var lazyGridContentView: some View {
-        ConfigurableGridView(
-            selectedItem: $selectedItem,
-            isFullScreen: $isFullScreen,
-            showSafariView: $showSafariView,
-            showAddToCollectionButton: $appState.showAddToCollectionButton,
-            onItemTap: {
-                selectedItem = $0
-            },
-            confirmCollectibleDeletion: { index in
-                confirmCollectibleDeletion(index)
-            },
-            searchResultsSelectionModeOn: searchResultsSelectionModeOn,
-            gridItems: gridItems,
-            parentViewModel: viewModel,
-            viewModel: ConfigurableGridViewModel(items: $payload)
-        )
-//        LazyGridContentView(
-//            payload: $payload,
-//            selectedItem: $selectedItem,
-//            isFullScreen: $isFullScreen,
-//            showSafariView: $showSafariView,
-//            showAddToCollectionButton: $appState.showAddToCollectionButton,
-//            onItemTap: {
-//                selectedItem = $0
-//            },
-//            confirmCollectibleDeletion: { index in
-//                confirmCollectibleDeletion(index)
-//            },
-//            searchResultsSelectionModeOn: searchResultsSelectionModeOn,
-//            gridItems: gridItems,
-//            viewModel: viewModel
-//        )
+    private var gridContentView: some View {
+        Group {
+            if isHoneycombGridViewLayoutActive {
+                HoneycombGridView(
+                    payload: $payload,
+                    selectedItem: $selectedItem,
+                    isFullScreen: $isFullScreen,
+                    showSafariView: $showSafariView,
+                    showAddToCollectionButton: $appState.showAddToCollectionButton,
+                    onCollectibleDeletion: { index in
+                        onCollectibleDeletion(index)
+                    },
+                    searchResultsSelectionModeOn: searchResultsSelectionModeOn,
+                    gridItems: gridItems,
+                    parentViewModel: viewModel,
+                    viewModel: BaseGridViewModel(
+                        isHoneycombGridViewLayoutActive: $isHoneycombGridViewLayoutActive,
+                        appState: appState)
+                )
+            } else {
+                ResponsiveGridView(
+                    selectedItem: $selectedItem,
+                    isFullScreen: $isFullScreen,
+                    showSafariView: $showSafariView,
+                    showAddToCollectionButton: $appState.showAddToCollectionButton,
+                    items: $payload,
+                    onCollectibleDeletion: { index in
+                        onCollectibleDeletion(index)
+                    },
+                    searchResultsSelectionModeOn: searchResultsSelectionModeOn,
+                    gridItems: gridItems,
+                    parentViewModel: viewModel,
+                    viewModel: BaseGridViewModel(
+                        isHoneycombGridViewLayoutActive: $isHoneycombGridViewLayoutActive,
+                        appState: appState)
+                )
+            }
+        }
         .gesture(
             TapGesture()
                 .onEnded {
@@ -1185,7 +1194,7 @@ struct GridGalleryView: View {
                     }
                 }
         )
-
+        
         .sheet(isPresented: $isShowingImagePicker) {
             ImagePicker(selectedImages: $selectedBackgroundImage, selectionLimit: 1)
         }
@@ -1329,12 +1338,5 @@ struct GridGalleryView: View {
         
         // Rule 1c: Default peeking position
         return screenHeight * 0.45 // Funko box display style
-    }
-    
-    var center: CGPoint {
-        CGPoint(
-            x: UIScreen.main.bounds.size.width*0.5,
-            y: UIScreen.main.bounds.size.height*0.5
-        )
     }
 }

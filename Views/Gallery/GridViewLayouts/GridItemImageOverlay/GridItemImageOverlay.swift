@@ -1,5 +1,5 @@
 //
-//  GridItemImageOverlay.swift
+//  GridItemOverlay.swift
 //  FunKollector
 //
 //  Created by Home on 08.04.2025.
@@ -8,7 +8,7 @@
 import SwiftUI
 // MARK: - Grid Item Image Container Components
     
-struct ImageOverlayDeleteButton: View {
+struct GridItemOverlayDeleteButton: View {
     @Binding var showDeleteConfirmation: Bool
     let onDeleteAction: () -> Void
     let item: Collectible
@@ -42,7 +42,7 @@ struct ImageOverlayDeleteButton: View {
     }
 }
    
-struct ImageOverlayMissingLabel: View {
+struct GridItemOverlayMissingLabel: View {
     var body: some View {
         Text("MISSING")
             .font(.system(size: 12, weight: .bold))
@@ -55,7 +55,7 @@ struct ImageOverlayMissingLabel: View {
     }
 }
 
-struct ImageOverlayActionButton: View {
+struct GridItemOverlayActionButton: View {
     let onViewAction: () -> Void
     let inCollection: Bool
     
@@ -100,7 +100,7 @@ struct ImageOverlayActionButton: View {
     }
 }
     
-struct ImageOverlaySelectionIndicator: View {
+struct GridItemOverlaySelectionIndicator: View {
     let isItemSelected: Bool
     let inSelectionMode: Bool
     

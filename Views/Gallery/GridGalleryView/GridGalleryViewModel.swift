@@ -1,5 +1,5 @@
 //
-//  LazyGridGalleryViewModel.swift
+//  GridGalleryViewModel.swift
 //  FunkoCollector
 //
 //  Created by Home on 25.03.2025.

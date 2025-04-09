@@ -150,6 +150,22 @@ struct Collectible: Codable, Hashable {
             .name ?? nil
     }
     
+    var estimatedValueFloat: Float? {
+        // First try to get the average of estimatedValueRange if available
+        if let range = attributes.estimatedValueRange?.compactMap({ $0 }).compactMap({ Float($0) }), !range.isEmpty {
+            let sum = range.reduce(0, +)
+            return sum / Float(range.count)
+        }
+        
+        // Fall back to estimatedValue if available
+        if let value = attributes.estimatedValue {
+            let cleanedValue = value.replacingOccurrences(of: "$", with: "")
+            return Float(cleanedValue)
+        }
+        
+        return nil
+    }
+    
     var estimatedValueDisplay: String? {
         // First try to use estimatedValueRange if valid
         if let range = attributes.estimatedValueRange?.compactMap({ $0 }), !range.isEmpty {
