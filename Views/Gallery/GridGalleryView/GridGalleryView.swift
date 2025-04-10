@@ -749,9 +749,18 @@ struct GridGalleryView: View {
         resetInputViewState()
     }
     
-    private func onMarkAsSoldTapped() {
+    private func onMarkAsSoldTapped(_ value: String) {
         if let index = selectedItem {
             payload[index].sold = true
+            viewModel.customAttributeUpdated(for: payload[index])
+        }
+        
+        resetInputViewState()
+    }
+    
+    private func unsellButtonTapped(_ value: String) {
+        if let index = selectedItem {
+            payload[index].customAttributes?.sales = nil
             viewModel.customAttributeUpdated(for: payload[index])
         }
         
@@ -848,12 +857,18 @@ struct GridGalleryView: View {
                                 value: currentItem.soldPlatform ?? "",
                                 style: .input(UIKeyboardType.default),
                                 onComplete: onPlatformInput)
+                            
+                            detailRow(
+                                title: "RETURN TO COLLECTION:",
+                                value: "Unsell",
+                                style: .actionButton,
+                                onComplete: unsellButtonTapped)
                         } else {
                             detailRow(
                                 title: "TAP TO ADD DETAILS",
-                                value: "",
-                                style: .markAsSold,
-                                onComplete: { _ in onMarkAsSoldTapped() })
+                                value: "Mark as Sold",
+                                style: .actionButton,
+                                onComplete: onMarkAsSoldTapped)
                         }
                     }
                 }
@@ -1110,13 +1125,13 @@ struct GridGalleryView: View {
             case .menu:
                 detailsViewMenu(title: title, value: value, style: style)
                 
-            case .markAsSold:
+            case .actionButton:
                 Button(action: {
                     withAnimation {
                         onComplete?("")
                     }
                 }) {
-                    Text("Mark as Sold")
+                    Text(value)
                         .font(.body)
                         .foregroundColor(.appPrimary)
                         .padding(.leading, 8)
