@@ -24,28 +24,60 @@ struct HoneycombGridItemView: View {
     
     private static let gridItemSize: CGFloat = 150
     private static let spacingBetweenColumns: CGFloat = 12
-    
+//    private var imageContainer: some View {
+//        GeometryReader { geometry in
+//            ZStack(alignment: .topLeading) {
+//                AsyncImageLoader(
+//                    url: viewModel.getGridItemUrl(from: collectible),
+//                    placeholder: Image(.gridItemPlaceholder),
+//                    grayScale: !collectible.inCollection
+//                )
+//                .scaledToFit()
+//                .cornerRadius(12)
+//                
+//                if collectible.sold {
+//                    Image(.soldBadge)
+//                        .resizable()
+//                        .scaledToFit()
+//                        .frame(width: geometry.size.width * 0.75)
+//                }
+//            }
+//            .frame(width: geometry.size.width, height: geometry.size.height)
+//        }
+//        .aspectRatio(1, contentMode: .fit) // Maintain square aspect ratio
+    //    }
     var body: some View {
         ZStack {
-            AsyncImageLoader(
-                url: viewModel.getGridItemUrl(from: collectible),
-                placeholder: Image(.gridItemPlaceholder),
-                grayScale: !collectible.inCollection
-            )
-            .scaledToFit()
-            .cornerRadius(Self.gridItemSize/8)
-            .scaleEffect(scale)
-            .offset(x: offsetX, y: 0)
-            .overlay(
-                GridItemOverlaySelectionIndicator(
-                    isItemSelected: viewModel.isItemSelected(collectible.id),
-                    inSelectionMode: inSelectionMode)
-                .offset(x: offsetX + Self.gridItemSize / 2 - 22, y: Self.gridItemSize / 2 - 22)
-            )
+            ZStack(alignment: .topLeading) {
+                AsyncImageLoader(
+                    url: viewModel.getGridItemUrl(from: collectible),
+                    placeholder: Image(.gridItemPlaceholder),
+                    grayScale: !collectible.inCollection
+                )
+                .scaledToFit()
+                .cornerRadius(Self.gridItemSize/8)
+                //                .scaleEffect(scale)
+                .offset(x: offsetX, y: 0)
+                .overlay(
+                    GridItemOverlaySelectionIndicator(
+                        isItemSelected: viewModel.isItemSelected(collectible.id),
+                        inSelectionMode: inSelectionMode)
+                    .offset(x: offsetX + Self.gridItemSize / 2 - 22, y: Self.gridItemSize / 2 - 22)
+                )
+                
+                // Sold badge - positioned top leading
+                if collectible.sold {
+                    Image(.soldBadge)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: Self.gridItemSize * 0.75)
+                        .offset(x: offsetX)
+                }
+            }
             
             if !collectible.inCollection {
                 GridItemOverlayMissingLabel()
-                .offset(x: offsetX + Self.gridItemSize / 4 - 10, y: -Self.gridItemSize / 2 + 10)
+                    .offset(x: offsetX + Self.gridItemSize / 4 - 10, y: -Self.gridItemSize / 2 + 10)
             }
             
             if isSelected {
@@ -64,6 +96,7 @@ struct HoneycombGridItemView: View {
                 .offset(x: offsetX + Self.gridItemSize / 2 - 10, y: -Self.gridItemSize / 2 + 10)
             }
         }
+        .scaleEffect(scale)
     }
     
     private var offsetX: CGFloat {

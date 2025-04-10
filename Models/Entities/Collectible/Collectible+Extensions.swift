@@ -2,86 +2,198 @@
 //  Collectible+Extensions.swift
 //  FunKollector
 //
-//  Created by Home on 06.04.2025.
+//  Created by Home on 10.04.2025.
 //
 
-import SwiftUI
+import Foundation
 
 extension Collectible {
-    static func mock() -> Collectible {
-        // Create mock ImageData
-        let mainImage = ImageData(
-            url: "https://example.com/images/main.jpg",
-            nudity: false,
-            insensitive: false,
-            filePath: "images/main.jpg"
-        )
+    //MARK: Sales-related computed properties
+    var soldPrice: Float? {
+        get { customAttributes?.sales?.soldPrice }
+        set {
+            if customAttributes == nil {
+                customAttributes = CustomAttributes()
+            }
+            if customAttributes?.sales == nil {
+                customAttributes?.sales = Sale()
+            }
+            customAttributes?.sales?.soldPrice = newValue
+        }
+    }
+    
+    var soldDate: Date? {
+        get { customAttributes?.sales?.soldDate }
+        set {
+            if customAttributes == nil {
+                customAttributes = CustomAttributes()
+            }
+            if customAttributes?.sales == nil {
+                customAttributes?.sales = Sale()
+            }
+            customAttributes?.sales?.soldDate = newValue
+        }
+    }
+    
+    var soldPlatform: String? {
+        get { customAttributes?.sales?.soldPlatform }
+        set {
+            if customAttributes == nil {
+                customAttributes = CustomAttributes()
+            }
+            if customAttributes?.sales == nil {
+                customAttributes?.sales = Sale()
+            }
+            customAttributes?.sales?.soldPlatform = newValue
+        }
+    }
+    
+    var sold: Bool {
+        get { customAttributes?.sales?.sold ?? false }
+        set {
+            if customAttributes == nil {
+                customAttributes = CustomAttributes()
+            }
+            if customAttributes?.sales == nil  {
+                customAttributes?.sales = Sale()
+            }
+            customAttributes?.sales?.sold = newValue
+        }
+    }
+    
+    var soldDateDisplay: String {
+        customAttributes?.sales?.soldDate.flatMap { DateFormatUtility.string(from: $0) } ?? "-"
+    }
+    
+    var soldPriceDisplay: String {
+        guard let price = soldPrice,
+              // Explicitly check for zero as CoreData does not store Optional Numeric values else {
+                price > 0 else {
+            return CurrencyFormatUtility.none
+        }
+        return CurrencyFormatUtility.displayPrice(price)
+    }
+    
+    var isSold: Bool {
+        customAttributes?.sales?.soldPrice != nil
+    }
+    
+    // MARK: Other CustomAttributes computed properties
+    
+    var pricePaid: Float? {
+        get { customAttributes?.pricePaid }
+        set {
+            if customAttributes == nil {
+                customAttributes = CustomAttributes()
+            }
+            
+            customAttributes?.pricePaid = newValue
+        }
+    }
+    
+    var subject: String {
+        attributes.relatedSubjects?
+            .first(where:
+                    { $0.type == .aiClassified })?
+            .name ?? ""
+    }
+    
+    var querySubject: String? {
+        if (!subject.isEmpty) { return subject }
         
-        let searchImage = ImageData(
-            url: "https://example.com/images/search.jpg",
-            nudity: false,
-            insensitive: false,
-            filePath: "images/search.jpg"
-        )
+        return attributes.relatedSubjects?
+            .first(where:
+                    { $0.type == .userSelectionPrimary })?
+            .name ?? nil
+    }
+    
+    var estimatedValueFloat: Float? {
+        // First try to get the average of estimatedValueRange if available
+        if let range = attributes.estimatedValueRange?.compactMap({ $0 }).compactMap({ Float($0) }), !range.isEmpty {
+            let sum = range.reduce(0, +)
+            return sum / Float(range.count)
+        }
         
-        let searchNoBgImage = ImageData(
-            url: "https://example.com/images/search_no_bg.png",
-            nudity: false,
-            insensitive: false,
-            filePath: "images/search_no_bg.png"
-        )
+        // Fall back to estimatedValue if available
+        if let value = attributes.estimatedValue {
+            let cleanedValue = value.replacingOccurrences(of: "$", with: "")
+            return Float(cleanedValue)
+        }
         
-        let galleryImages = [
-            ImageData(url: "https://example.com/images/gallery1.jpg", nudity: false, insensitive: false),
-            ImageData(url: "https://example.com/images/gallery2.jpg", nudity: false, insensitive: false)
-        ]
+        return nil
+    }
+    
+    var estimatedValueDisplay: String? {
+        // First try to use estimatedValueRange if valid
+        if let range = attributes.estimatedValueRange?.compactMap({ $0 }), !range.isEmpty {
+            let cleanValues = range.map { $0.components(separatedBy: ".").first ?? $0 }
+            
+            switch cleanValues.count {
+            case 2:
+                return "$\(cleanValues[0]) - $\(cleanValues[1])"
+            case 1:
+                return "$\(cleanValues[0])"
+            default:
+                break // Fall through to estimatedValue check
+            }
+        }
         
-        // Create mock RelatedSubjects
-        let relatedSubjects = [
-            RelatedSubject(
-                url: "https://example.com/subjects/1",
-                name: "Artificial Intelligence Art",
-                type: .aiClassified
-            ),
-            RelatedSubject(
-                url: "https://example.com/subjects/2",
-                name: "Digital Collectibles",
-                type: .userSelectionPrimary
-            )
-        ]
+        // Fall back to estimatedValue if available
+        if let value = attributes.estimatedValue {
+            return value.hasPrefix("$") ? value : "$\(value)"
+        }
         
-        // Create mock CollectibleAttributes
-        let attributes = CollectibleAttributes(
-            images: CollectibleAttributes.Images(
-                main: mainImage,
-                search: searchImage,
-                searchNoBg: searchNoBgImage,
-                gallery: galleryImages
-            ),
-            name: "Rare Digital Artwork #42",
-            estimatedValue: "1250.00",
-            estimatedValueRange: ["1000.00", "1500.00"],
-            relatedSubjects: relatedSubjects,
-            dateFrom: "2023-05-15",
-            productionStatus: ["Limited Edition", "Artist Signed"],
-            refNumber: "DA-2023-0042"
-        )
+        return nil
+    }
+    
+    var returnValue: Float? {
+        // Extract the base value (from estimatedValue or first non-nil estimatedValueRange item)
+        let baseValue: Float
+        if let estimatedValue = attributes.estimatedValue.flatMap({ Float($0) }) {
+            baseValue = estimatedValue
+        } else if let firstValidRangeValue = attributes.estimatedValueRange?.compactMap({ $0 }).first.flatMap({ Float($0) }) {
+            baseValue = firstValidRangeValue
+        } else {
+            return nil  // No valid base value found
+        }
         
-        // Create mock CustomAttributes
-        let customAttributes = CustomAttributes(
-            pricePaid: 899.99,
-            userPhotos: [
-                ImageData(url: "https://example.com/user/photo1.jpg", nudity: false, insensitive: false),
-                ImageData(url: "https://example.com/user/photo2.jpg", nudity: false, insensitive: false)
-            ]
-        )
+        // Calculate return value if pricePaid exists
+        if let pricePaid = customAttributes?.pricePaid, pricePaid > 0 {
+            return baseValue - pricePaid
+        }
         
-        // Create and return the Collectible
-        return Collectible(
-            id: "collectible_12345",
-            attributes: attributes,
-            customAttributes: customAttributes,
-            inCollection: true
-        )
+        return nil
+    }
+    
+    var returnValueDisplay: String {
+        CurrencyFormatUtility.displayPrice(returnValue)
+    }
+    
+    var pricePaidDisplay: String {
+        guard let pricePaid = customAttributes?.pricePaid, pricePaid > 0 else { return "-" }
+           
+        return CurrencyFormatUtility.displayPrice(pricePaid)
+    }
+    
+    var purchaseDate: Date? {
+        get {
+            customAttributes?.purchaseDate
+        }
+        
+        set {
+            if customAttributes == nil {
+                customAttributes = CustomAttributes()
+            }
+            
+            customAttributes?.purchaseDate = newValue
+        }
+    }
+    
+    var purchaseDateDisplay: String {
+        customAttributes?.purchaseDate.flatMap { DateFormatUtility.string(from: $0) } ?? "-"
+    }
+    
+    var searchQuery: String? {
+        customAttributes?.searchQuery
     }
 }

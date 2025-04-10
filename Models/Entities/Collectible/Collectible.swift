@@ -109,15 +109,17 @@ struct CollectibleAttributes: Codable, Hashable {
 
 struct CustomAttributes: Codable, Hashable {
     var pricePaid: Float?
-    var purchaseDate: Date?  // Format: "yyyy-MM-dd"
+    var purchaseDate: Date?
     var userPhotos: [ImageData]?
     var searchQuery: String?
+    var sales: Sale?  // Changed to singular since it represents one sale
     
     enum CodingKeys: String, CodingKey {
         case pricePaid = "price_paid"
         case purchaseDate = "purchase_date"
         case userPhotos = "user_photos"
         case searchQuery = "search_query"
+        case sales
     }
     
     init(from decoder: Decoder) throws {
@@ -126,32 +128,35 @@ struct CustomAttributes: Codable, Hashable {
         purchaseDate = try container.decodeIfPresent(Date.self, forKey: .purchaseDate)
         userPhotos = try container.decodeIfPresent([ImageData].self, forKey: .userPhotos)
         searchQuery = try container.decodeIfPresent(String.self, forKey: .searchQuery)
+        sales = try container.decodeIfPresent(Sale.self, forKey: .sales)
     }
     
     init(pricePaid: Float? = nil,
          purchaseDate: Date? = nil,
          userPhotos: [ImageData]? = nil,
-         searchQuery: String? = nil) {
+         searchQuery: String? = nil,
+         sales: Sale? = nil) {
         self.pricePaid = pricePaid
         self.purchaseDate = purchaseDate
         self.userPhotos = userPhotos
         self.searchQuery = searchQuery
+        self.sales = sales
     }
     
     func encode(to encoder: Encoder) throws {
-            var container = encoder.container(keyedBy: CodingKeys.self)
-            try container.encodeIfPresent(pricePaid, forKey: .pricePaid)
-            
-            // Handle date encoding to string
-            if let date = purchaseDate {
-                let formatter = DateFormatter()
-                formatter.dateFormat = "yyyy-MM-dd"
-                try container.encode(formatter.string(from: date), forKey: .purchaseDate)
-            }
-            
-            try container.encodeIfPresent(userPhotos, forKey: .userPhotos)
-            try container.encodeIfPresent(searchQuery, forKey: .searchQuery)
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encodeIfPresent(pricePaid, forKey: .pricePaid)
+        
+        if let date = purchaseDate {
+            let formatter = DateFormatter()
+            formatter.dateFormat = "yyyy-MM-dd"
+            try container.encode(formatter.string(from: date), forKey: .purchaseDate)
         }
+        
+        try container.encodeIfPresent(userPhotos, forKey: .userPhotos)
+        try container.encodeIfPresent(searchQuery, forKey: .searchQuery)
+        try container.encodeIfPresent(sales, forKey: .sales)
+    }
 }
 
 struct Collectible: Codable, Hashable {
@@ -166,138 +171,7 @@ struct Collectible: Codable, Hashable {
     var mainImageUrl: String { attributes.images.main?.url ?? "" }
     var gallery: [ImageData] { attributes.images.gallery ?? [] }
     
-    // MARK: Computed Properties
-    
-    var pricePaid: Float? {
-        get { customAttributes?.pricePaid }
-        set {
-            if customAttributes == nil {
-                customAttributes = CustomAttributes()
-            }
-            
-            customAttributes?.pricePaid = newValue
-        }
-    }
-    
-    var subject: String {
-        attributes.relatedSubjects?
-            .first(where:
-                    { $0.type == .aiClassified })?
-            .name ?? ""
-    }
-    
-    var querySubject: String? {
-        if (!subject.isEmpty) { return subject }
-        
-        return attributes.relatedSubjects?
-            .first(where:
-                    { $0.type == .userSelectionPrimary })?
-            .name ?? nil
-    }
-    
-    var estimatedValueFloat: Float? {
-        // First try to get the average of estimatedValueRange if available
-        if let range = attributes.estimatedValueRange?.compactMap({ $0 }).compactMap({ Float($0) }), !range.isEmpty {
-            let sum = range.reduce(0, +)
-            return sum / Float(range.count)
-        }
-        
-        // Fall back to estimatedValue if available
-        if let value = attributes.estimatedValue {
-            let cleanedValue = value.replacingOccurrences(of: "$", with: "")
-            return Float(cleanedValue)
-        }
-        
-        return nil
-    }
-    
-    var estimatedValueDisplay: String? {
-        // First try to use estimatedValueRange if valid
-        if let range = attributes.estimatedValueRange?.compactMap({ $0 }), !range.isEmpty {
-            let cleanValues = range.map { $0.components(separatedBy: ".").first ?? $0 }
-            
-            switch cleanValues.count {
-            case 2:
-                return "$\(cleanValues[0]) - $\(cleanValues[1])"
-            case 1:
-                return "$\(cleanValues[0])"
-            default:
-                break // Fall through to estimatedValue check
-            }
-        }
-        
-        // Fall back to estimatedValue if available
-        if let value = attributes.estimatedValue {
-            return value.hasPrefix("$") ? value : "$\(value)"
-        }
-        
-        return nil
-    }
-    
-    var returnValue: Float? {
-        // Extract the base value (from estimatedValue or first non-nil estimatedValueRange item)
-        let baseValue: Float
-        if let estimatedValue = attributes.estimatedValue.flatMap({ Float($0) }) {
-            baseValue = estimatedValue
-        } else if let firstValidRangeValue = attributes.estimatedValueRange?.compactMap({ $0 }).first.flatMap({ Float($0) }) {
-            baseValue = firstValidRangeValue
-        } else {
-            return nil  // No valid base value found
-        }
-        
-        // Calculate return value if pricePaid exists
-        if let pricePaid = customAttributes?.pricePaid, pricePaid > 0 {
-            return baseValue - pricePaid
-        }
-        
-        return nil
-    }
-    
-    var returnValueDisplay: String {
-        formatDisplayPriceValue(returnValue)
-    }
-    
-    var pricePaidDisplay: String {
-        guard let pricePaid = customAttributes?.pricePaid, pricePaid > 0 else { return "-" }
-           
-        return formatDisplayPriceValue(pricePaid)
-    }
-    
-    var purchaseDate: Date? {
-        get {
-            customAttributes?.purchaseDate
-        }
-        
-        set {
-            if customAttributes == nil {
-                customAttributes = CustomAttributes()
-            }
-            
-            customAttributes?.purchaseDate = newValue
-        }
-    }
-    
-    var purchaseDateDisplay: String {
-        customAttributes?.purchaseDate.flatMap { DateFormatUtility.string(from: $0) } ?? "-"
-    }
-    
-    var searchQuery: String? {
-        customAttributes?.searchQuery
-    }
-    
     // MARK: Methods
-    
-    private func formatDisplayPriceValue(_ value: Float?) -> String {
-        guard let value = value else { return "-" }
-        
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .currency
-        formatter.currencySymbol = "$"
-        formatter.minimumFractionDigits = 2
-        formatter.maximumFractionDigits = 2
-        
-        return formatter.string(from: NSNumber(value: value)) ?? "-"
-    }
     
     func toDictionary() -> [String: Any] {
         var dict: [String: Any] = [
@@ -309,7 +183,14 @@ struct Collectible: Codable, Hashable {
                     DateFormatUtility.apiString(from: $0)
                 } as Any,
                 "user_photos": customAttributes?.userPhotos?.map { $0.url } as Any,
-                "search_query": customAttributes?.searchQuery as Any
+                "search_query": customAttributes?.searchQuery as Any,
+                "sales": [
+                    "sold_price": customAttributes?.sales?.soldPrice as Any,
+                    "sold_date": customAttributes?.sales?.soldDate.flatMap {
+                        DateFormatUtility.apiString(from: $0)
+                    } as Any,
+                    "sold_platform": customAttributes?.sales?.soldPlatform as Any
+                ] as Any
             ],
             "attributes": [
                 "name": attributes.name,
@@ -334,13 +215,43 @@ struct Collectible: Codable, Hashable {
         
         // Remove nil values to keep the dictionary clean
         dict = dict.compactMapValues { $0 }
+        
+        // Clean custom_attributes
+        if var customAttrs = dict["custom_attributes"] as? [String: Any] {
+            customAttrs = customAttrs.compactMapValues { $0 }
+            
+            // Clean sales if it exists
+            if var sales = customAttrs["sales"] as? [String: Any] {
+                sales = sales.compactMapValues { $0 }
+                if sales.isEmpty {
+                    customAttrs["sales"] = nil
+                } else {
+                    customAttrs["sales"] = sales
+                }
+            }
+            
+            dict["custom_attributes"] = customAttrs.isEmpty ? nil : customAttrs
+        }
+        
+        // Clean attributes
         if var attributesDict = dict["attributes"] as? [String: Any] {
             attributesDict = attributesDict.compactMapValues { $0 }
+            
+            // Clean images
             if var imagesDict = attributesDict["images"] as? [String: Any] {
                 imagesDict = imagesDict.compactMapValues { $0 }
-                attributesDict["images"] = imagesDict
+                attributesDict["images"] = imagesDict.isEmpty ? nil : imagesDict
             }
-            dict["attributes"] = attributesDict
+            
+            // Clean related_subjects
+            if let relatedSubjects = attributesDict["related_subjects"] as? [[String: Any?]] {
+                let cleanedSubjects = relatedSubjects.map { subject in
+                    subject.compactMapValues { $0 }
+                }.filter { !$0.isEmpty }
+                attributesDict["related_subjects"] = cleanedSubjects.isEmpty ? nil : cleanedSubjects
+            }
+            
+            dict["attributes"] = attributesDict.isEmpty ? nil : attributesDict
         }
         
         return dict

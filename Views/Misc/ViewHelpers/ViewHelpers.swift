@@ -45,7 +45,7 @@ struct ShareSheet: UIViewControllerRepresentable {
 
 // First, add this enum above your view struct
 enum DetailRowStyle {
-    case regular, browse, input(UIKeyboardType), media, returnValue, menu, datePicker
+    case regular, browse, input(UIKeyboardType), media, returnValue, menu, datePicker, markAsSold
 }
 
 struct TextFieldAlert<Presenting>: View where Presenting: View {

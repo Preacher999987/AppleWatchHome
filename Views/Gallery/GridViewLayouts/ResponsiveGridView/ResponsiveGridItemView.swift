@@ -26,9 +26,13 @@ struct ResponsiveGridItemView: View {
             ZStack(alignment: .topTrailing) {
                 VStack(alignment: .leading, spacing: 8) {
                     Spacer().frame(height: 0)
-                    imageContainer
-                        .frame(maxWidth: .infinity)
-                        .layoutPriority(1) // Give higher layout priority
+                    ZStack {
+                        imageContainer
+                            .frame(maxWidth: .infinity)
+                            .layoutPriority(1) // Give higher layout priority
+                    }
+                    .frame(maxWidth: .infinity, alignment: .center) // Center in parent
+                    
                     itemDetailsView
                 }
                 .padding(8)
@@ -69,15 +73,26 @@ struct ResponsiveGridItemView: View {
     }
     
     private var imageContainer: some View {
-        ZStack {
-            AsyncImageLoader(
-                url: viewModel.getGridItemUrl(from: collectible),
-                placeholder: Image(.gridItemPlaceholder),
-                grayScale: !collectible.inCollection
-            )
-            .scaledToFit()
-            .cornerRadius(12)
+        GeometryReader { geometry in
+            ZStack(alignment: .topLeading) {
+                AsyncImageLoader(
+                    url: viewModel.getGridItemUrl(from: collectible),
+                    placeholder: Image(.gridItemPlaceholder),
+                    grayScale: !collectible.inCollection
+                )
+                .scaledToFit()
+                .cornerRadius(12)
+                
+                if collectible.sold {
+                    Image(.soldBadge)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: geometry.size.width * 0.75)
+                }
+            }
+            .frame(width: geometry.size.width, height: geometry.size.height)
         }
+        .aspectRatio(1, contentMode: .fit) // Maintain square aspect ratio
     }
     
     private var itemDetailsView: some View {

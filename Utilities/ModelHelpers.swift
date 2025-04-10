@@ -280,3 +280,28 @@ enum DateFormatUtility {
         return nil
     }
 }
+
+class CurrencyFormatUtility {
+    private static let formatter: NumberFormatter = {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .currency
+        formatter.currencySymbol = "$"
+        formatter.minimumFractionDigits = 2
+        formatter.maximumFractionDigits = 2
+        
+        return formatter
+    }()
+    
+    static let none = "-"
+    
+    static func displayPrice(_ value: Float?) -> String {
+        guard let value = value else { return "-"}
+        
+        
+        return formatter.string(from: NSNumber(value: value)) ?? "-"
+    }
+    
+    static var zero: String {
+        displayPrice(0.0)
+    }
+}

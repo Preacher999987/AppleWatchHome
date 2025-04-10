@@ -68,7 +68,7 @@ struct ResponsiveGridView: View {
                 }
             }
                       .padding(.top, 72)
-                      .padding(.bottom, 110)
+                      .padding(.bottom, 140)
         }
         .padding(.horizontal, 16)
         .gesture(magnificationGesture)
@@ -97,7 +97,7 @@ struct ResponsiveGridView: View {
                 }
             }
             .padding(.top, 72)
-            .padding(.bottom, 110)
+            .padding(.bottom, 140)
         }
         .padding(.horizontal, 16)
         .gesture(magnificationGesture)

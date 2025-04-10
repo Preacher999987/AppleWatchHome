@@ -23,6 +23,10 @@
         <attribute name="searchNoBgImageNudity" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="searchNoBgImageUrl" optional="YES" attributeType="String"/>
         <attribute name="searchQuery" optional="YES" attributeType="String"/>
+        <attribute name="sold" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="soldDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="soldPlatform" optional="YES" attributeType="String"/>
+        <attribute name="soldPrice" optional="YES" attributeType="Float" defaultValueString="0.0" usesScalarValueType="YES"/>
         <attribute name="userPhotos" optional="YES" attributeType="Binary"/>
     </entity>
     <entity name="UserProfileEntity" representedClassName="UserProfileEntity" syncable="YES" codeGenerationType="class">

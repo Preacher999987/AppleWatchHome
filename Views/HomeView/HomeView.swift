@@ -97,7 +97,9 @@ struct HomeView: View {
                                 totalBalance: viewModel.totalBalance,
                                 rateOfReturn: viewModel.rateOfReturn,
                                 lifetimeSpendings: viewModel.lifetimeSpendings,
-                                lastMonthSpendings: viewModel.lastMonthSpendings
+                                lastMonthSpendings: viewModel.lastMonthSpendings,
+                                lifetimeEarnings: viewModel.lifetimeEarnings,
+                                lastMonthEarnings: viewModel.lastMonthEarnings
                             )
                             
                             // Main action cards with adjusted spacing
@@ -231,131 +233,6 @@ struct HomeView: View {
                 analysisResult = itemData
             }
             .presentationBackground(.clear)
-        }
-    }
-    
-    // Dashboard View
-    struct DashboardView: View {
-        let totalBalance: String
-        let rateOfReturn: String
-        let lifetimeSpendings: String
-        let lastMonthSpendings: String
-        
-        @State private var showLifetimeSpendings = true
-        @State private var showLifetimeSellings = true
-        
-        var body: some View {
-            VStack(spacing: 12) {
-                HStack(spacing: 12) {
-                    DashboardCard(
-                        title: "Total Balance",
-                        value: totalBalance,
-                        valueColor: .primary,
-                        isInteractive: false
-                    )
-                    
-                    DashboardCard(
-                        title: "Rate of Return",
-                        value: rateOfReturn,
-                        valueColor: rateOfReturn.contains("-") ? .red : .green,
-                        isInteractive: false
-                    )
-                    
-                    Button(action: {
-                        withAnimation(.easeInOut(duration: 0.2)) {
-                            showLifetimeSpendings.toggle()
-                        }
-                    }) {
-                        DashboardCard(
-                            title: showLifetimeSpendings ? "Lifetime Spendings" : "Last Month",
-                            value: showLifetimeSpendings ? lifetimeSpendings : lastMonthSpendings,
-                            valueColor: .primary,
-                            isInteractive: true,
-                            isToggled: !showLifetimeSpendings
-                        )
-                    }
-                    .buttonStyle(.plain)
-                }
-                
-//                HStack(spacing: 12) {
-//                    Button(action: {
-//                        withAnimation(.easeInOut(duration: 0.2)) {
-//                            showLifetimeSpendings.toggle()
-//                        }
-//                    }) {
-//                        DashboardCard(
-//                            title: showLifetimeSpendings ? "Lifetime Spendings" : "Last Month Spendings",
-//                            value: "£3,300.93",
-//                            valueColor: .primary,
-//                            isInteractive: true,
-//                            isToggled: !showLifetimeSpendings
-//                        )
-//                    }
-//                    .buttonStyle(.plain)
-//                    
-//                    Button(action: {
-//                        withAnimation(.easeInOut(duration: 0.2)) {
-//                            showLifetimeSellings.toggle()
-//                        }
-//                    }) {
-//                        DashboardCard(
-//                            title: showLifetimeSellings ? "Lifetime Sellings" : "Last Month Sellings",
-//                            value: "£1,200.50",
-//                            valueColor: .primary,
-//                            isInteractive: true,
-//                            isToggled: !showLifetimeSellings
-//                        )
-//                    }
-//                    .buttonStyle(.plain)
-//                }
-            }
-            .padding(.horizontal)
-            .frame(maxHeight: 160)
-        }
-    }
-    
-    struct DashboardCard: View {
-        let title: String
-        let value: String
-        let valueColor: Color
-        var isInteractive: Bool = false
-        var isToggled: Bool = false
-        
-        var body: some View {
-            ZStack(alignment: .topTrailing) {
-                VStack(alignment: .leading, spacing: 4) {
-                    HStack(alignment: .top) {
-                        Text(title)
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-                            .lineLimit(2)
-                            .fixedSize(horizontal: false, vertical: true) // Allow vertical expansion
-                    }
-                    
-                    Text(value)
-                        .font(.headline)
-                        .foregroundColor(valueColor)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .minimumScaleFactor(0.8)
-                }
-                
-                if isInteractive {
-                    Image(systemName: "chevron.down")
-                        .font(.caption2)
-                        .rotationEffect(.degrees(isToggled ? 180 : 0))
-                        .foregroundColor(.secondary)
-                        .animation(.easeInOut(duration: 0.2), value: isToggled)
-                }
-            }
-            .padding(UIDevice.isiPhoneSE ? 12 : 16)
-            .background(Color(.secondarySystemGroupedBackground))
-            .cornerRadius(8)
-            .overlay(
-                RoundedRectangle(cornerRadius: 8)
-                    .stroke(isInteractive ? Color.appPrimary.opacity(0.3) : Color.clear, lineWidth: 1)
-            )
-            .scaleEffect(isToggled ? 0.98 : 1.0)
-            .animation(.easeInOut(duration: 0.1), value: isToggled)
         }
     }
     

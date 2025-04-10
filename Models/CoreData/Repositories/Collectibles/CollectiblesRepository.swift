@@ -116,6 +116,8 @@ extension CollectibleEntity {
             self.searchNoBgImageNudity = searchNoBgImage.nudity
             self.searchNoBgImageInsensitive = searchNoBgImage.insensitive
         }
+        
+        // Custom Attributes
         if let pricePaid = collectible.customAttributes?.pricePaid {
             self.pricePaid = pricePaid
         }
@@ -127,6 +129,21 @@ extension CollectibleEntity {
         if let searchQuery = collectible.customAttributes?.searchQuery {
             self.searchQuery = searchQuery
         }
+        
+        // Handle Sales data
+        if let soldPrice = collectible.soldPrice {
+            self.soldPrice = soldPrice
+        }
+        
+        if let soldDate = collectible.soldDate {
+            self.soldDate = soldDate
+        }
+        
+        if let soldPlatform = collectible.soldPlatform {
+            self.soldPlatform = soldPlatform
+        }
+        
+        self.sold = collectible.sold
         
         // Handle array-type attributes
         self.galleryImages = collectible.attributes.images.gallery.flatMap { try? JSONEncoder().encode($0) }
@@ -196,12 +213,26 @@ extension CollectibleEntity {
             productionStatus: productionStatus,
             refNumber: attrRefNumber
         )
+        
         /// Decode array-type attributes
+        
+        // Custom Attributes with Sales
         let userPhotos = self.userPhotos.flatMap { try? JSONDecoder().decode([ImageData].self, from: $0) }
-        let customAttributes = CustomAttributes(pricePaid: pricePaid,
-                                                purchaseDate: purchaseDate,
-                                                userPhotos: userPhotos,
-                                                searchQuery: searchQuery)
+        
+        let sale = Sale(
+            soldPrice: self.soldPrice,
+            soldDate: self.soldDate,
+            platform: self.soldPlatform,
+            sold: self.sold
+        )
+        
+        let customAttributes = CustomAttributes(
+            pricePaid: pricePaid,
+            purchaseDate: purchaseDate,
+            userPhotos: userPhotos,
+            searchQuery: searchQuery,
+            sales: sale
+        )
         
         return Collectible(
             id: id,

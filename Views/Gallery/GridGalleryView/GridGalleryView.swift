@@ -151,6 +151,7 @@ struct GridGalleryView: View {
                 VStack {
                     Spacer()
                     informationFooter
+                        .padding(.bottom, 40)
                 }
             }
             
@@ -497,48 +498,60 @@ struct GridGalleryView: View {
             TabView(selection: $currentImageIndex) {
                 ForEach(Array(galleryImages.enumerated()), id: \.offset) { index, imageData in
                     GeometryReader { geometry in
-                        AsyncImageLoader(
-                            url: viewModel.imageURL(from: imageData),
-                            placeholder: Image(.gridItemPlaceholder),
-                            grayScale: false
-                        )
-                        // NOTE: For better visual feedback during swiping, consider adding this modifier:
-                        //                        .animation(.interactiveSpring(), value: currentImageIndex)
-                        .scaledToFit()
-                        .clipShape(RoundedRectangle(cornerRadius: 20))
-                        .frame(width: geometry.size.width, height: geometry.size.height, alignment: .center)
-                        .tag(index)
-                        .gesture(
-                            TapGesture()
-                                .onEnded {
-                                    withAnimation(.spring()) {
-                                        editCollectibleUserPhotos = false
-                                        
-                                        if isFullScreen {
-                                            showFullScreenCarousel = true
-                                        } else {
-                                            isFullScreen = true
-                                        }
-                                    }
+                        ZStack {
+                            ZStack(alignment: .topLeading) {
+                                AsyncImageLoader(
+                                    url: viewModel.imageURL(from: imageData),
+                                    placeholder: Image(.gridItemPlaceholder),
+                                    grayScale: false
+                                )
+                                .cornerRadius(12)
+                                // NOTE: For better visual feedback during swiping, consider adding this modifier:
+                                //                        .animation(.interactiveSpring(), value: currentImageIndex)
+                                
+                                if currentItem.sold {
+                                    Image(.soldBadge)
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(width: geometry.size.width * 0.75)
                                 }
-                                .exclusively(before: DragGesture()
-                                    .onEnded { gesture in
-                                        if gesture.translation.height > 50 { // Swipe Down
-                                            withAnimation(.spring()) {
-                                                if !isFullScreen { // Hide Carousel Preview on Swipe Down
-                                                    selectedItem = nil
-                                                }
-                                                editCollectibleUserPhotos = false
-                                                isFullScreen = false // Collapse fullscreen Carousel on Swipe Down
-                                            }
-                                        } else if gesture.translation.height < -50 { // Swipe Up
-                                            withAnimation(.spring()) {
+                            }
+                            .scaledToFit()
+//                            .clipShape(RoundedRectangle(cornerRadius: 20))
+                            .frame(width: geometry.size.width, height: geometry.size.height, alignment: .center)
+                            .tag(index)
+                            .gesture(
+                                TapGesture()
+                                    .onEnded {
+                                        withAnimation(.spring()) {
+                                            editCollectibleUserPhotos = false
+                                            
+                                            if isFullScreen {
+                                                showFullScreenCarousel = true
+                                            } else {
                                                 isFullScreen = true
                                             }
                                         }
                                     }
-                                )
-                        )
+                                    .exclusively(before: DragGesture()
+                                        .onEnded { gesture in
+                                            if gesture.translation.height > 50 { // Swipe Down
+                                                withAnimation(.spring()) {
+                                                    if !isFullScreen { // Hide Carousel Preview on Swipe Down
+                                                        selectedItem = nil
+                                                    }
+                                                    editCollectibleUserPhotos = false
+                                                    isFullScreen = false // Collapse fullscreen Carousel on Swipe Down
+                                                }
+                                            } else if gesture.translation.height < -50 { // Swipe Up
+                                                withAnimation(.spring()) {
+                                                    isFullScreen = true
+                                                }
+                                            }
+                                        }
+                                    )
+                            )
+                        }
                     }
                     .padding(.horizontal, 4) // Adds spacing between cards
                 }
@@ -697,9 +710,57 @@ struct GridGalleryView: View {
         resetInputViewState()
     }
     
+    // MARK: - Sale Details Handlers
+
+    private func onSoldPriceInput(_ inputText: String) {
+        guard let price = Float(inputText) else {
+            resetInputViewState()
+            return
+        }
+        
+        if let index = selectedItem {
+            payload[index].soldPrice = price
+            viewModel.customAttributeUpdated(for: payload[index])
+        }
+        
+        resetInputViewState()
+    }
+
+    private func onSaleDateInput(_ inputText: String) {
+        guard let date = DateFormatUtility.date(from: inputText) else {
+            resetInputViewState()
+            return
+        }
+        
+        if let index = selectedItem {
+            payload[index].soldDate = date
+            viewModel.customAttributeUpdated(for: payload[index])
+        }
+        
+        resetInputViewState()
+    }
+
+    private func onPlatformInput(_ inputText: String) {
+        if let index = selectedItem {
+            payload[index].soldPlatform = inputText.isEmpty ? nil : inputText
+            viewModel.customAttributeUpdated(for: payload[index])
+        }
+        
+        resetInputViewState()
+    }
+    
+    private func onMarkAsSoldTapped() {
+        if let index = selectedItem {
+            payload[index].sold = true
+            viewModel.customAttributeUpdated(for: payload[index])
+        }
+        
+        resetInputViewState()
+    }
+    
     // Modify the detailsView to be expandable
     private func detailsView(_ currentItem: Collectible) -> some View {
-        ZStack{
+        ZStack {
             // Details content
             ScrollView() {
                 Group {
@@ -764,9 +825,38 @@ struct GridGalleryView: View {
                                 }
                             }(),
                             style: .media)
+                        
+                        headerView("Sale Details")
+                            .padding(.top, 8)
+                        
+                        // New Sale Details Section
+                        if viewModel.showSaleDetails(for: currentItem.id) {
+                            detailRow(
+                                title: "SOLD PRICE:",
+                                value: currentItem.soldPriceDisplay,
+                                style: .input(UIKeyboardType.decimalPad),
+                                onComplete: onSoldPriceInput)
+                            
+                            detailRow(
+                                title: "SALE DATE:",
+                                value: currentItem.soldDateDisplay,
+                                style: .datePicker,
+                                onComplete: onSaleDateInput)
+                            
+                            detailRow(
+                                title: "PLATFORM:",
+                                value: currentItem.soldPlatform ?? "",
+                                style: .input(UIKeyboardType.default),
+                                onComplete: onPlatformInput)
+                        } else {
+                            detailRow(
+                                title: "TAP TO ADD DETAILS",
+                                value: "",
+                                style: .markAsSold,
+                                onComplete: { _ in onMarkAsSoldTapped() })
+                        }
                     }
                 }
-                //                .padding(.top, 8)
                 .padding(.bottom, 90)
             }
             //            .padding(.horizontal, 20)
@@ -1019,6 +1109,18 @@ struct GridGalleryView: View {
                 
             case .menu:
                 detailsViewMenu(title: title, value: value, style: style)
+                
+            case .markAsSold:
+                Button(action: {
+                    withAnimation {
+                        onComplete?("")
+                    }
+                }) {
+                    Text("Mark as Sold")
+                        .font(.body)
+                        .foregroundColor(.appPrimary)
+                        .padding(.leading, 8)
+                }
             }
         }
         .padding(.horizontal, 20)

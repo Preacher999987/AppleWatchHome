@@ -5,15 +5,16 @@
 //  Created by Home on 10.04.2025.
 //
 
-
 import Foundation
 import Combine
 
 class HomeViewModel: ObservableObject {
-    @Published var totalBalance: String = "£0.00"
+    @Published var totalBalance: String = CurrencyFormatUtility.none
     @Published var rateOfReturn: String = "0.0%"
-    @Published var lifetimeSpendings: String = "£0.00"
-    @Published var lastMonthSpendings: String = "£0.00"
+    @Published var lifetimeSpendings: String = CurrencyFormatUtility.none
+    @Published var lastMonthSpendings: String = CurrencyFormatUtility.none
+    @Published var lifetimeEarnings: String = CurrencyFormatUtility.none
+    @Published var lastMonthEarnings: String = CurrencyFormatUtility.none
     @Published var isLoading = false
     @Published var errorMessage: String?
     
@@ -44,24 +45,41 @@ class HomeViewModel: ObservableObject {
     }
     
     private func calculateMetrics(from collectibles: [Collectible]) {
-        // Total Balance (sum of estimated values)
-        let totalValue = collectibles
+        // Filter out sold items
+        let unsoldItems = collectibles.filter { !($0.customAttributes?.sales?.sold ?? false) }
+        
+        // Calculate total balance (only unsold items)
+        let totalValue = unsoldItems
             .compactMap { $0.estimatedValueFloat }
             .reduce(0, +)
-        totalBalance = formatCurrency(totalValue)
+        totalBalance = CurrencyFormatUtility.displayPrice(totalValue)
         
-        // Lifetime Spendings (sum of all pricePaid)
+        // Calculate lifetime spendings (all pricePaid)
         let lifetimeSpent = collectibles
             .compactMap { $0.customAttributes?.pricePaid }
             .reduce(0, +)
-        lifetimeSpendings = formatCurrency(lifetimeSpent)
+        lifetimeSpendings = CurrencyFormatUtility.displayPrice(lifetimeSpent)
         
-        // Last Month Spendings
+        // Calculate last month spendings
         let lastMonthSpent = calculateLastMonthSpendings(from: collectibles)
-        lastMonthSpendings = formatCurrency(lastMonthSpent)
+        lastMonthSpendings = CurrencyFormatUtility.displayPrice(lastMonthSpent)
         
-        // Rate of Return ((totalValue - lifetimeSpent) / lifetimeSpent) * 100
-        let rate = lifetimeSpent > 0 ? ((totalValue - lifetimeSpent) / lifetimeSpent) * 100 : 0
+        // Calculate lifetime earnings (sum of all sold prices)
+        let lifetimeEarned = collectibles
+            .compactMap { $0.customAttributes?.sales?.soldPrice }
+            .reduce(0, +)
+        lifetimeEarnings = CurrencyFormatUtility.displayPrice(lifetimeEarned)
+        
+        // Calculate last month earnings
+        let lastMonthEarned = calculateLastMonthEarnings(from: collectibles)
+        lastMonthEarnings = CurrencyFormatUtility.displayPrice(lastMonthEarned)
+        
+        // Calculate rate of return
+        let rate = calculateRateOfReturn(
+            totalValue: totalValue,
+            lifetimeSpent: lifetimeSpent,
+            lifetimeEarned: lifetimeEarned
+        )
         rateOfReturn = formatPercentage(rate)
     }
     
@@ -82,13 +100,28 @@ class HomeViewModel: ObservableObject {
         .reduce(0, +)
     }
     
-    private func formatCurrency(_ value: Float) -> String {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .currency
-        formatter.currencySymbol = "£"
-        formatter.minimumFractionDigits = 2
-        formatter.maximumFractionDigits = 2
-        return formatter.string(from: NSNumber(value: value)) ?? "£0.00"
+    private func calculateLastMonthEarnings(from collectibles: [Collectible]) -> Float {
+        guard let thirtyDaysAgo = Calendar.current.date(byAdding: .day, value: -30, to: Date()) else {
+            return 0
+        }
+        
+        return collectibles.compactMap { item -> (price: Float, date: Date)? in
+            guard let sale = item.customAttributes?.sales,
+                  let price = sale.soldPrice,
+                  let date = sale.soldDate else {
+                return nil
+            }
+            return (price, date)
+        }
+        .filter { $0.date >= thirtyDaysAgo }
+        .map { $0.price }
+        .reduce(0, +)
+    }
+    
+    private func calculateRateOfReturn(totalValue: Float, lifetimeSpent: Float, lifetimeEarned: Float) -> Float {
+        let totalGain = totalValue + lifetimeEarned - lifetimeSpent
+        guard lifetimeSpent > 0 else { return 0 }
+        return (totalGain / lifetimeSpent) * 100
     }
     
     private func formatPercentage(_ value: Float) -> String {

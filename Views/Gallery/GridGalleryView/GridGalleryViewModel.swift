@@ -17,6 +17,9 @@ class GridGalleryViewModel: ObservableObject {
     
     @Published var selectedItems: [Collectible] = []
     
+    // Track changes to force view updates
+    @Published private var refreshTrigger = false
+    
     var selectedItemsCount: Int {
         selectedItems.count
     }
@@ -70,6 +73,10 @@ class GridGalleryViewModel: ObservableObject {
     
     func showAcquisitionDetails(for collectibleId: String) -> Bool {
         return (try? CollectiblesRepository.item(by: collectibleId) ?? nil) != nil
+    }
+
+    func showSaleDetails(for collectibleId: String) -> Bool {
+        (try? CollectiblesRepository.item(by: collectibleId))?.customAttributes?.sales?.sold ?? false
     }
     
     func getRelated(for itemId: String, completion: @escaping ([Collectible]) -> Void) {
