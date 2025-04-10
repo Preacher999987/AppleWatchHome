@@ -127,6 +127,11 @@ enum NetworkError: Error {
 enum AuthError: Error {
     case invalidCredentials
     case jwtTokenNotFound
+    case userNotAuthenticated
+    case sessionExpired
+    case permissionDenied
+    case accountLocked
+    case verificationRequired
     
     var localizedDescription: String {
         switch self {
@@ -134,6 +139,32 @@ enum AuthError: Error {
             return "The email or password you entered is incorrect. Please try again."
         case .jwtTokenNotFound:
             return "Your session has expired. Please sign in again."
+        case .userNotAuthenticated:
+            return "You need to be logged in to access this content. Please sign in."
+        case .sessionExpired:
+            return "Your session has timed out. Please sign in again."
+        case .permissionDenied:
+            return "You don't have permission to access this resource."
+        case .accountLocked:
+            return "Your account has been temporarily locked. Please try again later or contact support."
+        case .verificationRequired:
+            return "Please verify your email address before continuing."
+        }
+    }
+    
+    // Optional: User-facing messages that might hide technical details
+    var userFacingMessage: String {
+        switch self {
+        case .invalidCredentials, .jwtTokenNotFound, .sessionExpired:
+            return "We couldn't authenticate your request. Please sign in again."
+        case .userNotAuthenticated:
+            return "Please sign in to continue."
+        case .permissionDenied:
+            return "Access to this content is restricted."
+        case .accountLocked:
+            return "Account access temporarily unavailable."
+        case .verificationRequired:
+            return "Account verification needed."
         }
     }
 }

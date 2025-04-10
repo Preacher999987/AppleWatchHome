@@ -1,5 +1,5 @@
 //
-//  BaseRepository.swift
+//  BaseCoreDataProvider.swift
 //  Fun Kollector
 //
 //  Created by Home on 02.04.2025.
@@ -7,8 +7,8 @@
 
 import CoreData
 
-class BaseRepository {
-    private static let persistentContainer: NSPersistentContainer = {
+class BaseCoreDataProvider {
+    private let persistentContainer: NSPersistentContainer = {
         let container = NSPersistentContainer(name: "FunkoModel")
         container.loadPersistentStores { description, error in
             if let error = error {
@@ -18,13 +18,13 @@ class BaseRepository {
         return container
     }()
     
-    static var context: NSManagedObjectContext {
+    var context: NSManagedObjectContext {
         return persistentContainer.viewContext
     }
     
     // MARK: - CoreData Operations
     
-    static func saveContext() throws {
+    func saveContext() throws {
         if context.hasChanges {
             try context.save()
         }

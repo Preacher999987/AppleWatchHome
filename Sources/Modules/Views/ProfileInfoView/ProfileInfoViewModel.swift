@@ -13,6 +13,13 @@ class ProfileInfoViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var error: Error?
     
+    private let repository: UserProfileRepositoryProtocol
+    
+    init(repository: UserProfileRepositoryProtocol = UserProfileRepository()) {
+        self.repository = repository
+        loadUserProfile()
+    }
+    
     // TODO: Add Production URLs from Info.plist
     var appShareURL: URL {
         guard let urlString = Bundle.main.object(forInfoDictionaryKey: "AppShareURL") as? String,
@@ -31,11 +38,11 @@ class ProfileInfoViewModel: ObservableObject {
     }
     
     func updateProfileImage(_ imageData: Data) async throws {
-        try await MainActor.run {
+        await MainActor.run {
             isLoading = true
             do {
-                try UserProfileRepository.updateProfileImage(imageData)
-                userProfile = try UserProfileRepository.getCurrentUserProfile()
+                try repository.updateProfileImage(imageData)
+                userProfile = try repository.getCurrentUserProfile()
                 error = nil
             } catch {
                 self.error = error
@@ -44,14 +51,10 @@ class ProfileInfoViewModel: ObservableObject {
         }
     }
     
-    init() {
-        loadUserProfile()
-    }
-    
     func loadUserProfile() {
         isLoading = true
         do {
-            userProfile = try UserProfileRepository.getCurrentUserProfile()
+            userProfile = try repository.getCurrentUserProfile()
             error = nil
         } catch {
             self.error = error
@@ -64,13 +67,6 @@ class ProfileInfoViewModel: ObservableObject {
         KeychainHelper.logout()
         // Additional cleanup if needed
         GIDSignIn.sharedInstance.signOut()
+        try? repository.deleteUserProfile()
     }
 }
-
-// Protocol for testability
-protocol UserProfileRepositoryProtocol {
-    static func getCurrentUserProfile() throws -> UserProfile?
-}
-
-// Make the actual repository conform to the protocol
-extension UserProfileRepository: UserProfileRepositoryProtocol {}

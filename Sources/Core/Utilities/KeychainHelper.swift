@@ -77,8 +77,5 @@ class KeychainHelper {
         // Remove any other user-related keychain items
         // Remove auth token
         delete(service: "funko-auth", account: "current-user")
-        
-        // Clear user profile
-        try? UserProfileRepository.deleteUserProfile()
     }
 }

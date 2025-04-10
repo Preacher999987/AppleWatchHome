@@ -281,7 +281,7 @@ struct HomeView: View {
     
     private var userProfileButton: some View {
         Group {
-            if let profile = try? UserProfileRepository.getCurrentUserProfile() {
+            if let profile = try? viewModel.getUserProfile() {
                 Button(action: {
                     withAnimation {
                         appState.showProfileInfo.toggle()
@@ -309,7 +309,6 @@ struct HomeView: View {
                 }
                 .sheet(isPresented: $appState.showProfileInfo) {
                     ProfileInfoView() {
-                        KeychainHelper.logout()
                         resetToInitialState()
                     }
                 }
@@ -415,14 +414,17 @@ struct HomeView: View {
         viewModel.loadDashboardData()
     }
     
+    @MainActor
     private func showCollectionView() {
-        if let result = try? CollectiblesRepository.loadItems() {
-            analysisResult = result
+        Task {
+            if let result = await viewModel.loadItems() {
+                analysisResult = result
+            }
+            appState.openMyCollection = true
+            appState.showPlusButton = true
+            appState.showEllipsisButton = true
+            appState.showCollectionButton = false
+            appState.showAddToCollectionButton = false
         }
-        appState.openMyCollection = true
-        appState.showPlusButton = true
-        appState.showEllipsisButton = true
-        appState.showCollectionButton = false
-        appState.showAddToCollectionButton = false
     }
 }

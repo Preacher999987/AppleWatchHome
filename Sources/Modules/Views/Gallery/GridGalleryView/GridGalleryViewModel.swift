@@ -26,6 +26,15 @@ class GridGalleryViewModel: ObservableObject {
     
     private let baseUrl = "http://192.168.1.17:3000"
     
+    private let userRepository: UserProfileRepositoryProtocol
+    private let collectibleRepository: CollectibleRepositoryProtocol
+    
+    init(userRepository: UserProfileRepositoryProtocol = UserProfileRepository(),
+         collectibleRepository: CollectibleRepositoryProtocol = CollectibleRepository()) {
+        self.userRepository = userRepository
+        self.collectibleRepository = collectibleRepository
+    }
+    
     func cancelSearchResultsSelectionButtonTapped() {
         selectedItems.removeAll()
     }
@@ -72,18 +81,18 @@ class GridGalleryViewModel: ObservableObject {
     
     
     func showAcquisitionDetails(for collectibleId: String) -> Bool {
-        return (try? CollectiblesRepository.item(by: collectibleId) ?? nil) != nil
+        return (try? collectibleRepository.item(by: collectibleId) ?? nil) != nil
     }
 
     func showSaleDetails(for collectibleId: String) -> Bool {
-        (try? CollectiblesRepository.item(by: collectibleId))?.customAttributes?.sales?.sold ?? false
+        (try? collectibleRepository.item(by: collectibleId))?.customAttributes?.sales?.sold ?? false
     }
     
     func getRelated(for itemId: String, completion: @escaping ([Collectible]) -> Void) {
         showLoadingIndicator = true
         
         // Validate inputs
-        guard let querySubject = try? CollectiblesRepository.item(by: itemId)?.querySubject else {
+        guard let querySubject = try? collectibleRepository.item(by: itemId)?.querySubject else {
             showLoadingIndicator = false
             errorMessage = NetworkError.invalidQuery.userFacingMessage
             return
@@ -209,7 +218,7 @@ class GridGalleryViewModel: ObservableObject {
             return
         }
         
-        let uid = (try? UserProfileRepository.getCurrentUserProfile()?.uid) ?? ""
+        let uid = (try? userRepository.getCurrentUserProfile()?.uid) ?? ""
         // Prepare request body
         var body: [String: Any] = [
             "method": method.rawValue,
@@ -257,38 +266,38 @@ class GridGalleryViewModel: ObservableObject {
         }.resume()
     }
     
-    func loadMyCollection() -> [Collectible] {
-        (try? CollectiblesRepository.loadItems()) ?? []
+    func loadMyCollection() async -> [Collectible] {
+        (try? await collectibleRepository.getCollectibles()) ?? []
     }
     
     private func addToCollection(_ items: [Collectible]) {
         // Add all current payload items to Collection
-        try? CollectiblesRepository.addItems(items)
+        try? collectibleRepository.addItems(items)
     }
     
     func deleteItem(for id: String) {
-        try? CollectiblesRepository.deleteItem(for: id)
+        try? collectibleRepository.deleteItem(for: id)
     }
     
     func updateItem(_ item: Collectible) {
-        try? CollectiblesRepository.updateItem(item)
+        try? collectibleRepository.updateItem(item)
     }
     
     func updateGallery(by itemId: String, galleryImages: [ImageData]) throws {
-        try CollectiblesRepository.updateGallery(by: itemId, galleryImages: galleryImages)
-        if let itemToUpdate = try? CollectiblesRepository.item(by: itemId) {
+        try collectibleRepository.updateGallery(by: itemId, galleryImages: galleryImages)
+        if let itemToUpdate = try? collectibleRepository.item(by: itemId) {
             manageCollection(itemIds: [itemId], method: .update, collectible: itemToUpdate) { _ in }
         }
     }
     
     func customAttributeUpdated(for item: Collectible) {
-        try? CollectiblesRepository.updateItem(item)
+        try? collectibleRepository.updateItem(item)
         manageCollection(itemIds: [item.id], method: .update, collectible: item) { _ in }
     }
     
     func uploadCollectibleUserPhotos(collectibleId: String, photos: [Data], completion: @escaping (Collectible) -> Void) {
         showLoadingIndicator = true
-        let uid = (try? UserProfileRepository.getCurrentUserProfile()?.uid) ?? ""
+        let uid = (try? userRepository.getCurrentUserProfile()?.uid) ?? ""
         guard let url = URL(string: "http://192.168.1.17:3000/add-user-photos/\(uid)") else {
             showLoadingIndicator = false
             errorMessage = NetworkError.invalidURL.userFacingMessage
@@ -364,7 +373,7 @@ class GridGalleryViewModel: ObservableObject {
     }
     
     private func updateItemUserPhotos(with photoFilePaths: [String], _ collectibleId: String) throws -> Collectible {
-        guard var itemToUpdate = try CollectiblesRepository.item(by: collectibleId) else {
+        guard var itemToUpdate = try collectibleRepository.item(by: collectibleId) else {
             throw NSError(domain: "No collectible found for id: \(collectibleId)", code: 0)
         }
         
@@ -379,7 +388,7 @@ class GridGalleryViewModel: ObservableObject {
         let userPhotos = photoFilePaths.map { ImageData(filePath: $0) }
         itemToUpdate.customAttributes?.userPhotos?.append(contentsOf: userPhotos)
         
-        try CollectiblesRepository.updateItem(itemToUpdate)
+        try collectibleRepository.updateItem(itemToUpdate)
         
         return itemToUpdate
     }

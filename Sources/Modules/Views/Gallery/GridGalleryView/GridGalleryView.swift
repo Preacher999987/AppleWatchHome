@@ -436,13 +436,22 @@ struct GridGalleryView: View {
     }
     
     private func showCollectionView() {
-        payload = viewModel.loadMyCollection()
-        
-        appState.openMyCollection = true
-        appState.showPlusButton = true
-        appState.showEllipsisButton = true
-        appState.showCollectionButton = false
-        appState.showAddToCollectionButton = false
+        Task {
+            do {
+                let collection = await viewModel.loadMyCollection()
+                await MainActor.run {
+                    payload = collection
+                    appState.openMyCollection = true
+                    appState.showPlusButton = true
+                    appState.showEllipsisButton = true
+                    appState.showCollectionButton = false
+                    appState.showAddToCollectionButton = false
+                }
+            } catch {
+                print("Error loading collection: \(error)")
+                // Handle error appropriately
+            }
+        }
     }
     
     private func onCollectibleDeletion(_ index: Int) {
@@ -1536,9 +1545,8 @@ struct GridGalleryView: View {
         guard !payload.isEmpty else { return }
         
         viewModel.getRelated(for: payload[0].id) { items in
-            DispatchQueue.main.async {
-                // Process new items with inCollection flag
-                let myCollection = viewModel.loadMyCollection()
+            Task {
+                let myCollection = await viewModel.loadMyCollection()
                 
                 let newItems = items.compactMap { newItem -> Collectible? in
                     // Skip duplicates
@@ -1557,10 +1565,12 @@ struct GridGalleryView: View {
                 
                 // Add to payload with animation
                 if !newItems.isEmpty {
-                    withAnimation(.easeInOut) {
-                        payload.append(contentsOf: newItems)
+                    await MainActor.run {
+                        withAnimation(.easeInOut) {
+                            payload.append(contentsOf: newItems)
+                        }
+                        print("Added \(newItems.count) new related items")
                     }
-                    print("Added \(newItems.count) new related items")
                 }
             }
         }

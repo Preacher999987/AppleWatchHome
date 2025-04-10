@@ -15,8 +15,19 @@ class HomeViewModel: ObservableObject {
     @Published var lastMonthSpendings: String = CurrencyFormatUtility.none
     @Published var lifetimeEarnings: String = CurrencyFormatUtility.none
     @Published var lastMonthEarnings: String = CurrencyFormatUtility.none
+    @MainActor
     @Published var isLoading = false
+    @MainActor
     @Published var errorMessage: String?
+    
+    private let userRepository: UserProfileRepositoryProtocol
+    private let collectibleRepository: CollectibleRepositoryProtocol
+    
+    init(userRepository: UserProfileRepositoryProtocol = UserProfileRepository(),
+         collectibleRepository: CollectibleRepositoryProtocol = CollectibleRepository()) {
+        self.userRepository = userRepository
+        self.collectibleRepository = collectibleRepository
+    }
     
     private var dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
@@ -24,13 +35,22 @@ class HomeViewModel: ObservableObject {
         return formatter
     }()
     
+    func getUserProfile() throws -> UserProfile? {
+        try? userRepository.getCurrentUserProfile()
+    }
+    
+    func loadItems() async -> [Collectible]? {
+        try? await collectibleRepository.getCollectibles()
+    }
+    
+    @MainActor
     func loadDashboardData() {
         isLoading = true
         errorMessage = nil
         
-        DispatchQueue.global(qos: .userInitiated).async {
+        Task { // Create a Task inside the DispatchQueue
             do {
-                let collectibles = try CollectiblesRepository.loadItems()
+                let collectibles = try await self.collectibleRepository.getCollectibles()
                 DispatchQueue.main.async {
                     self.calculateMetrics(from: collectibles)
                     self.isLoading = false
@@ -44,6 +64,7 @@ class HomeViewModel: ObservableObject {
         }
     }
     
+    @MainActor
     private func calculateMetrics(from collectibles: [Collectible]) {
         // Filter out sold items
         let unsoldItems = collectibles.filter { !($0.customAttributes?.sales?.sold ?? false) }

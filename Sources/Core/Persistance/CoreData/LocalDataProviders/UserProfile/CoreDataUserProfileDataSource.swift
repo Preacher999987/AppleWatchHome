@@ -1,5 +1,5 @@
 //
-//  UserProfileDataProvider.swift
+//  CoreDataUserProfileDataSource.swift
 //  Fun Kollector
 //
 //  Created by Home on 02.04.2025.
@@ -7,9 +7,9 @@
 
 import CoreData
 
-class UserProfileRepository: BaseRepository {
+class CoreDataUserProfileDataSource: BaseCoreDataProvider, UserProfileLocalDataProvider {
     // MARK: - User Profile Operations
-    static func saveUserProfile(_ profile: UserProfile) throws {
+    func saveUserProfile(_ profile: UserProfile) throws {
         let request: NSFetchRequest<UserProfileEntity> = UserProfileEntity.fetchRequest()
         let existingProfiles = try context.fetch(request)
         
@@ -31,7 +31,7 @@ class UserProfileRepository: BaseRepository {
         try saveContext()
     }
     
-    static func getCurrentUserProfile() throws -> UserProfile? {
+    func getCurrentUserProfile() throws -> UserProfile? {
         let request: NSFetchRequest<UserProfileEntity> = UserProfileEntity.fetchRequest()
         request.sortDescriptors = [NSSortDescriptor(key: "lastUpdated", ascending: false)]
         request.fetchLimit = 1
@@ -50,7 +50,7 @@ class UserProfileRepository: BaseRepository {
         )
     }
     
-    static func deleteUserProfile() throws {
+    func deleteUserProfile() throws {
         let request: NSFetchRequest<UserProfileEntity> = UserProfileEntity.fetchRequest()
         let profiles = try context.fetch(request)
         
@@ -61,7 +61,7 @@ class UserProfileRepository: BaseRepository {
         try saveContext()
     }
     
-    static func updateProfileImage(_ imageData: Data) throws {
+    func updateProfileImage(_ imageData: Data) throws {
         let request: NSFetchRequest<UserProfileEntity> = UserProfileEntity.fetchRequest()
         request.fetchLimit = 1
         

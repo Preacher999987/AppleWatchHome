@@ -21,6 +21,12 @@ class AuthViewModel: ObservableObject {
     private let baseUrl = "http://192.168.1.17:3001"
     private var cancellables = Set<AnyCancellable>()
     
+    private let repository: UserProfileRepositoryProtocol
+    
+    init(repository: UserProfileRepositoryProtocol = UserProfileRepository()) {
+        self.repository = repository
+    }
+    
     // MARK: - API Calls
     
     func signIn(completion: @escaping (Result<Bool, Error>) -> Void) {
@@ -109,7 +115,7 @@ class AuthViewModel: ObservableObject {
         )
         
         do {
-            try UserProfileRepository.saveUserProfile(profile)
+            try repository.saveUserProfile(profile)
             completion(.success(true))
         } catch {
             errorMessage = "Failed to save user profile"
