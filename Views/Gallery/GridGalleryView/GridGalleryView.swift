@@ -44,9 +44,11 @@ struct GridGalleryView: View {
     
     //DetailsView - DetailsRow - TextField State
     @FocusState private var showKeyboard: Bool
+    @State private var keyboardType: UIKeyboardType = .default
     @State private var isTextFieldPresented = false
     @State private var textFieldTextInput = ""
     @State private var onTextFieldSaveAction = {}
+    @State private var onDatePickerSaveAction = {}
     @State private var textFieldTitle = ""
     
     // DetailsView - DetailsRow - User Photo Selection states
@@ -604,7 +606,7 @@ struct GridGalleryView: View {
             onCancel: {
                 dismissInputView()
             })
-        .keyboardType(.decimalPad)
+        .keyboardType(keyboardType)
         .focused($showKeyboard)
         .offset(y: fullScreenViewOffsetY)  // Half of 300 to maintain visual balance
         .sheet(isPresented: $chooseCollectibleUserPhotos) {
@@ -648,8 +650,36 @@ struct GridGalleryView: View {
         }
         
         if let index = selectedItem {
-            viewModel.purchasePriceUpdated(newPrice, for: payload[index])
             payload[index].pricePaid = newPrice
+            viewModel.customAttributeUpdated(for: payload[index])
+        }
+        
+        dismissInputView()
+    }
+    
+    private func onPurchaseDateInput(_ inputText: String) {
+        let dateFormatter = DateFormatter()
+        // Try multiple common date formats
+        let possibleFormats = ["yyyy-MM-dd", "MM/dd/yyyy", "dd.MM.yyyy"]
+        
+        var parsedDate: Date?
+        for format in possibleFormats {
+            dateFormatter.dateFormat = format
+            if let date = dateFormatter.date(from: inputText) {
+                parsedDate = date
+                break
+            }
+        }
+        
+        guard let date = parsedDate else {
+            // Show error to user if needed
+            self.dismissInputView()
+            return
+        }
+        
+        if let index = selectedItem {
+            payload[index].purchaseDate = date
+            viewModel.customAttributeUpdated(for: payload[index])
         }
         
         dismissInputView()
@@ -695,8 +725,16 @@ struct GridGalleryView: View {
                             value: {
                                 currentItem.pricePaidDisplay
                             }(),
-                            style: .input,
+                            style: .input(UIKeyboardType.decimalPad),
                             onComplete: onPricePaidInput)
+                        
+                        detailRow(
+                            title: "PURCHASE DATE:",
+                            value: {
+                                currentItem.purchaseDateDisplay
+                            }(),
+                            style: .datePicker,
+                            onComplete: onPurchaseDateInput)
                         
                         detailRow(
                             title: "RETURN:",
@@ -832,10 +870,33 @@ struct GridGalleryView: View {
         }
     }
     
-    private func detailsViewInput(title: String, value: String, onComplete: ((String) -> Void)?) -> some View {
+    private func detailsViewInput(title: String, value: String, keyboardType: UIKeyboardType, onComplete: ((String) -> Void)?) -> some View {
         Button(action: {
             withAnimation {
                 onTextFieldSaveAction = { onComplete?(textFieldTextInput) }
+                textFieldTitle = title
+                isTextFieldPresented = true
+                showKeyboard = true
+            }
+        }) {
+            HStack(spacing: 16) {
+                Text(value)
+                    .font(.body)
+                    .foregroundColor(.white)
+                Text(!value.isEmpty ? "Edit" : "Set")
+                    .font(.body)
+                    .foregroundColor(.appPrimary)
+            }
+        }
+    }
+    
+    private func detailsViewDatePicker(title: String, value: String, onComplete: ((String) -> Void)?) -> some View {
+        Button(action: {
+            withAnimation {
+                onDatePickerSaveAction = {
+                    //TODO: Convert to String temporarily
+//                    onComplete?(datePickerInput)
+                }
                 textFieldTitle = title
                 isTextFieldPresented = true
                 showKeyboard = true
@@ -885,8 +946,11 @@ struct GridGalleryView: View {
                             .foregroundColor(.appPrimary)
                     }
                 }
-            case .input:
-                detailsViewInput(title: title, value: value, onComplete: onComplete)
+            case .input(let keyboardType):
+                detailsViewInput(title: title, value: value, keyboardType: keyboardType, onComplete: onComplete)
+                
+            case .datePicker:
+                detailsViewDatePicker(title: title, value: value, onComplete: onComplete)
                 
             case .media:
                 Button(action: {

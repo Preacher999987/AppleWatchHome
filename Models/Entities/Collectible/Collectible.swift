@@ -169,12 +169,13 @@ struct Collectible: Codable, Hashable {
     // MARK: Computed Properties
     
     var pricePaid: Float? {
-        didSet {
+        get { customAttributes?.pricePaid }
+        set {
             if customAttributes == nil {
                 customAttributes = CustomAttributes()
             }
             
-                customAttributes?.pricePaid = pricePaid
+            customAttributes?.pricePaid = newValue
         }
     }
     
@@ -260,6 +261,24 @@ struct Collectible: Codable, Hashable {
         guard let pricePaid = customAttributes?.pricePaid, pricePaid > 0 else { return "-" }
            
         return formatDisplayPriceValue(pricePaid)
+    }
+    
+    var purchaseDate: Date? {
+        get {
+            customAttributes?.purchaseDate
+        }
+        
+        set {
+            if customAttributes == nil {
+                customAttributes = CustomAttributes()
+            }
+            
+            customAttributes?.purchaseDate = newValue
+        }
+    }
+    
+    var purchaseDateDisplay: String {
+        customAttributes?.purchaseDate?.description ?? "-"
     }
     
     var searchQuery: String? {

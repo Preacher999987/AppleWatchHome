@@ -274,12 +274,9 @@ class GridGalleryViewModel: ObservableObject {
         }
     }
     
-    func purchasePriceUpdated(_ price: Float, for item: Collectible) {
-        var itemToUpdate = item
-        itemToUpdate.pricePaid = price
-        
-        try? CollectiblesRepository.updateItem(itemToUpdate)
-        manageCollection(itemIds: [item.id], method: .update, collectible: itemToUpdate) { _ in }
+    func customAttributeUpdated(for item: Collectible) {
+        try? CollectiblesRepository.updateItem(item)
+        manageCollection(itemIds: [item.id], method: .update, collectible: item) { _ in }
     }
     
     func uploadCollectibleUserPhotos(collectibleId: String, photos: [Data], completion: @escaping (Collectible) -> Void) {

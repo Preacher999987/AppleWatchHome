@@ -8,6 +8,7 @@
 import SwiftUI
 import GoogleSignInSwift
 import SafariServices
+import UIKit
 
 struct ViewHelpers {
     static func hapticFeedback() {
@@ -44,7 +45,7 @@ struct ShareSheet: UIViewControllerRepresentable {
 
 // First, add this enum above your view struct
 enum DetailRowStyle {
-    case regular, browse, input, media, returnValue, menu
+    case regular, browse, input(UIKeyboardType), media, returnValue, menu, datePicker
 }
 
 struct TextFieldAlert<Presenting>: View where Presenting: View {
