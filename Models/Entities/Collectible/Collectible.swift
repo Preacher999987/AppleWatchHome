@@ -278,7 +278,7 @@ struct Collectible: Codable, Hashable {
     }
     
     var purchaseDateDisplay: String {
-        customAttributes?.purchaseDate?.description ?? "-"
+        customAttributes?.purchaseDate.flatMap { DateFormatUtility.string(from: $0) } ?? "-"
     }
     
     var searchQuery: String? {
@@ -305,7 +305,9 @@ struct Collectible: Codable, Hashable {
             "inCollection": inCollection,
             "custom_attributes": [
                 "price_paid": customAttributes?.pricePaid as Any,
-                "purchase_date": customAttributes?.purchaseDate as Any,
+                "purchase_date": customAttributes?.purchaseDate.flatMap {
+                    DateFormatUtility.apiString(from: $0)
+                } as Any,
                 "user_photos": customAttributes?.userPhotos?.map { $0.url } as Any,
                 "search_query": customAttributes?.searchQuery as Any
             ],

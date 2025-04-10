@@ -12,7 +12,7 @@ struct GridGalleryView: View {
     @State private var selectedItem: Int? // Track the selected grid item
     @State private var isFullScreen: Bool = false { // Track full-screen state
         didSet {
-            dismissInputView()
+            resetInputViewState()
         }
     }
     
@@ -48,7 +48,7 @@ struct GridGalleryView: View {
     @State private var isTextFieldPresented = false
     @State private var textFieldTextInput = ""
     @State private var onTextFieldSaveAction = {}
-    @State private var onDatePickerSaveAction = {}
+    @State private var onDateSelected: (Date) -> Void = {_ in}
     @State private var textFieldTitle = ""
     
     // DetailsView - DetailsRow - User Photo Selection states
@@ -57,6 +57,11 @@ struct GridGalleryView: View {
     @State private var editCollectibleUserPhotos: Bool = false
     
     @State private var isDetailsExpanded = false
+    
+    // State for controlling the date picker visibility
+    @State private var showDatePicker = false
+    // State for the selected date
+    @State private var selectedDate = Date()
     
     // Create an instance of the ViewModel
     @StateObject private var viewModel = GridGalleryViewModel()
@@ -138,6 +143,10 @@ struct GridGalleryView: View {
                 }
             }
             
+            if showDatePicker {
+                datePickerView
+            }
+            
             if appState.showAddToCollectionButton && !isFullScreen && !payload.isEmpty {
                 VStack {
                     Spacer()
@@ -188,6 +197,15 @@ struct GridGalleryView: View {
                 loadGalleryImages()
             }
         }
+    }
+    
+    private var datePickerView: some View {
+        DatePickerView(
+            showDatePicker: $showDatePicker,
+            selectedDate: $selectedDate,
+            title: textFieldTitle,
+            onDateSelected: onDateSelected
+        )
     }
     
     private var backgroundView: some View {
@@ -314,12 +332,19 @@ struct GridGalleryView: View {
         }
     }
     
-    private func dismissInputView() {
+    private func resetInputViewState() {
         showKeyboard = false
         isTextFieldPresented = false
         textFieldTextInput = ""
         onTextFieldSaveAction = {}
         textFieldTitle = ""
+    }
+    
+    private func resetDatePickerState() {
+        textFieldTitle = ""
+        onDateSelected = {_ in}
+        selectedDate = Date()
+        showDatePicker = false
     }
     
     private func addItemButtonDropDownView() -> some View {
@@ -604,7 +629,7 @@ struct GridGalleryView: View {
             text: $textFieldTextInput,
             onSave: onTextFieldSaveAction,
             onCancel: {
-                dismissInputView()
+                resetInputViewState()
             })
         .keyboardType(keyboardType)
         .focused($showKeyboard)
@@ -645,7 +670,7 @@ struct GridGalleryView: View {
     
     private func onPricePaidInput(_ inputText: String) {
         guard let newPrice = Float(inputText) else {
-            self.dismissInputView()
+            self.resetInputViewState()
             return
         }
         
@@ -654,26 +679,13 @@ struct GridGalleryView: View {
             viewModel.customAttributeUpdated(for: payload[index])
         }
         
-        dismissInputView()
+        resetInputViewState()
     }
     
     private func onPurchaseDateInput(_ inputText: String) {
-        let dateFormatter = DateFormatter()
-        // Try multiple common date formats
-        let possibleFormats = ["yyyy-MM-dd", "MM/dd/yyyy", "dd.MM.yyyy"]
-        
-        var parsedDate: Date?
-        for format in possibleFormats {
-            dateFormatter.dateFormat = format
-            if let date = dateFormatter.date(from: inputText) {
-                parsedDate = date
-                break
-            }
-        }
-        
-        guard let date = parsedDate else {
+        guard let date = DateFormatUtility.date(from: inputText) else {
             // Show error to user if needed
-            self.dismissInputView()
+            resetInputViewState()
             return
         }
         
@@ -682,7 +694,7 @@ struct GridGalleryView: View {
             viewModel.customAttributeUpdated(for: payload[index])
         }
         
-        dismissInputView()
+        resetInputViewState()
     }
     
     // Modify the detailsView to be expandable
@@ -893,13 +905,20 @@ struct GridGalleryView: View {
     private func detailsViewDatePicker(title: String, value: String, onComplete: ((String) -> Void)?) -> some View {
         Button(action: {
             withAnimation {
-                onDatePickerSaveAction = {
-                    //TODO: Convert to String temporarily
-//                    onComplete?(datePickerInput)
+                withAnimation {
+                    showDatePicker = true
+                    textFieldTitle = title
                 }
-                textFieldTitle = title
-                isTextFieldPresented = true
-                showKeyboard = true
+                
+                onDateSelected = { date in
+                    let formatter = DateFormatter()
+                    formatter.dateStyle = .medium
+                    let dateString = formatter.string(from: date)
+                    // Handle the selected date string
+                    print("Selected date: \(dateString)")
+                    
+                    onComplete?(dateString)
+                }
             }
         }) {
             HStack(spacing: 16) {

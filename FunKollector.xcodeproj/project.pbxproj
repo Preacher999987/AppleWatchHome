@@ -34,6 +34,7 @@
 		BB7065852DA4B05F00C5DB2E /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = BB7065842DA4B05F00C5DB2E /* GoogleSignIn */; };
 		BB7065872DA4B05F00C5DB2E /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = BB7065862DA4B05F00C5DB2E /* GoogleSignInSwift */; };
 		BB795C6A2DA73DBF006AE21A /* HomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB795C692DA73DBF006AE21A /* HomeViewModel.swift */; };
+		BB795C6C2DA7D1E4006AE21A /* DatePickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB795C6B2DA7D1E4006AE21A /* DatePickerView.swift */; };
 		BB8E395A2D8F6F5F00CDC7BB /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB8E39592D8F6F5F00CDC7BB /* HomeView.swift */; };
 		BBAC4E952DA59EC10076EB7D /* ToolbarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBAC4E942DA59EC10076EB7D /* ToolbarView.swift */; };
 		BBAC4E972DA59EF00076EB7D /* GridViewToolbarProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBAC4E962DA59EF00076EB7D /* GridViewToolbarProtocol.swift */; };
@@ -96,6 +97,7 @@
 		BB624A132DA4B5720093B9CF /* GridItemImageOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GridItemImageOverlay.swift; sourceTree = "<group>"; };
 		BB7065822DA49B4900C5DB2E /* ResponsiveGridItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResponsiveGridItemView.swift; sourceTree = "<group>"; };
 		BB795C692DA73DBF006AE21A /* HomeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewModel.swift; sourceTree = "<group>"; };
+		BB795C6B2DA7D1E4006AE21A /* DatePickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatePickerView.swift; sourceTree = "<group>"; };
 		BB8E39592D8F6F5F00CDC7BB /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		BBAC4E942DA59EC10076EB7D /* ToolbarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolbarView.swift; sourceTree = "<group>"; };
 		BBAC4E962DA59EF00076EB7D /* GridViewToolbarProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GridViewToolbarProtocol.swift; sourceTree = "<group>"; };
@@ -314,6 +316,7 @@
 		BBBBF63D2D9C0BAA008CE85F /* Misc */ = {
 			isa = PBXGroup;
 			children = (
+				BB795C6B2DA7D1E4006AE21A /* DatePickerView.swift */,
 				BB2B5B2C2D920752004461C4 /* AsyncImageLoader.swift */,
 				BB1EF1172DA2E252006B99F4 /* ImagePicker.swift */,
 				BBBBF65A2D9C7A33008CE85F /* SuccessCheckmarkView.swift */,
@@ -540,6 +543,7 @@
 				BBBBF6662D9DA3CD008CE85F /* ProfileInfoView.swift in Sources */,
 				BB1749BF2DA0CA4D00A64678 /* PhotoUploadResponse.swift in Sources */,
 				BB6232062D91901B0048BF67 /* Collectible.swift in Sources */,
+				BB795C6C2DA7D1E4006AE21A /* DatePickerView.swift in Sources */,
 				BBBBF6642D9D96A9008CE85F /* BaseRepository.swift in Sources */,
 				BB795C6A2DA73DBF006AE21A /* HomeViewModel.swift in Sources */,
 				BBAC4E972DA59EF00076EB7D /* GridViewToolbarProtocol.swift in Sources */,

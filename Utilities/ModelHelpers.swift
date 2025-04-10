@@ -221,3 +221,62 @@ enum Rarity {
         }
     }
 }
+
+enum DateFormatUtility {
+    // For display in UI
+    static let displayFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .none
+        return formatter
+    }()
+    
+    // For API serialization (ISO 8601 format)
+    static let apiFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.timeZone = TimeZone(secondsFromGMT: 0)
+        return formatter
+    }()
+    
+    // For parsing various input formats
+    static let inputFormatters: [DateFormatter] = {
+        let formats = [
+            "yyyy-MM-dd",       // 2025-04-10
+            "MM/dd/yyyy",      // 04/10/2025
+            "dd.MM.yyyy",      // 10.04.2025
+            "MMM d, yyyy",    // Apr 10, 2025
+            "d MMM yyyy",     // 10 Apr 2025
+            "yyyyMMdd",       // 20250410
+            "MMMM d, yyyy"     // April 10, 2025
+        ]
+        
+        return formats.map { format in
+            let formatter = DateFormatter()
+            formatter.dateFormat = format
+            formatter.locale = Locale(identifier: "en_US_POSIX")
+            return formatter
+        }
+    }()
+    
+    // For UI display
+    static func string(from date: Date) -> String {
+        return displayFormatter.string(from: date)
+    }
+    
+    // For API requests
+    static func apiString(from date: Date) -> String {
+        return apiFormatter.string(from: date)
+    }
+    
+    // For parsing input
+    static func date(from string: String) -> Date? {
+        for formatter in inputFormatters {
+            if let date = formatter.date(from: string) {
+                return date
+            }
+        }
+        return nil
+    }
+}

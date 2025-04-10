@@ -534,6 +534,8 @@ struct HomeView: View {
         appState.showAddToCollectionButton = false
         // Show HomeView as Root View
         appState.showHomeView = true
+        
+        viewModel.loadDashboardData()
     }
     
     private func showCollectionView() {
