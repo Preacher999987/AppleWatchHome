@@ -15,6 +15,7 @@ class HomeViewModel: ObservableObject {
     @Published var lastMonthSpendings: String = CurrencyFormatUtility.none
     @Published var lifetimeEarnings: String = CurrencyFormatUtility.none
     @Published var lastMonthEarnings: String = CurrencyFormatUtility.none
+    @Published var itemsWithoutPurchasePrice: Int = 0
     @MainActor
     @Published var isLoading = false
     @MainActor
@@ -68,6 +69,14 @@ class HomeViewModel: ObservableObject {
     private func calculateMetrics(from collectibles: [Collectible]) {
         // Filter out sold items
         let unsoldItems = collectibles.filter { !($0.customAttributes?.sales?.sold ?? false) }
+        
+        // Calculate items without purchase price
+        itemsWithoutPurchasePrice = collectibles.filter { item in
+            // Count items that are unsold AND have no valid purchase price
+            let isUnsold = !(item.customAttributes?.sales?.sold ?? false)
+            let hasNoPrice = item.customAttributes?.pricePaid == nil || item.customAttributes?.pricePaid == 0
+            return isUnsold && hasNoPrice
+        }.count
         
         // Calculate total balance (only unsold items)
         let totalValue = unsoldItems

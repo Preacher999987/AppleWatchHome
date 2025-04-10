@@ -99,7 +99,8 @@ struct HomeView: View {
                                 lifetimeSpendings: viewModel.lifetimeSpendings,
                                 lastMonthSpendings: viewModel.lastMonthSpendings,
                                 lifetimeEarnings: viewModel.lifetimeEarnings,
-                                lastMonthEarnings: viewModel.lastMonthEarnings
+                                lastMonthEarnings: viewModel.lastMonthEarnings,
+                                itemsWithoutPurchasePrice: viewModel.itemsWithoutPurchasePrice
                             )
                             
                             // Main action cards with adjusted spacing
