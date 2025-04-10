@@ -120,6 +120,10 @@ extension CollectibleEntity {
             self.pricePaid = pricePaid
         }
         
+        if let purchaseDate = collectible.customAttributes?.purchaseDate {
+            self.purchaseDate = purchaseDate
+        }
+        
         if let searchQuery = collectible.customAttributes?.searchQuery {
             self.searchQuery = searchQuery
         }
@@ -194,7 +198,10 @@ extension CollectibleEntity {
         )
         /// Decode array-type attributes
         let userPhotos = self.userPhotos.flatMap { try? JSONDecoder().decode([ImageData].self, from: $0) }
-        let customAttributes = CustomAttributes(pricePaid: pricePaid, userPhotos: userPhotos, searchQuery: searchQuery)
+        let customAttributes = CustomAttributes(pricePaid: pricePaid,
+                                                purchaseDate: purchaseDate,
+                                                userPhotos: userPhotos,
+                                                searchQuery: searchQuery)
         
         return Collectible(
             id: id,

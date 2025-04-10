@@ -14,6 +14,7 @@
         <attribute name="mainImageUrl" optional="YES" attributeType="String"/>
         <attribute name="pricePaid" optional="YES" attributeType="Float" defaultValueString="0.0" usesScalarValueType="YES"/>
         <attribute name="productionStatus" optional="YES" attributeType="Binary"/>
+        <attribute name="purchaseDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="relatedSubjects" optional="YES" attributeType="Binary"/>
         <attribute name="searchImageInsensitive" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="searchImageNudity" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>

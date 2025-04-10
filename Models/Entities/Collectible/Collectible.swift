@@ -109,11 +109,13 @@ struct CollectibleAttributes: Codable, Hashable {
 
 struct CustomAttributes: Codable, Hashable {
     var pricePaid: Float?
+    var purchaseDate: Date?  // Format: "yyyy-MM-dd"
     var userPhotos: [ImageData]?
     var searchQuery: String?
     
     enum CodingKeys: String, CodingKey {
         case pricePaid = "price_paid"
+        case purchaseDate = "purchase_date"
         case userPhotos = "user_photos"
         case searchQuery = "search_query"
     }
@@ -121,17 +123,35 @@ struct CustomAttributes: Codable, Hashable {
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         pricePaid = try container.decodeIfPresent(Float.self, forKey: .pricePaid)
+        purchaseDate = try container.decodeIfPresent(Date.self, forKey: .purchaseDate)
         userPhotos = try container.decodeIfPresent([ImageData].self, forKey: .userPhotos)
         searchQuery = try container.decodeIfPresent(String.self, forKey: .searchQuery)
     }
     
     init(pricePaid: Float? = nil,
+         purchaseDate: Date? = nil,
          userPhotos: [ImageData]? = nil,
          searchQuery: String? = nil) {
         self.pricePaid = pricePaid
+        self.purchaseDate = purchaseDate
         self.userPhotos = userPhotos
         self.searchQuery = searchQuery
     }
+    
+    func encode(to encoder: Encoder) throws {
+            var container = encoder.container(keyedBy: CodingKeys.self)
+            try container.encodeIfPresent(pricePaid, forKey: .pricePaid)
+            
+            // Handle date encoding to string
+            if let date = purchaseDate {
+                let formatter = DateFormatter()
+                formatter.dateFormat = "yyyy-MM-dd"
+                try container.encode(formatter.string(from: date), forKey: .purchaseDate)
+            }
+            
+            try container.encodeIfPresent(userPhotos, forKey: .userPhotos)
+            try container.encodeIfPresent(searchQuery, forKey: .searchQuery)
+        }
 }
 
 struct Collectible: Codable, Hashable {
@@ -266,6 +286,7 @@ struct Collectible: Codable, Hashable {
             "inCollection": inCollection,
             "custom_attributes": [
                 "price_paid": customAttributes?.pricePaid as Any,
+                "purchase_date": customAttributes?.purchaseDate as Any,
                 "user_photos": customAttributes?.userPhotos?.map { $0.url } as Any,
                 "search_query": customAttributes?.searchQuery as Any
             ],
