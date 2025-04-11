@@ -16,6 +16,9 @@ struct ManualEntryView: View {
     private enum Field: Hashable { case name, reference, series, barcode }
     @FocusState private var focusedField: Field?
     
+    // Dropdown options
+    private let typeOptions = ["Funko Pop", "Trading Cards", "LEGO"]
+    
     var body: some View {
         ZStack {
             // Background dimming
@@ -48,6 +51,22 @@ struct ManualEntryView: View {
                         .textFieldStyle(.roundedBorder)
                         .submitLabel(.next)
                         .focused($focusedField, equals: .name)
+                    
+                    Picker("Type", selection: $viewModel.type) {
+                        ForEach(typeOptions, id: \.self) { option in
+                            Text(option).tag(option)
+                        }
+                    }
+                    .pickerStyle(.menu)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, 4)
+                    .background(Color(.systemBackground))
+                    .cornerRadius(6)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 6)
+                            .stroke(Color(.systemGray4), lineWidth: 1)
+                    )
+                    .accentColor(.appPrimary)
                     
                     TextField("Reference #", text: $viewModel.refNumber)
                         .textFieldStyle(.roundedBorder)

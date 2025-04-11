@@ -64,7 +64,8 @@ extension Collectible {
             relatedSubjects: relatedSubjects,
             dateFrom: "2023-05-15",
             productionStatus: ["Limited Edition", "Artist Signed"],
-            refNumber: "DA-2023-0042"
+            refNumber: "DA-2023-0042",
+            selectedType: "Funko Pop"
         )
         
         // Create mock CustomAttributes

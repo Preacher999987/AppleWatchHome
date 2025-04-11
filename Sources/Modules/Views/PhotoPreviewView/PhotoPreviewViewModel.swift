@@ -7,9 +7,8 @@
 
 import SwiftUI
 
-// PhotoPreviewViewModel.swift
 class PhotoPreviewViewModel: ObservableObject {
-    func analyzePhoto(image: UIImage, completion: @escaping (Result<[Collectible], Error>) -> Void) {
+    func analyzePhoto(image: UIImage, type: String, completion: @escaping (Result<[Collectible], Error>) -> Void) {
         let url = URL(string: "http://192.168.1.17:3000/analyse")!
         
         var request = URLRequest(url: url)
@@ -20,6 +19,7 @@ class PhotoPreviewViewModel: ObservableObject {
         
         var body = Data()
         
+        // Add image data
         if let imageData = image.jpegData(compressionQuality: 1.0) {
             body.append("--\(boundary)\r\n".data(using: .utf8)!)
             body.append("Content-Disposition: form-data; name=\"photo\"; filename=\"photo.jpg\"\r\n".data(using: .utf8)!)
@@ -27,6 +27,12 @@ class PhotoPreviewViewModel: ObservableObject {
             body.append(imageData)
             body.append("\r\n".data(using: .utf8)!)
         }
+        
+        // Add type parameter
+        body.append("--\(boundary)\r\n".data(using: .utf8)!)
+        body.append("Content-Disposition: form-data; name=\"type\"\r\n\r\n".data(using: .utf8)!)
+        body.append(type.data(using: .utf8)!)
+        body.append("\r\n".data(using: .utf8)!)
         
         body.append("--\(boundary)--\r\n".data(using: .utf8)!)
         request.httpBody = body

@@ -5,13 +5,13 @@
 //  Created by Home on 06.04.2025.
 //
 
-
 import Foundation
 import Combine
 
 class ManualEntryViewModel: ObservableObject {
     // MARK: - Published Properties
     @Published var name = ""
+    @Published var type = "Funko Pop" // Default value
     @Published var refNumber = ""
     @Published var series = ""
     @Published var barcode = ""
@@ -31,6 +31,7 @@ class ManualEntryViewModel: ObservableObject {
         do {
             let results = try await lookupItem(
                 name: name,
+                type: type,
                 refNumber: refNumber,
                 series: series,
                 barcode: barcode
@@ -52,7 +53,7 @@ class ManualEntryViewModel: ObservableObject {
         }
     }
     
-    private func lookupItem(name: String, refNumber: String, series: String, barcode: String) async throws -> [Collectible] {
+    private func lookupItem(name: String, type: String, refNumber: String, series: String, barcode: String) async throws -> [Collectible] {
         // Create query parameters
         var components = URLComponents(string: "\(baseURL)/lookup")
         var queryItems = [URLQueryItem]()
@@ -60,6 +61,7 @@ class ManualEntryViewModel: ObservableObject {
         if !name.isEmpty {
             queryItems.append(URLQueryItem(name: "name", value: name))
         }
+        queryItems.append(URLQueryItem(name: "type", value: type))
         if !refNumber.isEmpty {
             queryItems.append(URLQueryItem(name: "ref_number", value: refNumber))
         }
@@ -88,6 +90,7 @@ class ManualEntryViewModel: ObservableObject {
     // MARK: - Reset
     func reset() {
         name = ""
+        type = "Funko Pop" // Reset to default
         refNumber = ""
         series = ""
         barcode = ""

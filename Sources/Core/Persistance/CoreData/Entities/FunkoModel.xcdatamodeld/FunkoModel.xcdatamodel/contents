@@ -5,6 +5,7 @@
         <attribute name="attrEstimatedValue" optional="YES" attributeType="String"/>
         <attribute name="attrName" optional="YES" attributeType="String"/>
         <attribute name="attrRefNumber" optional="YES" attributeType="String"/>
+        <attribute name="attrSelectedType" optional="YES" attributeType="String"/>
         <attribute name="estimatedValueRange" optional="YES" attributeType="Binary"/>
         <attribute name="galleryImages" optional="YES" attributeType="Binary"/>
         <attribute name="id" optional="YES" attributeType="String"/>

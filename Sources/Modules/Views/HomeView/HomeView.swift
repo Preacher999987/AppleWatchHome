@@ -358,7 +358,7 @@ struct HomeView: View {
                         .foregroundColor(.primary)
                         .frame(maxWidth: .infinity, alignment: .leading)
                     
-                    Text((UIDevice.isiPhoneSE && !shortDescription.isEmpty) ? shortDescription : description)
+                    Text(!shortDescription.isEmpty ? shortDescription : description)
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                         .lineLimit(UIDevice.isiPhoneSE ? 1 : 0)

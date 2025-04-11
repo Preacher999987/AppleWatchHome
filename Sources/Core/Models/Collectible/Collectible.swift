@@ -38,6 +38,7 @@ struct CollectibleAttributes: Codable, Hashable {
     var dateFrom: String?
     var productionStatus: [String]?
     var refNumber: String?
+    var selectedType: String?
     
     struct Images: Codable, Hashable {
         let main: ImageData?
@@ -59,6 +60,7 @@ struct CollectibleAttributes: Codable, Hashable {
         case dateFrom = "date_from"
         case productionStatus = "production_status"
         case refNumber = "ref_number"
+        case selectedType = "selected_type"
     }
     
     init(from decoder: Decoder) throws {
@@ -70,6 +72,7 @@ struct CollectibleAttributes: Codable, Hashable {
         dateFrom = try container.decodeIfPresent(String.self, forKey: .dateFrom)
         productionStatus = try container.decodeIfPresent([String].self, forKey: .productionStatus)
         refNumber = try container.decodeIfPresent(String.self, forKey: .refNumber)
+        selectedType = try container.decodeIfPresent(String.self, forKey: .selectedType)
         
         // Handle null values in estimatedValueRange
         if var rangeContainer = try? container.nestedUnkeyedContainer(forKey: .estimatedValueRange) {
@@ -89,22 +92,24 @@ struct CollectibleAttributes: Codable, Hashable {
     }
     
     init(images: Images,
-             name: String,
-             estimatedValue: String? = nil,
-             estimatedValueRange: [String?]? = nil,
-             relatedSubjects: [RelatedSubject]? = nil,
-             dateFrom: String? = nil,
-             productionStatus: [String]? = nil,
-             refNumber: String? = nil) {
-            self.images = images
-            self.name = name
-            self.estimatedValue = estimatedValue
-            self.estimatedValueRange = estimatedValueRange
-            self.relatedSubjects = relatedSubjects
-            self.dateFrom = dateFrom
-            self.productionStatus = productionStatus
-            self.refNumber = refNumber
-        }
+         name: String,
+         estimatedValue: String? = nil,
+         estimatedValueRange: [String?]? = nil,
+         relatedSubjects: [RelatedSubject]? = nil,
+         dateFrom: String? = nil,
+         productionStatus: [String]? = nil,
+         refNumber: String? = nil,
+         selectedType: String? = nil) {
+        self.images = images
+        self.name = name
+        self.estimatedValue = estimatedValue
+        self.estimatedValueRange = estimatedValueRange
+        self.relatedSubjects = relatedSubjects
+        self.dateFrom = dateFrom
+        self.productionStatus = productionStatus
+        self.refNumber = refNumber
+        self.selectedType = selectedType
+    }
 }
 
 struct CustomAttributes: Codable, Hashable {
@@ -199,6 +204,7 @@ struct Collectible: Codable, Hashable {
                 "date_from": attributes.dateFrom as Any,
                 "production_status": attributes.productionStatus as Any,
                 "ref_number": attributes.refNumber as Any,
+                "selected_type": attributes.selectedType as Any,
                 "images": [
                     "main": attributes.images.main?.url as Any,
                     "search": attributes.images.search?.url as Any,

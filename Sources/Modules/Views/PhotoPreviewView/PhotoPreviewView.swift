@@ -6,7 +6,6 @@
 //
 import SwiftUI
 
-// MARK: - Photo Preview View
 struct PhotoPreviewView: View {
     let image: UIImage
     let retakeAction: () -> Void
@@ -16,10 +15,13 @@ struct PhotoPreviewView: View {
     @State private var isLoading = false
     @State private var showError = false
     @State private var errorMessage = ""
+    @State private var showTypeMenu = false
+    
+    private let collectibleTypes = ["Funko Pop", "Trading Cards", "LEGO"]
     
     var body: some View {
         ZStack {
-            // Background Image
+            // Background Image (unchanged)
             Image(uiImage: image)
                 .resizable()
                 .scaledToFill()
@@ -43,13 +45,25 @@ struct PhotoPreviewView: View {
                     .padding(.horizontal, 20)
                     .padding(.bottom, 8)
                 
-                // AI Analysis Button (simplified)
-                Button(action: {
-                    isLoading = true
-                    viewModel.analyzePhoto(image: image) { result in
-                        handleAnalysisResult(result)
+                // AI Analysis Button with Type Selection Menu
+                Menu {
+                    Section {
+                        ForEach(collectibleTypes, id: \.self) { type in
+                            Button(action: {
+                                isLoading = true
+                                viewModel.analyzePhoto(image: image, type: type) { result in
+                                    handleAnalysisResult(result)
+                                }
+                            }) {
+                                Text(type)
+                            }
+                        }
+                    } header: {
+                        Text("Select collectible type")
+                            .font(.headline)
+                            .foregroundColor(.primary)
                     }
-                }) {
+                } label: {
                     HStack(spacing: 12) {
                         Image(systemName: "sparkles")
                             .font(.headline)

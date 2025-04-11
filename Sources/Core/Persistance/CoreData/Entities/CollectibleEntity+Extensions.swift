@@ -17,6 +17,7 @@ extension CollectibleEntity {
         self.attrEstimatedValue = collectible.attributes.estimatedValue
         self.attrDateFrom = collectible.attributes.dateFrom
         self.attrRefNumber = collectible.attributes.refNumber
+        self.attrSelectedType = collectible.attributes.selectedType
         
         // Images
         if let mainImage = collectible.attributes.images.main {
@@ -131,7 +132,8 @@ extension CollectibleEntity {
             relatedSubjects: relatedSubjects,
             dateFrom: attrDateFrom,
             productionStatus: productionStatus,
-            refNumber: attrRefNumber
+            refNumber: attrRefNumber,
+            selectedType: attrSelectedType
         )
         
         /// Decode array-type attributes
