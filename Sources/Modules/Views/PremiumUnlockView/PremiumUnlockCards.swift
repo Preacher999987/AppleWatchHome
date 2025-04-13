@@ -54,7 +54,7 @@ struct PremiumPlanCard: View {
                     if let savings = plan.savings {
                         Text(savings)
                             .font(.system(size: 12, weight: .semibold))
-                            .foregroundColor(.white)
+                            .foregroundColor(.black)
                             .padding(.horizontal, 8)
                             .padding(.vertical, 4)
                             .frame(height: badgeHeight)

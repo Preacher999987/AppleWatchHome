@@ -35,26 +35,26 @@ struct WelcomeView: View {
         private let featureCards = [
             FeatureCard(
                 icon: "sparkles",
-                title: "Smart Scanning",
-                description: "Our AI instantly identifies Funko Pops from photos - just snap and catalog!",
+                title: "One Photo. Many Finds.",
+                description: "Capture your collection in bunches—Our AI will identify and catalog them all, just like that.",
                 color: .blue
             ),
             FeatureCard(
-                icon: "photo.stack",
-                title: "Bulk Import",
-                description: "Photograph your entire collection at once and we'll add everything automatically",
+                icon: "dollarsign.arrow.circlepath",
+                title: "Earnings tracked ✓ Spending mapped ✓ ROI unlocked ✓",
+                description: "Your shelf just became a smart asset.",
                 color: .green
             ),
             FeatureCard(
-                icon: "checklist.unchecked",
-                title: "Collection Gaps",
-                description: "See which Pops you're missing from your favorite series",
+                icon: "app.badge.checkmark",
+                title: "Curate Like a Connoisseur",
+                description: "Create a sleek digital showcase. Explore, share, and admire—all a tap away.",
                 color: .orange
             ),
             FeatureCard(
-                icon: "chart.line.uptrend.xyaxis",
-                title: "Value Tracking",
-                description: "Get real-time estimates of your collection's market value",
+                icon: "arkit",
+                title: "Your smart, virtual collection starts here!",
+                description: "Step into the future of collecting, today!",
                 color: .purple
             )
         ]
@@ -88,7 +88,12 @@ struct WelcomeView: View {
                                 .padding(.horizontal, horizontalPadding)
 //                                .colorInvertIfLight()
                             
-                            Text("The smart way to catalog and manage your Pop! collection")
+                            Text("Unlock the full potential\nof your collection")
+                                .font(.title2)
+                                .foregroundColor(.primary)
+                                .multilineTextAlignment(.center)
+                                .padding(.horizontal, horizontalPadding)
+                            Text("A digital twin. A virtual display.\nAlways with you.")
                                 .font(.title3)
                                 .foregroundColor(.secondary)
                                 .multilineTextAlignment(.center)
@@ -125,7 +130,7 @@ struct WelcomeView: View {
                                 HStack {
                                     Text("Get Started")
                                         .font(.headline)
-                                        .foregroundColor(.white)
+                                        .foregroundColor(.black)
                                 }
                                 .frame(maxWidth: .infinity)
                                 .padding()

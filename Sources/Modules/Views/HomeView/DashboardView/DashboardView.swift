@@ -187,21 +187,20 @@ struct RateOfReturnInfoView: View {
             and current value is $1,500:
             [($1,500 + $200 - $1,000) ÷ $1,000] × 100% = 70%
             """)
-            .font(.subheadline)
+            .font(.body)
             .fixedSize(horizontal: false, vertical: true)
             
             if itemsWithoutPurchasePrice > 0 {
                 Divider()
                 
                 Text("Important Note")
-                    .font(.subheadline)
+                    .font(.headline)
                     .foregroundColor(.orange)
                 
                 Text("\(itemsWithoutPurchasePrice) item(s) in your collection are missing purchase price data. These items are excluded from the calculation, which may affect accuracy.")
-                    .font(.footnote)
+                    .font(.body)
             }
         }
-        .padding()
-        .frame(maxWidth: 300)
+        .padding(.horizontal, 32)
     }
 }

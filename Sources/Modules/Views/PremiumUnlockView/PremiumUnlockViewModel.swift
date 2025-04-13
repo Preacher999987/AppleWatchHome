@@ -77,8 +77,13 @@ class PremiumUnlockViewModel: ObservableObject {
             ),
             AppScreenshot(
                 imageName: "premium_feature3",
-                title: "Exclusive Features",
-                description: "Access premium-only tools and customization options"
+                title: "Your Collection, Reimagined",
+                description: "Create a sleek digital showcase. Explore, share, and admire—right from your phone"
+            ),
+            AppScreenshot(
+                imageName: "premium_feature4",
+                title: "A Digital Twin for Every Piece",
+                description: "Cloud-synced and exportable for lifelong safekeeping"
             )
         ]
     }
