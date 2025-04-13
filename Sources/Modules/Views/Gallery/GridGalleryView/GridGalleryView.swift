@@ -184,6 +184,8 @@ struct GridGalleryView: View {
             if appState.openRelated {
                 showNavigationTitle = true
                 loadRelatedItems()
+            } else if appState.showAddToCollectionButton {
+                searchResultsSelectionModeOn = true
             }
         }
         .alert("Error", isPresented: .constant(viewModel.errorMessage != nil)) {

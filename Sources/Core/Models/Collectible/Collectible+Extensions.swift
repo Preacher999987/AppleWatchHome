@@ -99,12 +99,11 @@ extension Collectible {
     }
     
     var querySubject: String? {
-        if (!subject.isEmpty) { return subject }
-        
-        return attributes.relatedSubjects?
+        attributes.relatedSubjects?
             .first(where:
                     { $0.type == .userSelectionPrimary })?
-            .name ?? nil
+            .name
+        ?? ((!subject.isEmpty) ? subject :  nil)
     }
     
     var estimatedValueFloat: Float? {
