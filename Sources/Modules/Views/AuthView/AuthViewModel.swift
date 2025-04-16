@@ -117,11 +117,17 @@ class AuthViewModel: ObservableObject {
             self.socialSignIn(
                 idToken: idToken,
                 authMethod: "google",
+                email: user?.profile?.email,
+                name: PersonNameComponents(givenName: user?.profile?.givenName,
+                                           familyName: user?.profile?.familyName),
                 completion: completion
             )
         }
     }
-    
+//    user?.profile?.email,
+//    name: user?.profile?.givenName,
+//    lastName: user?.profile?.familyName,
+//    fullName: user?.profile?.name,
     func appleSignInButtonTapped(
         _ result: Result<ASAuthorization, any Error>,
         completion: @escaping (Result<Bool, Error>) -> Void
@@ -149,7 +155,7 @@ class AuthViewModel: ObservableObject {
     private func socialSignIn(
         idToken: String,
         authMethod: String,
-        email: String? = nil,
+        email: String?,
         name: PersonNameComponents? = nil,
         completion: @escaping (Result<Bool, Error>) -> Void
     ) {

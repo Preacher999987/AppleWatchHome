@@ -93,7 +93,7 @@ enum APIPath {
             
         // Images
         case .userPhotosBase:
-            return "/api/collectibles/user-photos"
+            return "/api/collectibles"
         case .userCollection:
             return "/api/user-collection"
         case .lookup:

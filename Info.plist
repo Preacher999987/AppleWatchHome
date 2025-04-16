@@ -2,6 +2,13 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>APIEndpoints</key>
+	<dict>
+		<key>Development</key>
+		<string>http://192.168.1.17:3000</string>
+		<key>Production</key>
+		<string>https://fk-prod-app-d111782a27d2.herokuapp.com</string>
+	</dict>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
@@ -13,12 +20,5 @@
 	</array>
 	<key>GIDClientID</key>
 	<string>299373522276-vflfmo7cpr4haqvfunncvchvalr5avng.apps.googleusercontent.com</string>
-	<key>APIEndpoints</key>
-	<dict>
-    	<key>Development</key>
-    	<string>http://192.168.1.17:3000</string>
-    	<key>Production</key>
-    	<string>https://fk-web-aea845cac7d8.herokuapp.com</string>
-</dict>
 </dict>
 </plist>

@@ -25,7 +25,7 @@ class APIClient: APIClientProtocol {
         // 2. Try constructing from base path
         if let filePath = imageData.filePath {
             let cleanedPath = filePath.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
-            return url(for: .userPhotos, additionalPath: cleanedPath)
+            return url(for: .userPhotosBase, additionalPath: cleanedPath)
         }
         
         // 3. Return nil if no valid options
