@@ -50,9 +50,16 @@ struct PhotoPreviewView: View {
                     Section {
                         ForEach(collectibleTypes, id: \.self) { type in
                             Button(action: {
-                                isLoading = true
-                                viewModel.analyzePhoto(image: image, type: type) { result in
-                                    handleAnalysisResult(result)
+                                Task {
+                                    do {
+                                        isLoading = true
+                                        let result = try await viewModel.analyzePhoto(image: image, type: type)
+                                        onAnalysisComplete(result)
+                                    } catch {
+                                        errorMessage = error.localizedDescription
+                                        showError = true
+                                    }
+                                    isLoading = false
                                 }
                             }) {
                                 Text(type)
@@ -124,17 +131,6 @@ struct PhotoPreviewView: View {
             Button("OK", role: .cancel) { }
         } message: {
             Text(errorMessage)
-        }
-    }
-    
-    private func handleAnalysisResult(_ result: Result<[Collectible], Error>) {
-        isLoading = false
-        switch result {
-        case .success(let data):
-            onAnalysisComplete(data)
-        case .failure(let error):
-            errorMessage = error.localizedDescription
-            showError = true
         }
     }
 }

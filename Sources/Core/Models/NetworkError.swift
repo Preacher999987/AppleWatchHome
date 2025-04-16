@@ -132,6 +132,7 @@ enum AuthError: Error {
     case permissionDenied
     case accountLocked
     case verificationRequired
+    case unknown
     
     var localizedDescription: String {
         switch self {
@@ -149,6 +150,8 @@ enum AuthError: Error {
             return "Your account has been temporarily locked. Please try again later or contact support."
         case .verificationRequired:
             return "Please verify your email address before continuing."
+        case .unknown:
+            return "An unknown error occurred"
         }
     }
     
@@ -165,6 +168,8 @@ enum AuthError: Error {
             return "Account access temporarily unavailable."
         case .verificationRequired:
             return "Account verification needed."
+        case .unknown:
+            return "An unknown error occurred"
         }
     }
 }

@@ -214,7 +214,7 @@ struct GridGalleryView: View {
     private var backgroundView: some View {
         Group {
             let backgroundImage = selectedBackgroundImage?.first.map { Image(uiImage: $0) }
-            ?? Image("background-image-1")
+            ?? Image("background-image")
             
             backgroundImage
                 .resizable()
@@ -1262,7 +1262,7 @@ struct GridGalleryView: View {
         // - Navigation occurs before frame calculation completes
         // - Coordinate space mismatch (global vs local)
         // Temporary workaround: position hardcoded
-        Image("logo-white")
+        Image("logo-app")
             .resizable()
             .background(content: {
                 //                        Color.gray

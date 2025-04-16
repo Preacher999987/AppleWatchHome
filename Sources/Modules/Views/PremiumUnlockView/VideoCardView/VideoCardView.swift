@@ -28,7 +28,7 @@ struct VideoCardView: View {
                 .aspectRatio(9/18, contentMode: .fit)
 //                .padding(.horizontal, 32)
                 .background(Color(.clear))
-                .cornerRadius(12)
+                .cornerRadius(28)
             
 //            VStack(spacing: 8) {
 //                Text(title)

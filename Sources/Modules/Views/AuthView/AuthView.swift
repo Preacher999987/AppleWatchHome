@@ -29,7 +29,7 @@ struct AuthView: View {
                 .ignoresSafeArea()
             VStack(spacing: 20) {
                 // App Logo with constrained width
-                Image(colorScheme == .dark ? "logo-white" : "logo-dark")
+                Image("logo-app")
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .frame(maxWidth: .infinity)
@@ -284,25 +284,10 @@ struct AuthView: View {
                 .frame(height: 50)
                 .cornerRadius(8)
                 
-                Button(action: {
-                    // Google sign up
-                }) {
-                    HStack {
-                        Image("google-logo") // Add your Google logo asset
-                            .resizable()
-                            .scaledToFit()
-                            .frame(height: 20)
-                        Text("Sign up with Google")
-                            .foregroundColor(.primary)
-                    }
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 50)
-                    .background(Color(.systemBackground))
-                    .cornerRadius(8)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 8)
-                            .stroke(Color.gray.opacity(0.3), lineWidth: 1))
-                }
+                GoogleSignInButton(viewModel: GoogleSignInButtonViewModel(style: .wide),
+                                   action: googleSignInButtonTapped)
+                .cornerRadius(8)
+                .frame(height: 50)
             }
         }
     }

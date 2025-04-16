@@ -80,7 +80,7 @@ struct WelcomeView: View {
                                 .padding(.top, 40)
                             
                             // App Logo with constrained width
-                            Image(colorScheme == .dark ? "logo-white" : "logo-dark")
+                            Image("logo-app")
                                 .resizable()
                                 .aspectRatio(contentMode: .fit)
                                 .frame(maxWidth: .infinity)

@@ -13,5 +13,12 @@
 	</array>
 	<key>GIDClientID</key>
 	<string>299373522276-vflfmo7cpr4haqvfunncvchvalr5avng.apps.googleusercontent.com</string>
+	<key>APIEndpoints</key>
+	<dict>
+    	<key>Development</key>
+    	<string>http://192.168.1.17:3000</string>
+    	<key>Production</key>
+    	<string>https://fk-web-aea845cac7d8.herokuapp.com</string>
+</dict>
 </dict>
 </plist>

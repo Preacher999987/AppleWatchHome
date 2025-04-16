@@ -74,7 +74,7 @@ struct HomeView: View {
                     ZStack(alignment: .top) {
                         VStack(spacing: 16) { // Reduced from 20 to match spacing
                             // Centered Logo with adjusted padding
-                            Image(colorScheme == .dark ? "logo-white" : "logo-dark")
+                            Image("logo-app")
                                 .resizable()
                                 .aspectRatio(contentMode: .fit)
                                 .frame(height: 44)

@@ -21,6 +21,16 @@ struct BarcodeScannerView: View {
     @State private var isProcessingBarcode = false
 
     let onItemsFound: ([Collectible]) -> Void
+    
+    private let apiClient: APIClientProtocol
+    
+    init(
+        onItemsFound: @escaping ([Collectible]) -> Void,
+        apiClient: APIClientProtocol = APIClient.shared
+    ) {
+        self.onItemsFound = onItemsFound
+        self.apiClient = apiClient
+    }
 
     var body: some View {
         ZStack {
@@ -153,12 +163,11 @@ struct BarcodeScannerView: View {
     }
 
     private func lookupBarcode(_ upc: String) async throws -> [Collectible] {
-        guard let url = URL(string: "http://192.168.1.17:3000/lookup?upc=\(upc)") else {
-            throw NSError(domain: "Invalid URL", code: 0)
-        }
-
-        let (data, _) = try await URLSession.shared.data(from: url)
-        return try JSONDecoder().decode([Collectible].self, from: data)
+        let request = BarcodeLookupRequest(upc: upc)
+        return try await apiClient.get(
+            path: .lookup,
+            queryItems: [URLQueryItem(name: "upc", value: upc)]
+        )
     }
 }
 

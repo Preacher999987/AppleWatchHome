@@ -51,6 +51,11 @@
 		BB7EDA882DAB7B7E0060F292 /* premium_feature3.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = BB7EDA872DAB7B7E0060F292 /* premium_feature3.mp4 */; };
 		BB7EDA8A2DAB7F090060F292 /* premium_feature4.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = BB7EDA892DAB7F090060F292 /* premium_feature4.mp4 */; };
 		BB7EDA8F2DAC54B00060F292 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BB7EDA8E2DAC54AF0060F292 /* StoreKit.framework */; };
+		BB7EDA912DAF08790060F292 /* AppEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB7EDA902DAF08790060F292 /* AppEnvironment.swift */; };
+		BB7EDAA82DAF0AD00060F292 /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB7EDAA72DAF0AD00060F292 /* APIClient.swift */; };
+		BB7EDAAA2DAF0BD70060F292 /* APIClientProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB7EDAA92DAF0BD70060F292 /* APIClientProtocol.swift */; };
+		BB7EDAAC2DAF102A0060F292 /* BarcodeLookupRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB7EDAAB2DAF102A0060F292 /* BarcodeLookupRequest.swift */; };
+		BB7EDAAE2DAF29D90060F292 /* ManageCollectionResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB7EDAAD2DAF29D90060F292 /* ManageCollectionResponse.swift */; };
 		BB8E395A2D8F6F5F00CDC7BB /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB8E39592D8F6F5F00CDC7BB /* HomeView.swift */; };
 		BBAC4E952DA59EC10076EB7D /* ToolbarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBAC4E942DA59EC10076EB7D /* ToolbarView.swift */; };
 		BBAC4E972DA59EF00076EB7D /* GridViewToolbarProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBAC4E962DA59EF00076EB7D /* GridViewToolbarProtocol.swift */; };
@@ -132,6 +137,11 @@
 		BB7EDA8B2DAC54870060F292 /* FunKollectorRelease.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = FunKollectorRelease.entitlements; sourceTree = "<group>"; };
 		BB7EDA8C2DAC54A80060F292 /* FunKollector.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = FunKollector.entitlements; sourceTree = "<group>"; };
 		BB7EDA8E2DAC54AF0060F292 /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
+		BB7EDA902DAF08790060F292 /* AppEnvironment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppEnvironment.swift; sourceTree = "<group>"; };
+		BB7EDAA72DAF0AD00060F292 /* APIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
+		BB7EDAA92DAF0BD70060F292 /* APIClientProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIClientProtocol.swift; sourceTree = "<group>"; };
+		BB7EDAAB2DAF102A0060F292 /* BarcodeLookupRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BarcodeLookupRequest.swift; sourceTree = "<group>"; };
+		BB7EDAAD2DAF29D90060F292 /* ManageCollectionResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManageCollectionResponse.swift; sourceTree = "<group>"; };
 		BB8E39592D8F6F5F00CDC7BB /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		BBAC4E942DA59EC10076EB7D /* ToolbarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolbarView.swift; sourceTree = "<group>"; };
 		BBAC4E962DA59EF00076EB7D /* GridViewToolbarProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GridViewToolbarProtocol.swift; sourceTree = "<group>"; };
@@ -286,6 +296,7 @@
 		BB1D1E8F2D99FFF300153BB4 /* Utilities */ = {
 			isa = PBXGroup;
 			children = (
+				BB7EDA902DAF08790060F292 /* AppEnvironment.swift */,
 				BB795C812DA8673E006AE21A /* Protocols */,
 				BBBBF6482D9C11D7008CE85F /* KeychainHelper.swift */,
 				BB1D1E902D9A001200153BB4 /* ModelHelpers.swift */,
@@ -395,6 +406,7 @@
 		BB795C802DA866BD006AE21A /* Networking */ = {
 			isa = PBXGroup;
 			children = (
+				BB7EDAA72DAF0AD00060F292 /* APIClient.swift */,
 				BB795C852DA86794006AE21A /* RemoteDataProviders */,
 			);
 			path = Networking;
@@ -404,6 +416,7 @@
 			isa = PBXGroup;
 			children = (
 				BB795C822DA86745006AE21A /* DataProviders */,
+				BB7EDAA92DAF0BD70060F292 /* APIClientProtocol.swift */,
 			);
 			path = Protocols;
 			sourceTree = "<group>";
@@ -488,6 +501,8 @@
 		BBBBF63A2D9B10A3008CE85F /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				BB7EDAAD2DAF29D90060F292 /* ManageCollectionResponse.swift */,
+				BB7EDAAB2DAF102A0060F292 /* BarcodeLookupRequest.swift */,
 				BBBBF6752D9E10CF008CE85F /* AuthResponse.swift */,
 				BBBBF6772D9F2399008CE85F /* NetworkError.swift */,
 				BB1749BE2DA0CA4D00A64678 /* PhotoUploadResponse.swift */,
@@ -634,7 +649,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 1300;
+				LastSwiftUpdateCheck = 1630;
 				LastUpgradeCheck = 1620;
 				TargetAttributes = {
 					B5CC8430270498D700DFB13B = {
@@ -697,7 +712,9 @@
 				BB1D1E882D98271500153BB4 /* ViewHelpers.swift in Sources */,
 				BBBBF6392D9B100D008CE85F /* FunkoModel.xcdatamodeld in Sources */,
 				BB15268D2DA20F00002C1CD8 /* ManualEntryViewModel.swift in Sources */,
+				BB7EDAA82DAF0AD00060F292 /* APIClient.swift in Sources */,
 				BB1D1E8A2D983A5300153BB4 /* LaunchView.swift in Sources */,
+				BB7EDAAE2DAF29D90060F292 /* ManageCollectionResponse.swift in Sources */,
 				BBBBF6472D9C10E2008CE85F /* WelcomeFeatureCard.swift in Sources */,
 				BB2B5B302D93296A004461C4 /* GridGalleryViewModel.swift in Sources */,
 				BBDFC0882DA402E40051F0EC /* HoneycombGridItemView.swift in Sources */,
@@ -721,6 +738,7 @@
 				BB624A142DA4B5720093B9CF /* GridItemImageOverlay.swift in Sources */,
 				BB795C712DA7E7D7006AE21A /* Sale.swift in Sources */,
 				BB795C912DA86F7A006AE21A /* CollectibleEntity+Extensions.swift in Sources */,
+				BB7EDAAA2DAF0BD70060F292 /* APIClientProtocol.swift in Sources */,
 				BB1EF1162DA2E1B5006B99F4 /* View+Extensions.swift in Sources */,
 				BBBBF6502D9C19D1008CE85F /* PremiumUnlockViewModel.swift in Sources */,
 				BBBBF6522D9C19D3008CE85F /* PremiumUnlockView.swift in Sources */,
@@ -736,6 +754,8 @@
 				BBBBF64D2D9C12D2008CE85F /* DarkModeHelper.swift in Sources */,
 				BBAC4E952DA59EC10076EB7D /* ToolbarView.swift in Sources */,
 				BBBBF6572D9C58BF008CE85F /* AuthViewModel.swift in Sources */,
+				BB7EDAAC2DAF102A0060F292 /* BarcodeLookupRequest.swift in Sources */,
+				BB7EDA912DAF08790060F292 /* AppEnvironment.swift in Sources */,
 				BBBBF66B2D9DB053008CE85F /* ProfileImagePicker.swift in Sources */,
 				BB1EF1142DA297F5006B99F4 /* Collectible+Mocks.swift in Sources */,
 				BBDFC0822DA3F6B80051F0EC /* ResponsiveGridView.swift in Sources */,
@@ -816,6 +836,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				"SWIFT_ACTIVE_COMPILATION_CONDITIONS[arch=*]" = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
 			name = Debug;

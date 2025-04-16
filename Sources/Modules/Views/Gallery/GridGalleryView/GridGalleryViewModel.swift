@@ -8,32 +8,28 @@
 import SwiftUI
 import Foundation
 
-// LazyGridViewModel.swift
 class GridGalleryViewModel: ObservableObject {
     @Published var showLoadingIndicator = false
     @Published var errorMessage: String?
-    
     @Published var showSuccessCheckmark: Bool = false
-    
     @Published var selectedItems: [Collectible] = []
-    
-    // Track changes to force view updates
     @Published private var refreshTrigger = false
     
-    var selectedItemsCount: Int {
-        selectedItems.count
-    }
-    
-    private let baseUrl = "http://192.168.1.17:3000"
+    var selectedItemsCount: Int { selectedItems.count }
     
     private let userRepository: UserProfileRepositoryProtocol
     private let collectibleRepository: CollectibleRepositoryProtocol
+    private let apiClient: APIClientProtocol
     
     init(userRepository: UserProfileRepositoryProtocol = UserProfileRepository(),
-         collectibleRepository: CollectibleRepositoryProtocol = CollectibleRepository()) {
+         collectibleRepository: CollectibleRepositoryProtocol = CollectibleRepository(),
+         apiClient: APIClientProtocol = APIClient.shared) {
         self.userRepository = userRepository
         self.collectibleRepository = collectibleRepository
+        self.apiClient = apiClient
     }
+    
+    // MARK: - Selection Management
     
     func cancelSearchResultsSelectionButtonTapped() {
         selectedItems.removeAll()
@@ -51,11 +47,10 @@ class GridGalleryViewModel: ObservableObject {
         selectedItems.contains(where: { $0.id == id })
     }
     
+    // MARK: - Collection Management
+    
     func addToCollectionConfirmed(_ completion: @escaping (Result<Bool, Error>) -> Void) {
-        // Implement your Collection saving logic here
-        print("Adding items to Collection: \(selectedItems)")
         let itemIds = selectedItems.map { $0.id }
-        
         manageCollection(itemIds: itemIds, method: .add) { [weak self] result in
             guard let self = self else { return }
             
@@ -63,207 +58,10 @@ class GridGalleryViewModel: ObservableObject {
             case .success:
                 self.addToCollection(self.selectedItems)
                 completion(result)
-                
             case .failure(let error):
-                print("Error saving to Collection:", error.localizedDescription)
-                errorMessage = error.localizedDescription
+                self.errorMessage = error.localizedDescription
             }
         }
-    }
-    
-    func getGridItemUrl(from item: Collectible) -> URL? {
-        let stringUrl = !item.searchImageNoBgUrl.isEmpty
-        ? baseUrl + item.searchImageNoBgUrl
-        : item.searchImageUrl
-        
-        return URL(string: stringUrl)
-    }
-    
-    
-    func showAcquisitionDetails(for collectibleId: String) -> Bool {
-        return (try? collectibleRepository.item(by: collectibleId) ?? nil) != nil
-    }
-
-    func showSaleDetails(for collectibleId: String) -> Bool {
-        (try? collectibleRepository.item(by: collectibleId))?.customAttributes?.sales?.sold ?? false
-    }
-    
-    func getRelated(for itemId: String, completion: @escaping ([Collectible]) -> Void) {
-        showLoadingIndicator = true
-        
-        // Validate inputs
-        guard let querySubject = try? collectibleRepository.item(by: itemId)?.querySubject else {
-            showLoadingIndicator = false
-            errorMessage = NetworkError.invalidQuery.userFacingMessage
-            return
-        }
-        
-        let encodedQuery = querySubject.urlSafeEncoded
-        
-        // Create request
-        guard let url = URL(string: "http://192.168.1.17:3000/related/\(encodedQuery)") else {
-            showLoadingIndicator = false
-            errorMessage = NetworkError.invalidURL.userFacingMessage
-            return
-        }
-        
-        var request = URLRequest(url: url)
-        
-        // Add authorization header
-        do {
-            try request.addAuthorizationHeader()
-        } catch {
-            showLoadingIndicator = false
-            errorMessage = (error as? AuthError)?.localizedDescription
-            return
-        }
-        
-        // Perform network request
-        URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
-            DispatchQueue.main.async {
-                self?.showLoadingIndicator = false
-                
-                // Handle network errors
-                if let error = error {
-                    self?.errorMessage = NetworkError.requestFailed(error).userFacingMessage
-                    return
-                }
-                
-                // Validate data exists
-                guard let data = data else {
-                    self?.errorMessage = NetworkError.noRelatedPopsFound(querySubject).userFacingMessage
-                    return
-                }
-                
-                // Parse response
-                do {
-                    let items = try JSONDecoder().decode([Collectible].self, from: data)
-                    guard !items.isEmpty else {
-                        self?.errorMessage = NetworkError.noRelatedPopsFound(querySubject).userFacingMessage
-                        return
-                    }
-                    
-                    completion(items) // Return decoded items
-                } catch {
-                    self?.errorMessage = NetworkError.decodingFailed(error).userFacingMessage
-                }
-            }
-        }.resume()
-    }
-    
-    func getGalleryImages(for id: String, completion: @escaping (Result<[ImageData], Error>) -> Void) {
-//        showLoadingIndicator = true
-        
-        // Construct URL with path parameter
-        guard let apiUrl = URL(string: "http://192.168.1.17:3000/gallery/\(id)") else {
-            completion(.failure(NSError(domain: "InvalidURL", code: -3, userInfo: nil)))
-//            showLoadingIndicator = false
-            return
-        }
-        
-        var request = URLRequest(url: apiUrl)
-        request.httpMethod = "GET"
-        request.setValue("application/json", forHTTPHeaderField: "Accept") // Changed to Accept header
-        
-        URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
-            DispatchQueue.main.async {
-//                self?.showLoadingIndicator = false
-            }
-            
-            if let error = error {
-                completion(.failure(error))
-                return
-            }
-            
-            guard let data = data else {
-                completion(.failure(NSError(domain: "NoData", code: -2, userInfo: nil)))
-                return
-            }
-            
-            do {
-                // Decode array of ImageData directly
-                let images = try JSONDecoder().decode([ImageData].self, from: data)
-                completion(.success(images))
-            } catch {
-                print("Decoding error: \(error)")
-                completion(.failure(error))
-            }
-        }.resume()
-    }
-    
-    func manageCollection(itemIds: [String], method: ManageCollectionMethod, collectible: Collectible? = nil, completion: @escaping (Result<Bool, Error>) -> Void
-    ) {
-        showLoadingIndicator = true
-        
-        // Construct the request URL
-        guard let url = URL(string: "\(baseUrl)/manage-collection") else {
-            showLoadingIndicator = false
-            errorMessage = NetworkError.invalidURL.userFacingMessage
-            completion(.failure(NetworkError.invalidURL))
-            return
-        }
-        
-        // Create the request
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        
-        // Add authorization header
-        do {
-            try request.addAuthorizationHeader()
-        } catch {
-            showLoadingIndicator = false
-            errorMessage = (error as? AuthError)?.localizedDescription
-            completion(.failure(error))
-            return
-        }
-        
-        let uid = (try? userRepository.getCurrentUserProfile()?.uid) ?? ""
-        // Prepare request body
-        var body: [String: Any] = [
-            "method": method.rawValue,
-            "itemIds": itemIds,
-            "uid": uid
-        ]
-        if method == .update,
-           let itemToUpdate = collectible?.toDictionary() {
-            body["itemToUpdate"] = itemToUpdate
-        }
-        
-        // Add JSON body
-        do {
-            request.httpBody = try JSONSerialization.data(withJSONObject: body)
-        } catch {
-            showLoadingIndicator = false
-            errorMessage = "Error creating request"
-            completion(.failure(error))
-            return
-        }
-        
-        // Perform the request
-        URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
-            DispatchQueue.main.async {
-                self?.showLoadingIndicator = false
-                
-                // Handle errors
-                if let error = error {
-                    self?.errorMessage = NetworkError.requestFailed(error).userFacingMessage
-                    completion(.failure(error))
-                    return
-                }
-                
-                // Check for successful response
-                guard let httpResponse = response as? HTTPURLResponse,
-                      (200...299).contains(httpResponse.statusCode) else {
-                    self?.errorMessage = NetworkError.serverError.userFacingMessage
-                    completion(.failure(NetworkError.serverError))
-                    return
-                }
-                
-                // Parse successful response
-                completion(.success(true))
-            }
-        }.resume()
     }
     
     func loadMyCollection() async -> [Collectible] {
@@ -271,7 +69,6 @@ class GridGalleryViewModel: ObservableObject {
     }
     
     private func addToCollection(_ items: [Collectible]) {
-        // Add all current payload items to Collection
         try? collectibleRepository.addItems(items)
     }
     
@@ -285,9 +82,6 @@ class GridGalleryViewModel: ObservableObject {
     
     func updateGallery(by itemId: String, galleryImages: [ImageData]) throws {
         try collectibleRepository.updateGallery(by: itemId, galleryImages: galleryImages)
-        if let itemToUpdate = try? collectibleRepository.item(by: itemId) {
-            manageCollection(itemIds: [itemId], method: .update, collectible: itemToUpdate) { _ in }
-        }
     }
     
     func customAttributeUpdated(for item: Collectible) {
@@ -295,82 +89,144 @@ class GridGalleryViewModel: ObservableObject {
         manageCollection(itemIds: [item.id], method: .update, collectible: item) { _ in }
     }
     
-    func uploadCollectibleUserPhotos(collectibleId: String, photos: [Data], completion: @escaping (Collectible) -> Void) {
+    // MARK: - Network Operations
+    
+    func getGridItemUrl(from item: Collectible) -> URL? {
+        // TODO: Post-release feature
+        //        let stringUrl = !item.searchImageNoBgUrl.isEmpty
+        //        ? baseUrl + item.searchImageNoBgUrl
+        //        : item.searchImageUrl
+        let stringUrl = item.searchImageUrl
+        return URL(string: stringUrl)
+    }
+    
+    func showAcquisitionDetails(for collectibleId: String) -> Bool {
+        return (try? collectibleRepository.item(by: collectibleId) ?? nil) != nil
+    }
+    
+    func showSaleDetails(for collectibleId: String) -> Bool {
+        (try? collectibleRepository.item(by: collectibleId))?.customAttributes?.sales?.sold ?? false
+    }
+    
+    func getRelated(for itemId: String, completion: @escaping ([Collectible]) -> Void) {
         showLoadingIndicator = true
-        let uid = (try? userRepository.getCurrentUserProfile()?.uid) ?? ""
-        guard let url = URL(string: "http://192.168.1.17:3000/add-user-photos/\(uid)") else {
+        
+        guard let querySubject = try? collectibleRepository.item(by: itemId)?.querySubject else {
             showLoadingIndicator = false
-            errorMessage = NetworkError.invalidURL.userFacingMessage
+            errorMessage = NetworkError.invalidQuery.userFacingMessage
             return
         }
         
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        
-        // Add authorization header
-        do {
-            try request.addAuthorizationHeader()
-        } catch {
-            showLoadingIndicator = false
-            errorMessage = (error as? AuthError)?.localizedDescription
-            return
-        }
-        
-        let boundary = UUID().uuidString
-        request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
-        
-        var body = Data()
-        
-        // Add collectibleId as form field
-        body.append("--\(boundary)\r\n".data(using: .utf8)!)
-        body.append("Content-Disposition: form-data; name=\"collectibleId\"\r\n\r\n".data(using: .utf8)!)
-        body.append("\(collectibleId)\r\n".data(using: .utf8)!)
-        
-        // Add each photo
-        for (index, photoData) in photos.enumerated() {
-            body.append("--\(boundary)\r\n".data(using: .utf8)!)
-            body.append("Content-Disposition: form-data; name=\"photos\"; filename=\"photo_\(index).jpg\"\r\n".data(using: .utf8)!)
-            body.append("Content-Type: image/jpeg\r\n\r\n".data(using: .utf8)!)
-            body.append(photoData)
-            body.append("\r\n".data(using: .utf8)!)
-        }
-        
-        body.append("--\(boundary)--\r\n".data(using: .utf8)!)
-        request.httpBody = body
-        
-        let task = URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
-            guard let self = self else { return }
-            DispatchQueue.main.async {
-                self.showLoadingIndicator = false
+        Task {
+            do {
+                let items: [Collectible] = try await apiClient.get(
+                    path: .relatedItems,
+                    queryItems: [URLQueryItem(name: "query", value: querySubject.urlSafeEncoded)]
+                )
                 
-                // Handle errors
-                if let error = error {
-                    self.errorMessage = NetworkError.requestFailed(error).userFacingMessage
-                    return
+                await MainActor.run {
+                    showLoadingIndicator = false
+                    completion(items)
                 }
-                
-                guard let data = data else {
-                    self.errorMessage = NetworkError.noData.userFacingMessage
-                    return
-                }
-                
-                do {
-                    // First try to decode the success response
-                    let decoder = JSONDecoder()
-                    let response = try decoder.decode(PhotoUploadResponse.self, from: data)
-                    
-                    let updatedItem = try self.updateItemUserPhotos(with: response.photos, collectibleId)
-                    
-                    self.showSuccessCheckmark = true
-                    completion(updatedItem)
-                } catch {
-                    self.errorMessage = NetworkError.decodingFailed(error).userFacingMessage
+            } catch {
+                await MainActor.run {
+                    showLoadingIndicator = false
+                    errorMessage = error.localizedDescription
                 }
             }
         }
-        
-        task.resume()
     }
+    
+    func getGalleryImages(for id: String, completion: @escaping (Result<[ImageData], Error>) -> Void) {
+        Task {
+            do {
+                let images: [ImageData] = try await apiClient.get(
+                    path: .galleryImages.with(id),
+                    queryItems: nil
+                )
+                await MainActor.run {
+                    completion(.success(images))
+                }
+            } catch {
+                await MainActor.run {
+                    completion(.failure(error))
+                }
+            }
+        }
+    }
+    
+    func manageCollection(itemIds: [String],
+                          method: ManageCollectionMethod,
+                          collectible: Collectible? = nil,
+                          completion: @escaping (Result<Bool, Error>) -> Void) {
+        showLoadingIndicator = true
+        
+        let uid = (try? userRepository.getCurrentUserProfile()?.uid) ?? ""
+        var request = ManageCollectionRequest(
+            method: method,
+            itemIds: itemIds,
+            uid: uid
+        )
+        
+        if method == .update, let collectible = collectible {
+            request.itemToUpdate = collectible
+        }
+        
+        Task {
+            do {
+                let _: ManageCollectionResponse = try await apiClient.post(path: .manageCollection, body: request)
+                await MainActor.run {
+                    showLoadingIndicator = false
+                    completion(.success(true))
+                }
+            } catch {
+                await MainActor.run {
+                    showLoadingIndicator = false
+                    errorMessage = error.localizedDescription
+                    completion(.failure(error))
+                }
+            }
+        }
+    }
+    
+    func uploadCollectibleUserPhotos(collectibleId: String,
+                                     photos: [Data],
+                                     completion: @escaping (Collectible) -> Void) {
+        showLoadingIndicator = true
+        let uid = (try? userRepository.getCurrentUserProfile()?.uid) ?? ""
+        
+        Task {
+            do {
+                let response: PhotoUploadResponse = try await apiClient.upload(
+                    path: APIPath.userPhotos.with(uid),
+                    files: photos.enumerated().map { index, data in
+                        MultipartFile(
+                            data: data,
+                            fieldName: "photos",
+                            fileName: "photo_\(index).jpg",
+                            mimeType: "image/jpeg"
+                        )
+                    },
+                    formFields: ["collectibleId": collectibleId]
+                )
+                
+                let updatedItem = try updateItemUserPhotos(with: response.photos, collectibleId)
+                
+                await MainActor.run {
+                    showLoadingIndicator = false
+                    showSuccessCheckmark = true
+                    completion(updatedItem)
+                }
+            } catch {
+                await MainActor.run {
+                    showLoadingIndicator = false
+                    errorMessage = error.localizedDescription
+                }
+            }
+        }
+    }
+    
+    // MARK: - Helper Methods
     
     private func updateItemUserPhotos(with photoFilePaths: [String], _ collectibleId: String) throws -> Collectible {
         guard var itemToUpdate = try collectibleRepository.item(by: collectibleId) else {
@@ -382,12 +238,11 @@ class GridGalleryViewModel: ObservableObject {
         }
         
         if itemToUpdate.customAttributes?.userPhotos == nil {
-            itemToUpdate.customAttributes?.userPhotos = [ImageData]()
+            itemToUpdate.customAttributes?.userPhotos = []
         }
         
         let userPhotos = photoFilePaths.map { ImageData(filePath: $0) }
         itemToUpdate.customAttributes?.userPhotos?.append(contentsOf: userPhotos)
-        
         try collectibleRepository.updateItem(itemToUpdate)
         
         return itemToUpdate
@@ -400,12 +255,78 @@ class GridGalleryViewModel: ObservableObject {
     }
     
     func imageURL(from imageData: ImageData) -> URL? {
-        if let url = URL(string: imageData.url) {
-            return url
-        } else if let filePath = imageData.filePath {
-            let stringUrl = baseUrl + "/collectibles/user-photos/" + filePath
-            return URL(string: stringUrl)
+        apiClient.imageURL(from: imageData)
+    }
+}
+
+// MARK: - Supporting Types
+
+struct ManageCollectionRequest: Encodable {
+    let method: ManageCollectionMethod
+    let itemIds: [String]
+    let uid: String
+    var itemToUpdate: Collectible?
+    
+    enum CodingKeys: String, CodingKey {
+        case method, itemIds, uid, itemToUpdate
+    }
+    
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(method.rawValue, forKey: .method)
+        try container.encode(itemIds, forKey: .itemIds)
+        try container.encode(uid, forKey: .uid)
+        if let itemToUpdate = itemToUpdate {
+            // Convert the Collectible to a dictionary
+            let dict = itemToUpdate.toDictionary()
+            
+            // Create a new encoder for the dictionary
+            var nestedContainer = container.nestedContainer(keyedBy: DynamicCodingKey.self, forKey: .itemToUpdate)
+            
+            // Encode each key-value pair from the dictionary
+            for (key, value) in dict {
+                let codingKey = DynamicCodingKey(stringValue: key)!
+                try nestedContainer.encode(AnyEncodable(value), forKey: codingKey)
+            }
         }
-        return nil
+    }
+}
+
+// Helper types to handle dynamic dictionary encoding
+private struct DynamicCodingKey: CodingKey {
+    var stringValue: String
+    var intValue: Int?
+    
+    init?(stringValue: String) {
+        self.stringValue = stringValue
+        self.intValue = nil
+    }
+    
+    init?(intValue: Int) {
+        self.stringValue = "\(intValue)"
+        self.intValue = intValue
+    }
+}
+
+private struct AnyEncodable: Encodable {
+    private let value: Any
+    
+    init(_ value: Any) {
+        self.value = value
+    }
+    
+    func encode(to encoder: Encoder) throws {
+        if let encodable = value as? Encodable {
+            try encodable.encode(to: encoder)
+        } else {
+            var container = encoder.singleValueContainer()
+            if let array = value as? [Any] {
+                try container.encode(array.map { AnyEncodable($0) })
+            } else if let dict = value as? [String: Any] {
+                try container.encode(dict.mapValues { AnyEncodable($0) })
+            } else {
+                try container.encodeNil()
+            }
+        }
     }
 }

@@ -25,6 +25,11 @@
       "scale" : "1x"
     },
     {
+      "filename" : "logo-dark.png",
+      "idiom" : "universal",
+      "scale" : "2x"
+    },
+    {
       "idiom" : "universal",
       "scale" : "2x"
     },
@@ -35,7 +40,7 @@
           "value" : "light"
         }
       ],
-      "filename" : "D8656F7D-1C8B-42D0-86A0-D71206A70A8B.png",
+      "filename" : "logo-dark 1.png",
       "idiom" : "universal",
       "scale" : "2x"
     },
@@ -46,7 +51,7 @@
           "value" : "dark"
         }
       ],
-      "filename" : "Gemini Generated Image.jpeg",
+      "filename" : "Fun 1200x400.png",
       "idiom" : "universal",
       "scale" : "2x"
     },

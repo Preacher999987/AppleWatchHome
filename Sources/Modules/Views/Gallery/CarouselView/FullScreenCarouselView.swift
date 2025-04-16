@@ -15,18 +15,19 @@ struct FullScreenCarouselView: View {
     @Binding var currentIndex: Int
     let itemDetails: Collectible
     
-    private let baseUrl = "http://192.168.1.17:3000"
+    private let apiClient: APIClientProtocol
     
     @State private var localIndex: Int
     @State private var showDetails = false
     @State private var currentScale: CGFloat = 1.0
     
-    init(galleryImages: [ImageData], initialIndex: Int, currentIndex: Binding<Int>, itemDetails: Collectible) {
+    init(galleryImages: [ImageData], initialIndex: Int, currentIndex: Binding<Int>, itemDetails: Collectible, apiClient: APIClientProtocol = APIClient.shared) {
         self.galleryImages = galleryImages
         self.initialIndex = initialIndex
         self._currentIndex = currentIndex
         self.itemDetails = itemDetails
         self._localIndex = State(initialValue: initialIndex)
+        self.apiClient = apiClient
     }
     
     var body: some View {
@@ -37,7 +38,7 @@ struct FullScreenCarouselView: View {
             TabView(selection: $localIndex) {
                 ForEach(Array(galleryImages.enumerated()), id: \.offset) { index, imageData in
                     ZoomableImage(
-                        url: imageURL(from: imageData),
+                        url: apiClient.imageURL(from: imageData),
                         placeholder: Image(.gridItemPlaceholder),
                         currentScale: $currentScale,
                         onDismiss: { dismiss() }
@@ -99,16 +100,6 @@ struct FullScreenCarouselView: View {
     }
     
     private enum Direction { case left, right }
-    
-    private func imageURL(from imageData: ImageData) -> URL? {
-        if let url = URL(string: imageData.url) {
-            return url
-        } else if let filePath = imageData.filePath {
-            let stringUrl = baseUrl + "/collectibles/user-photos/" + filePath
-            return URL(string: stringUrl)
-        }
-        return nil
-    }
 }
 
 struct ZoomableImage: View {

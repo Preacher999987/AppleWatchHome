@@ -11,7 +11,7 @@ import Combine
 class ManualEntryViewModel: ObservableObject {
     // MARK: - Published Properties
     @Published var name = ""
-    @Published var type = "Funko Pop" // Default value
+    @Published var type = "Funko Pop"
     @Published var refNumber = ""
     @Published var series = ""
     @Published var barcode = ""
@@ -19,12 +19,17 @@ class ManualEntryViewModel: ObservableObject {
     @Published var errorMessage: String?
     @Published var searchResults: [Collectible] = []
     
-    // MARK: - Network Service
-    private let baseURL = "http://192.168.1.17:3000"
-    private var cancellables = Set<AnyCancellable>()
+    // MARK: - Dependencies
+    private let apiClient: APIClientProtocol
+    
+    init(apiClient: APIClientProtocol = APIClient.shared) {
+        self.apiClient = apiClient
+    }
     
     // MARK: - Search Functionality
     func performSearch() async {
+        guard canSearch else { return }
+        
         isLoading = true
         errorMessage = nil
         
@@ -37,31 +42,35 @@ class ManualEntryViewModel: ObservableObject {
                 barcode: barcode
             )
             
-            DispatchQueue.main.async {
+            await MainActor.run {
+                searchResults = results
                 if results.isEmpty {
-                    self.errorMessage = NetworkError.noSearchResults("").userFacingMessage
-                } else {
-                    self.searchResults = results
+                    errorMessage = NetworkError.noSearchResults("").userFacingMessage
                 }
-                self.isLoading = false
+                isLoading = false
             }
         } catch {
-            DispatchQueue.main.async {
-                self.errorMessage = error.localizedDescription
-                self.isLoading = false
+            await MainActor.run {
+                errorMessage = error.localizedDescription
+                isLoading = false
             }
         }
     }
     
-    private func lookupItem(name: String, type: String, refNumber: String, series: String, barcode: String) async throws -> [Collectible] {
-        // Create query parameters
-        var components = URLComponents(string: "\(baseURL)/lookup")
-        var queryItems = [URLQueryItem]()
+    private func lookupItem(
+        name: String,
+        type: String,
+        refNumber: String,
+        series: String,
+        barcode: String
+    ) async throws -> [Collectible] {
+        var queryItems = [
+            URLQueryItem(name: "type", value: type)
+        ]
         
         if !name.isEmpty {
             queryItems.append(URLQueryItem(name: "name", value: name))
         }
-        queryItems.append(URLQueryItem(name: "type", value: type))
         if !refNumber.isEmpty {
             queryItems.append(URLQueryItem(name: "ref_number", value: refNumber))
         }
@@ -72,14 +81,10 @@ class ManualEntryViewModel: ObservableObject {
             queryItems.append(URLQueryItem(name: "upc", value: barcode))
         }
         
-        components?.queryItems = queryItems
-        
-        guard let url = components?.url else {
-            throw NetworkError.invalidURL
-        }
-        
-        let (data, _) = try await URLSession.shared.data(from: url)
-        return try JSONDecoder().decode([Collectible].self, from: data)
+        return try await apiClient.get(
+            path: .lookup,
+            queryItems: queryItems
+        )
     }
     
     // MARK: - Validation
@@ -90,7 +95,7 @@ class ManualEntryViewModel: ObservableObject {
     // MARK: - Reset
     func reset() {
         name = ""
-        type = "Funko Pop" // Reset to default
+        type = "Funko Pop"
         refNumber = ""
         series = ""
         barcode = ""
