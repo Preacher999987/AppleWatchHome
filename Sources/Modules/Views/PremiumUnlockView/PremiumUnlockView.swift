@@ -220,10 +220,9 @@ struct PremiumUnlockView: View {
                 }
             }
         }
-        .onChange(of: viewModel.purchaseSuccess) { newValue, _ in
+        .onChange(of: viewModel.purchaseSuccess) { _, newValue in
             if newValue {
-                appState.showHomeView = true
-                dismiss()
+                dismissAction?()
             }
         }
     }

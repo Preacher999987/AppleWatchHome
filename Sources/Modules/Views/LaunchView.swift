@@ -65,8 +65,12 @@ struct LaunchView: View {
                     })
                     .presentationDetents([.medium, .large])
                     .fullScreenCover(isPresented: $showPremiumUnlockView) {
-                        PremiumUnlockView()
-                            .environmentObject(appState)
+                        PremiumUnlockView {
+                            withAnimation {
+                                appState.showHomeView = true
+                            }
+                        }
+                        .environmentObject(appState)
                     }
                 }
             } else {
