@@ -49,7 +49,7 @@ struct LaunchView: View {
     var body: some View {
         Group {
             if isActive {
-                if KeychainHelper.hasValidJWTToken || appState.showHomeView {
+                if subscriptionManager.isPremium || appState.showHomeView {
                     HomeView()
                         .environmentObject(appState)
                         .environmentObject(subscriptionManager)
