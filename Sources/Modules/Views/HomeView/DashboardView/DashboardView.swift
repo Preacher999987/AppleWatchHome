@@ -42,6 +42,7 @@ struct DashboardView: View {
                     isInteractive: false,
                     showInfoIcon: true,
                     showInfoPopover: $showRateOfReturnInfo, // Pass the binding
+                    itemsWithoutPurchasePrice: itemsWithoutPurchasePrice,
                     infoAction: {
                         showRateOfReturnInfo = true
                     }
@@ -114,6 +115,7 @@ struct DashboardCard: View {
     var isToggled: Bool = false
     var showInfoIcon: Bool = false
     @Binding var showInfoPopover: Bool
+    var itemsWithoutPurchasePrice: Int = 0
     var infoAction: (() -> Void)? = nil
     
     var body: some View {
@@ -138,7 +140,7 @@ struct DashboardCard: View {
                         }
                         .buttonStyle(.plain)
                         .popover(isPresented: $showInfoPopover) {
-                            RateOfReturnInfoView(itemsWithoutPurchasePrice: 0)
+                            RateOfReturnInfoView(itemsWithoutPurchasePrice: itemsWithoutPurchasePrice)
                                 .padding()
                                 .frame(minWidth: 300, minHeight: 400)
                         }

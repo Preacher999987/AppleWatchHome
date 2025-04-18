@@ -154,15 +154,15 @@ struct ProfileInfoView: View {
                             .foregroundColor(.appPrimary)
                     }
                     
-                    if let lastVerifiedDate = subscriptionManager.lastVerifiedDate {
-                        Label {
-                            Text(lastVerifiedDate.formatted())
-                                .foregroundColor(.secondary)
-                        } icon: {
-                            Image(systemName: "clock")
-                                .foregroundColor(.appPrimary)
-                        }
-                    }
+//                    if let lastVerifiedDate = subscriptionManager.lastVerifiedDate {
+//                        Label {
+//                            Text(lastVerifiedDate.formatted())
+//                                .foregroundColor(.secondary)
+//                        } icon: {
+//                            Image(systemName: "clock")
+//                                .foregroundColor(.appPrimary)
+//                        }
+//                    }
                 }
                 
                 Section(header: Text("Settings").font(.subheadline)) {
