@@ -235,7 +235,7 @@ enum ResponsiveGridViewLayout {
     case extraLarge // Best for 1 column (full-width)
     
     static func layout(for columns: Int) -> ResponsiveGridViewLayout {
-        var pad = UIDevice.isIpad
+        let pad = UIDevice.isIpad
         
         switch columns {
         case 1:
@@ -245,6 +245,8 @@ enum ResponsiveGridViewLayout {
         case 3:
             return pad ? .large : .regular
         case 4:
+            return pad ? .large : .compact
+        case 6:
             return .compact
         default:
             return .regular

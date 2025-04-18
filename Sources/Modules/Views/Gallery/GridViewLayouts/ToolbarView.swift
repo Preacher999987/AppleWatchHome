@@ -47,7 +47,7 @@ struct ToolbarView<ViewModel: GridViewToolbarProtocol & ObservableObject>: View 
     
     private var columnCountMenu: some View {
         Menu {
-            ForEach(1...4, id: \.self) { columns in
+            ForEach(1...(UIDevice.isIpad ? 6 : 4), id: \.self) { columns in
                 Button(action: { viewModel.setColumnCount(columns) }) {
                     HStack {
                         Text("\(columns) Columns")

@@ -219,8 +219,16 @@ struct HomeView: View {
             }
         }
         .sheet(isPresented: $showCamera) {
-            CameraView { image in
-                handleNewImage(image)
+            if ProcessInfo.processInfo.isiOSAppOnMac {
+                showMacAlert(
+                    title: "Camera Not Supported",
+                    message: "Camera functionality is not available on macOS. Please use FunKollector iOS app to scan items, and return to the macOS app for viewing.",
+                    dismissAction: { showCamera = false }
+                )
+            } else {
+                CameraView { image in
+                    handleNewImage(image)
+                }
             }
         }
         .sheet(isPresented: $showPhotoPicker) {
@@ -229,9 +237,17 @@ struct HomeView: View {
             }
         }
         .sheet(isPresented: $showBarcodeReader) {
-            BarcodeScannerView { items in
-                appState.showAddToCollectionButton = true
-                analysisResult = items
+            if ProcessInfo.processInfo.isiOSAppOnMac {
+                showMacAlert(
+                    title: "Barcode Scanning Not Supported",
+                    message: "Barcode scanning functionality is not available on macOS. Please use FunKollector iOS app to scan barcodes, and return to the macOS app for viewing.",
+                    dismissAction: { showBarcodeReader = false }
+                )
+            } else {
+                BarcodeScannerView { items in
+                    appState.showAddToCollectionButton = true
+                    analysisResult = items
+                }
             }
         }
         .sheet(isPresented: $showManualEntryView) {
@@ -432,5 +448,31 @@ struct HomeView: View {
             appState.showEllipsisButton = true
             appState.showAddToCollectionButton = false
         }
+    }
+    
+
+    private func showMacAlert(title: String, message: String, dismissAction: @escaping () -> Void) -> some View {
+        VStack(spacing: 16) {
+            Text(title)
+                .font(.headline)
+                .multilineTextAlignment(.center)
+            
+            Text(message)
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 20)
+            
+            Button("OK") {
+                dismissAction()
+            }
+            .foregroundColor(.appPrimary)  // Set the "OK" button color to .appPrimary
+            .padding(.top, 12)
+        }
+        .padding(20)
+        .frame(maxWidth: 300) // Restrict alert width to make it smaller
+        .background(Color(.systemBackground))
+        .cornerRadius(12)
+        .shadow(radius: 8)
     }
 }

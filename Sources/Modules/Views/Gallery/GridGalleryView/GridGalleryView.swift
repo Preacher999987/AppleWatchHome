@@ -521,16 +521,17 @@ struct GridGalleryView: View {
                                 //                        .animation(.interactiveSpring(), value: currentImageIndex)
                                 
                                 if currentItem.sold {
-                                    Image(.soldBadge)
-                                        .resizable()
-                                        .scaledToFit()
-                                        .frame(width: geometry.size.width * 0.75)
+                                    withAnimation {
+                                        Image(.soldBadge)
+                                            .resizable()
+                                            .scaledToFit()
+                                            .frame(height: geometry.size.height * 0.75)
+                                    }
                                 }
                             }
                             .scaledToFit()
-//                            .clipShape(RoundedRectangle(cornerRadius: 20))
-                            .frame(width: geometry.size.width, height: geometry.size.height, alignment: .center)
                             .tag(index)
+                            .padding()
                             .gesture(
                                 TapGesture()
                                     .onEnded {
@@ -563,6 +564,7 @@ struct GridGalleryView: View {
                                     )
                             )
                         }
+                        .frame(width: geometry.size.width, height: geometry.size.height, alignment: .center)
                     }
                     .padding(.horizontal, 4) // Adds spacing between cards
                 }

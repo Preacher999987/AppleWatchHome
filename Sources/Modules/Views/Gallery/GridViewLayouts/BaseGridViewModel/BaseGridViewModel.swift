@@ -15,7 +15,7 @@ import Combine
 class BaseGridViewModel: GridViewToolbarProtocol {
     private let appState: AppState
     let minColumns = 1
-    let maxColumns = 4
+    let maxColumns = UIDevice.isIpad ? 6 : 4
     
     @Published private(set) var items: [Collectible] = []
     
