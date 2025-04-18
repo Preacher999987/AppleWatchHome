@@ -9,7 +9,7 @@ import SwiftUI
 import CommonCrypto
 
 class AppState: ObservableObject {
-    static let defaultGridViewColumnCount = UIDevice.isIpad ? 3 : 2
+    static let defaultGridViewColumnCount = UIDevice.isIpad ? 4 : 2
     
     @Published var openMyCollection = false
     @Published var openRelated = false {
