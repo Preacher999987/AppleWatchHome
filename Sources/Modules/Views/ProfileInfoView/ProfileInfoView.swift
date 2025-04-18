@@ -9,6 +9,7 @@ import SwiftUI
 
 struct ProfileInfoView: View {
     @StateObject private var viewModel: ProfileInfoViewModel
+    @StateObject private var subscriptionManager = SubscriptionManager.shared
     private let logoutAction: () -> Void
     
     @State private var isImagePickerPresented = false
@@ -61,6 +62,9 @@ struct ProfileInfoView: View {
                         try? await viewModel.updateProfileImage(imageData)
                     }
                 }
+            }
+            .task {
+                await subscriptionManager.checkOnAppLaunch()
             }
         }
     }
@@ -140,6 +144,27 @@ struct ProfileInfoView: View {
                     }
                 }
                 
+                // New Subscription Section
+                Section(header: Text("Subscription").font(.subheadline)) {
+                    Label {
+                        Text(subscriptionStatusText)
+                            .foregroundColor(subscriptionStatusColor)
+                    } icon: {
+                        Image(systemName: "crown")
+                            .foregroundColor(.appPrimary)
+                    }
+                    
+                    if let lastVerifiedDate = subscriptionManager.lastVerifiedDate {
+                        Label {
+                            Text(lastVerifiedDate.formatted())
+                                .foregroundColor(.secondary)
+                        } icon: {
+                            Image(systemName: "clock")
+                                .foregroundColor(.appPrimary)
+                        }
+                    }
+                }
+                
                 Section(header: Text("Settings").font(.subheadline)) {
                     Button {
                         activeDestination = .terms
@@ -155,7 +180,6 @@ struct ProfileInfoView: View {
                             .foregroundColor(.appPrimary)
                     }
                     
-                    // New Instagram button
                     Button {
                         activeDestination = .instagram
                     } label: {
@@ -168,7 +192,6 @@ struct ProfileInfoView: View {
                             if UIApplication.shared.canOpenURL(url) {
                                 UIApplication.shared.open(url)
                             } else {
-                                // Fallback if Mail app isn't configured
                                 activeDestination = .contactUs
                             }
                         }
@@ -193,6 +216,24 @@ struct ProfileInfoView: View {
                         .padding()
                 }
             }
+        }
+    }
+    
+    private var subscriptionStatusText: String {
+        switch subscriptionManager.subscriptionStatus {
+        case .active: return "Active"
+        case .expired: return "Expired"
+        case .neverPurchased: return "Inactive"
+        case .unknown: return "Unknown"
+        }
+    }
+    
+    private var subscriptionStatusColor: Color {
+        switch subscriptionManager.subscriptionStatus {
+        case .active: return .green
+        case .expired: return .orange
+        case .neverPurchased: return .gray
+        case .unknown: return .red
         }
     }
     
