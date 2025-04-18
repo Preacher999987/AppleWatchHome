@@ -513,7 +513,8 @@ struct GridGalleryView: View {
                                 AsyncImageLoader(
                                     url: viewModel.imageURL(from: imageData),
                                     placeholder: Image(.gridItemPlaceholder),
-                                    grayScale: false
+                                    grayScale: false,
+                                    requiresAuth: viewModel.requiresAuth(imageData)
                                 )
                                 .cornerRadius(12)
                                 // NOTE: For better visual feedback during swiping, consider adding this modifier:

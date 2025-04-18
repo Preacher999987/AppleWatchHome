@@ -16,6 +16,14 @@ class APIClient: APIClientProtocol {
         self.session = session
     }
     
+    func isUserPhoto(_ imageData: ImageData) -> Bool {
+        if let filePath = imageData.filePath, !filePath.isEmpty {
+            return true
+        }
+        
+        return false
+    }
+    
     func imageURL(from imageData: ImageData) -> URL? {
         // 1. Try complete URL validation
         if let fullUrl = validateURL(imageData.url) {

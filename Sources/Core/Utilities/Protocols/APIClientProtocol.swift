@@ -8,6 +8,7 @@
 import Foundation
 
 protocol APIClientProtocol {
+    func isUserPhoto(_ imageData: ImageData) -> Bool
     func imageURL(from imageData: ImageData) -> URL?
     func upload<T: Decodable>(path: APIPath,
                               files: [MultipartFile],

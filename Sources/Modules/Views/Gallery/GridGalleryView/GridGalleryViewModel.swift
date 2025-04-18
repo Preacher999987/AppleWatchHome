@@ -257,6 +257,10 @@ class GridGalleryViewModel: ObservableObject {
     func imageURL(from imageData: ImageData) -> URL? {
         apiClient.imageURL(from: imageData)
     }
+    
+    func requiresAuth(_ imageData: ImageData) -> Bool {
+        apiClient.isUserPhoto(imageData)
+    }
 }
 
 // MARK: - Supporting Types

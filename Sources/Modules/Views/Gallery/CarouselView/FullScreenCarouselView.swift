@@ -41,7 +41,8 @@ struct FullScreenCarouselView: View {
                         url: apiClient.imageURL(from: imageData),
                         placeholder: Image(.gridItemPlaceholder),
                         currentScale: $currentScale,
-                        onDismiss: { dismiss() }
+                        requiresAuth: apiClient.isUserPhoto(imageData),
+                        onDismiss: { dismiss() },
                     )
                     .tag(index)
                 }
@@ -106,6 +107,8 @@ struct ZoomableImage: View {
     let url: URL?
     let placeholder: Image
     @Binding var currentScale: CGFloat
+    var requiresAuth: Bool = false
+    
     let onDismiss: () -> Void
 
     @State private var offset: CGSize = .zero
@@ -118,7 +121,8 @@ struct ZoomableImage: View {
                 AsyncImageLoader(
                     url: url,
                     placeholder: placeholder,
-                    grayScale: false
+                    grayScale: false,
+                    requiresAuth: requiresAuth
                 )
                 .scaledToFit()
                 .frame(width: proxy.size.width, height: proxy.size.height)
