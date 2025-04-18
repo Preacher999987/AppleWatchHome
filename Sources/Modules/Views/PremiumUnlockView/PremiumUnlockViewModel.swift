@@ -64,18 +64,59 @@ class PremiumUnlockViewModel: ObservableObject {
     }
     
     private func updatePremiumPlans(with products: [Product]) {
+        // First find the monthly product to use as a baseline
+        guard let monthlyProduct = products.first(where: { product in
+            let isMonthly = product.subscription?.subscriptionPeriod.unit == .month &&
+            product.subscription?.subscriptionPeriod.value == 1
+            return isMonthly
+        }) else {
+            premiumPlans = products.map { product in
+                PremiumPlan(
+                    product: product,
+                    monthlyEquivalent: calculateMonthlyEquivalent(for: product),
+                    savings: nil,
+                    isMostPopular: false
+                )
+            }.sorted { $0.product.price > $1.product.price }
+            return
+        }
+        
+        let monthlyPrice = monthlyProduct.price
+        
         premiumPlans = products.map { product in
-            let isAnnual = product.id.contains(".annual")
-            let isSemiAnnual = product.id.contains(".semiannual")
+            let isMonthly = product.subscription?.subscriptionPeriod.unit == .month &&
+                            product.subscription?.subscriptionPeriod.value == 1
+            let isAnnual = product.subscription?.subscriptionPeriod.unit == .year ||
+                          (product.subscription?.subscriptionPeriod.unit == .month &&
+                           product.subscription?.subscriptionPeriod.value == 12)
+            let isSemiAnnual = product.subscription?.subscriptionPeriod.unit == .month &&
+                              product.subscription?.subscriptionPeriod.value == 6
+            
+            var savings: String? = nil
+            
+            if isAnnual {
+                let annualMonths = 12.0
+                let expectedPrice = monthlyPrice * Decimal(annualMonths)
+                let actualPrice = product.price
+                let savingsAmount = expectedPrice - actualPrice
+                let savingsPercentage = (savingsAmount / expectedPrice) * 100
+                savings = "Save \(savingsPercentage.rounded(toPlaces: 0))%"
+            } else if isSemiAnnual {
+                let semiAnnualMonths = 6.0
+                let expectedPrice = monthlyPrice * Decimal(semiAnnualMonths)
+                let actualPrice = product.price
+                let savingsAmount = expectedPrice - actualPrice
+                let savingsPercentage = (savingsAmount / expectedPrice) * 100
+                savings = "Save \(savingsPercentage.rounded(toPlaces: 0))%"
+            }
             
             return PremiumPlan(
                 product: product,
                 monthlyEquivalent: calculateMonthlyEquivalent(for: product),
-                savings: isAnnual ? "Save 30%" : (isSemiAnnual ? "Save 28%" : nil),
-                isMostPopular: isAnnual
+                savings: savings,
+                isMostPopular: isAnnual // Or keep your existing logic for most popular
             )
         }.sorted {
-            // Sort by price (ascending)
             $0.product.price > $1.product.price
         }
     }

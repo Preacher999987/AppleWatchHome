@@ -306,3 +306,12 @@ class CurrencyFormatUtility {
         displayPrice(0.0)
     }
 }
+
+extension Decimal {
+    func rounded(toPlaces places: Int) -> Decimal {
+        var rounded = Decimal()
+        var localCopy = self
+        NSDecimalRound(&rounded, &localCopy, places, .plain)
+        return rounded
+    }
+}
