@@ -30,4 +30,8 @@ class UserProfileRepository: UserProfileRepositoryProtocol {
     func updateProfileImage(_ imageData: Data) throws {
         try localDataSource.updateProfileImage(imageData)
     }
+    
+    func updateBackgroundImage(_ imageData: Data?) throws {
+        try localDataSource.updateBackgroundImage(imageData)
+    }
 }

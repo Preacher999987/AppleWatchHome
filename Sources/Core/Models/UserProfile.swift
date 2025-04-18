@@ -14,6 +14,7 @@ struct UserProfile: Codable {
     let referralCode: String
     let profileImageData: Data?
     let profilePicture: String?
+    let backgroundImageData: Data?
     
     var profileImage: UIImage? {
         if let data = profileImageData {

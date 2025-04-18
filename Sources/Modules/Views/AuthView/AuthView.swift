@@ -232,8 +232,8 @@ struct AuthView: View {
                     .font(.caption)
                     .foregroundColor(.secondary)
                 
-                Button("Terms") {
-                    activeDestination = .terms
+                Button("Terms of Use") {
+                    activeDestination = .termsOfUse
                 }
                 .font(.caption)
                 .foregroundColor(.appPrimary)
@@ -243,7 +243,7 @@ struct AuthView: View {
                     .foregroundColor(.secondary)
                 
                 Button("Privacy Policy") {
-                    activeDestination = .terms
+                    activeDestination = .privacyPolicy
                 }
                 .font(.caption)
                 .foregroundColor(.appPrimary)

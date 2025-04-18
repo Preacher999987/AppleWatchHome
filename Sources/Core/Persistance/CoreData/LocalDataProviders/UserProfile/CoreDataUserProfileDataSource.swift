@@ -27,6 +27,7 @@ class CoreDataUserProfileDataSource: BaseCoreDataProvider, UserProfileLocalDataP
         entity.lastUpdated = Date()
         entity.profilePicture = profile.profilePicture
         entity.profileImageData = profile.profileImageData
+        entity.backgroundImageData = profile.backgroundImageData
         
         try saveContext()
     }
@@ -46,7 +47,8 @@ class CoreDataUserProfileDataSource: BaseCoreDataProvider, UserProfileLocalDataP
             email: entity.email,
             referralCode: entity.referralCode ?? "",
             profileImageData: entity.profileImageData,
-            profilePicture: entity.profilePicture
+            profilePicture: entity.profilePicture,
+            backgroundImageData: entity.backgroundImageData
         )
     }
     
@@ -72,4 +74,16 @@ class CoreDataUserProfileDataSource: BaseCoreDataProvider, UserProfileLocalDataP
         entity.profileImageData = imageData
         try saveContext()
     }
+    
+    func updateBackgroundImage(_ imageData: Data?) throws {
+            let request: NSFetchRequest<UserProfileEntity> = UserProfileEntity.fetchRequest()
+            request.fetchLimit = 1
+            
+            guard let entity = try context.fetch(request).first else {
+                throw NSError(domain: "No user found", code: 0)
+            }
+            
+            entity.backgroundImageData = imageData
+            try saveContext()
+        }
 }

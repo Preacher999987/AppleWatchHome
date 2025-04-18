@@ -151,14 +151,14 @@ struct PremiumUnlockView: View {
                                 }
                                 
                                 HStack(spacing: 16) {
-                                    Button("Terms & Conditions") {
-                                        activeDestination = .terms
+                                    Button("Terms of Use") {
+                                        activeDestination = .termsOfUse
                                     }
                                     .font(.caption2)
                                     .foregroundColor(.appPrimary)
                                     
                                     Button("Privacy Policy") {
-                                        activeDestination = .terms
+                                        activeDestination = .privacyPolicy
                                     }
                                     .font(.caption2)
                                     .foregroundColor(.appPrimary)

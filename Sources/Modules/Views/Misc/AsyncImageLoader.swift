@@ -63,7 +63,9 @@ struct AsyncImageLoader: View {
     private func placeholderView(_ placeholder: some View) -> some View {
         ZStack {
             if showPlaceholder {
-                placeholder
+                (placeholder as? Image)?
+                    .resizable()
+                    .scaledToFit()
                     .withImageTransition()
             } else {
                 Color.clear

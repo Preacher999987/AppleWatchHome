@@ -187,6 +187,8 @@ struct GridGalleryView: View {
             } else if appState.showAddToCollectionButton {
                 searchResultsSelectionModeOn = true
             }
+            
+            viewModel.refreshBackgroundImageIfNeeded($selectedBackgroundImage)
         }
         .alert("Error", isPresented: .constant(viewModel.errorMessage != nil)) {
             Button("OK", role: .cancel) {
@@ -401,6 +403,12 @@ struct GridGalleryView: View {
                 isShowingImagePicker = true
             }) {
                 Label("Change Wallpaper", systemImage: "photo.fill.on.rectangle.fill")
+            }
+            Button(action: {
+                showEllipsisMenu.toggle()
+                selectedBackgroundImage?.removeAll()
+            }) {
+                Label("Reset Wallpaper", systemImage: "photo.fill.on.rectangle")
             }
         } label: {
             Image(systemName: "ellipsis.circle.fill")
@@ -622,6 +630,7 @@ struct GridGalleryView: View {
                     }
                     .padding(.trailing, 20)
                 }
+                .opacity(isFullScreen ? 1 : 0)
                 .offset(y: !isFullScreen ? 40 : 0)
             }
         }
@@ -1439,9 +1448,11 @@ struct GridGalleryView: View {
                     }
                 }
         )
-        
         .sheet(isPresented: $isShowingImagePicker) {
             ImagePicker(selectedImages: $selectedBackgroundImage, selectionLimit: 1)
+        }
+        .onChange(of: selectedBackgroundImage) { newImages in
+            viewModel.onBackgroundSelected(newImages)
         }
     }
     

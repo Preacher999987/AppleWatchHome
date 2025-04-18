@@ -9,7 +9,8 @@ import Foundation
 
 enum SafariViewDestination {
     case changePassword
-    case terms
+    case privacyPolicy
+    case termsOfUse
     case shareApp
     case instagram
     case contactUs
@@ -19,8 +20,10 @@ enum SafariViewDestination {
         case .changePassword:
             // TODO: Add your URL if needed
             nil
-        case .terms:
+        case .privacyPolicy:
             URL(string: "https://funkollector.swipeless.co.uk/policies")
+        case .termsOfUse:
+            URL(string: "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/")
         case .shareApp:
             URL(string: "https://funkollector.swipeless.co.uk")
         case .instagram:

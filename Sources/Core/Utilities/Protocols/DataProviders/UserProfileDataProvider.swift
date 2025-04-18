@@ -16,6 +16,8 @@ protocol UserProfileLocalDataProvider {
     func deleteUserProfile() throws
     
     func updateProfileImage(_ imageData: Data) throws
+    
+    func updateBackgroundImage(_ imageData: Data?) throws
 }
 
 protocol UserProfileRepositoryProtocol {
@@ -28,4 +30,6 @@ protocol UserProfileRepositoryProtocol {
     func deleteUserProfile() throws
     
     func updateProfileImage(_ imageData: Data) throws
+    
+    func updateBackgroundImage(_ imageData: Data?) throws
 }

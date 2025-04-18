@@ -31,6 +31,7 @@
         <attribute name="userPhotos" optional="YES" attributeType="Binary"/>
     </entity>
     <entity name="UserProfileEntity" representedClassName="UserProfileEntity" syncable="YES" codeGenerationType="class">
+        <attribute name="backgroundImageData" optional="YES" attributeType="Binary"/>
         <attribute name="email" optional="YES" attributeType="String"/>
         <attribute name="lastUpdated" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="profileImageData" optional="YES" attributeType="Binary"/>

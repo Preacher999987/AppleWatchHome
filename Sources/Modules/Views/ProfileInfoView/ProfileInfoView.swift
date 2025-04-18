@@ -167,7 +167,7 @@ struct ProfileInfoView: View {
                 
                 Section(header: Text("Settings").font(.subheadline)) {
                     Button {
-                        activeDestination = .terms
+                        activeDestination = .privacyPolicy
                     } label: {
                         Label("Terms & Privacy Policy", systemImage: "shield")
                             .foregroundColor(.appPrimary)

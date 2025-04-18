@@ -24,17 +24,13 @@ struct GIFView: UIViewRepresentable {
             imageView.animationImages = gifImage.images
             imageView.animationDuration = gifImage.duration
             imageView.animationRepeatCount = 1 // Play once
+            imageView.contentMode = .scaleAspectFit // Add this to maintain aspect ratio
             
             // Start observing animation
             imageView.startAnimating()
             
             // Schedule completion handler
             DispatchQueue.main.asyncAfter(deadline: .now() + gifImage.duration) {
-                imageView.removeFromSuperview()
-//                self.onCompletion?()
-            }
-            DispatchQueue.main.asyncAfter(deadline: .now() + gifImage.duration + 0.25) {
-//                imageView.removeFromSuperview()
                 self.onCompletion?()
             }
         }
@@ -42,10 +38,20 @@ struct GIFView: UIViewRepresentable {
         imageView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(imageView)
         
+        // Modified constraints to maintain aspect ratio
         NSLayoutConstraint.activate([
-            imageView.widthAnchor.constraint(equalTo: view.widthAnchor),
-            imageView.heightAnchor.constraint(equalTo: view.heightAnchor)
+            imageView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            imageView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            imageView.widthAnchor.constraint(lessThanOrEqualTo: view.widthAnchor),
+            imageView.heightAnchor.constraint(lessThanOrEqualTo: view.heightAnchor)
         ])
+        
+        // Add aspect ratio constraint if we have the image
+        if let image = imageView.image {
+            let aspectRatio = image.size.width / image.size.height
+            imageView.widthAnchor.constraint(equalTo: imageView.heightAnchor,
+                                          multiplier: aspectRatio).isActive = true
+        }
         
         return view
     }

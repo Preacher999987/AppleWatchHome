@@ -208,7 +208,8 @@ class AuthViewModel: ObservableObject {
             email: authResponse.email,
             referralCode: authResponse.referralCode,
             profileImageData: nil,
-            profilePicture: authResponse.profilePicture
+            profilePicture: authResponse.profilePicture,
+            backgroundImageData: nil
         )
         
         do {

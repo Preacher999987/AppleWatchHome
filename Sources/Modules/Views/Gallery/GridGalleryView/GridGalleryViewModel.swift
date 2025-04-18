@@ -261,6 +261,24 @@ class GridGalleryViewModel: ObservableObject {
     func requiresAuth(_ imageData: ImageData) -> Bool {
         apiClient.isUserPhoto(imageData)
     }
+    
+    func onBackgroundSelected(_ newImages: [UIImage]?) {
+        let imageData = newImages?.first?.jpegData(compressionQuality: 1.0)
+        
+        do {
+            try userRepository.updateBackgroundImage(imageData)
+        } catch {
+            print("Failed to save background image: \(error)")
+        }
+    }
+    
+    func refreshBackgroundImageIfNeeded(_ selectedBackgroundImage: Binding<[UIImage]?>) {
+        if let profile = try? userRepository.getCurrentUserProfile() {
+            if let backgroundImageData = profile.backgroundImageData {
+                selectedBackgroundImage.wrappedValue = [UIImage(data: backgroundImageData)].compactMap { $0 }
+            }
+        }
+    }
 }
 
 // MARK: - Supporting Types

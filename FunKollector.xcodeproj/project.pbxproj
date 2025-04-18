@@ -939,7 +939,7 @@
 				CODE_SIGN_ENTITLEMENTS = FunKollector.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 6;
+				CURRENT_PROJECT_VERSION = 8;
 				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = M98D9PLQA5;
 				ENABLE_PREVIEWS = YES;
@@ -948,7 +948,7 @@
 				INFOPLIST_KEY_CFBundleDisplayName = FunKollector;
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
-				INFOPLIST_KEY_NSCameraUsageDescription = "We need access to your camera to take photos.";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Camera access lets you scan collectibles to create digital copies, identify items, and build your virtual gallery. Your photos stay private and secure.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -977,7 +977,7 @@
 				CODE_SIGN_ENTITLEMENTS = FunKollectorRelease.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 6;
+				CURRENT_PROJECT_VERSION = 8;
 				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = M98D9PLQA5;
 				ENABLE_PREVIEWS = YES;
@@ -986,7 +986,7 @@
 				INFOPLIST_KEY_CFBundleDisplayName = FunKollector;
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
-				INFOPLIST_KEY_NSCameraUsageDescription = "We need access to your camera to take photos.";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Camera access lets you scan collectibles to create digital copies, identify items, and build your virtual gallery. Your photos stay private and secure.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
