@@ -22,7 +22,7 @@ class BaseGridViewModel: GridViewToolbarProtocol {
     @Published var filteredItems: [Collectible] = []
     @Binding var isHoneycombGridViewLayoutActive: Bool
     
-    @Published var columnCount: Int = 2 {
+    @Published var columnCount: Int = AppState.defaultGridViewColumnCount {
         didSet {
             appState.gridViewColumnCount = columnCount
             

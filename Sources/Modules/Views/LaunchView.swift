@@ -12,11 +12,16 @@ import GoogleSignIn
 @main
 struct FunkoCollector: App {
     @StateObject private var navCoordinator = NavigationCoordinator()
+    @StateObject private var subscriptionManager = SubscriptionManager.shared
     
     var body: some Scene {
         WindowGroup {
             LaunchView()
                 .environmentObject(AppState())
+                .environmentObject(subscriptionManager)
+                .task {
+                    await subscriptionManager.checkOnAppLaunch()
+                }
                 .onOpenURL { url in
                           GIDSignIn.sharedInstance.handle(url)
                         }
@@ -35,9 +40,11 @@ struct FunkoCollector: App {
 }
 
 struct LaunchView: View {
-    @State private var isActive = true
+    @Environment(\.colorScheme) var colorScheme
+    @State private var isActive = false
     @State private var showPremiumUnlockView = false
-    @EnvironmentObject var appState: AppState
+    @EnvironmentObject private var appState: AppState
+    @EnvironmentObject private var subscriptionManager: SubscriptionManager
     
     var body: some View {
         Group {
@@ -45,6 +52,7 @@ struct LaunchView: View {
                 if KeychainHelper.hasValidJWTToken || appState.showHomeView {
                     HomeView()
                         .environmentObject(appState)
+                        .environmentObject(subscriptionManager)
                         .sheet(isPresented: $appState.showAuthView) {
                             AuthView()
                                 .environmentObject(appState)
@@ -62,7 +70,7 @@ struct LaunchView: View {
                     }
                 }
             } else {
-                GIFView(gifName: "animated-logo") {
+                GIFView(gifName: colorScheme == .dark ? "animated-logo-dark" : "animated-logo-light") {
                     isActive = true
                 }
             }

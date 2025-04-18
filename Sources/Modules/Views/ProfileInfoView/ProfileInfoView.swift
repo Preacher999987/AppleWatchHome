@@ -11,11 +11,9 @@ struct ProfileInfoView: View {
     @StateObject private var viewModel: ProfileInfoViewModel
     private let logoutAction: () -> Void
     
-    // Image picker state
     @State private var isImagePickerPresented = false
     @State private var selectedImage: UIImage?
-    
-    @State private var showShareSheet = false
+    @State private var activeDestination: SafariViewDestination?
     
     init(logoutAction: @escaping () -> Void) {
         self._viewModel = StateObject(wrappedValue: ProfileInfoViewModel())
@@ -25,42 +23,47 @@ struct ProfileInfoView: View {
     @Environment(\.dismiss) private var dismiss
     
     var body: some View {
-            NavigationStack {
-                Group {
-                    if viewModel.isLoading {
-                        ProgressView()
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
-                            .tint(.appPrimary)
-                    } else if let profile = viewModel.userProfile {
-                        menuContent(profile: profile)
-                    } else {
-                        noUserContent
+        NavigationStack {
+            Group {
+                if viewModel.isLoading {
+                    ProgressView()
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .tint(.appPrimary)
+                } else if let profile = viewModel.userProfile {
+                    menuContent(profile: profile)
+                } else {
+                    noUserContent
+                }
+            }
+            .navigationTitle("Account Details")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button {
+                        dismiss()
+                    } label: {
+                        Image(systemName: "xmark")
+                            .foregroundColor(.appPrimary)
                     }
                 }
-                .navigationTitle("Account Details")
-                .navigationBarTitleDisplayMode(.inline)
-                .toolbar {
-                    ToolbarItem(placement: .navigationBarTrailing) {
-                        Button {
-                            dismiss()
-                        } label: {
-                            Image(systemName: "xmark")
-                                .foregroundColor(.appPrimary)
-                        }
-                    }
+            }
+            .sheet(isPresented: $isImagePickerPresented) {
+                ProfileImagePicker(selectedImage: $selectedImage)
+            }
+            .sheet(item: $activeDestination) { destination in
+                if let url = destination.url {
+                    SafariView(url: url)
                 }
-                .sheet(isPresented: $isImagePickerPresented) {
-                    ProfileImagePicker(selectedImage: $selectedImage)
-                }
-                .onChange(of: selectedImage) { newImage in
-                    if let imageData = newImage?.jpegData(compressionQuality: 0.8) {
-                        Task {
-                            try? await viewModel.updateProfileImage(imageData)
-                        }
+            }
+            .onChange(of: selectedImage) { newImage in
+                if let imageData = newImage?.jpegData(compressionQuality: 0.8) {
+                    Task {
+                        try? await viewModel.updateProfileImage(imageData)
                     }
                 }
             }
         }
+    }
     
     private func menuContent(profile: UserProfile) -> some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -135,41 +138,40 @@ struct ProfileInfoView: View {
                         Image(systemName: "envelope")
                             .foregroundColor(.appPrimary)
                     }
-                    
-                    //                    Button {
-                    //                    } label: {
-                    //                        Label("Account Settings", systemImage: "gear")
-                    //                            .foregroundColor(.appPrimary)
-                    //                    }
-                    
-                    Button {
-                    } label: {
-                        Label("Change Password", systemImage: "lock")
-                            .foregroundColor(.appPrimary)
-                    }
                 }
                 
                 Section(header: Text("Settings").font(.subheadline)) {
                     Button {
+                        activeDestination = .terms
                     } label: {
-                        Label("Privacy Policy", systemImage: "shield")
+                        Label("Terms & Privacy Policy", systemImage: "shield")
                             .foregroundColor(.appPrimary)
                     }
                     
                     Button {
-                        showShareSheet = true
+                        activeDestination = .shareApp
                     } label: {
                         Label("Share App", systemImage: "square.and.arrow.up")
                             .foregroundColor(.appPrimary)
                     }
-                    .sheet(isPresented: $showShareSheet) {
-                        ShareSheet(activityItems: [viewModel.appShareURL])
-                            .presentationDetents([.medium, .large]) // Allows medium or full screen
-                            .presentationDragIndicator(.visible) // Shows the grabber
+                    
+                    // New Instagram button
+                    Button {
+                        activeDestination = .instagram
+                    } label: {
+                        Label("Follow Us", systemImage: "camera")
+                            .foregroundColor(.appPrimary)
                     }
                     
                     Button {
-                        UIApplication.shared.open(viewModel.contactUsURL)
+                        if let url = SafariViewDestination.contactUs.url {
+                            if UIApplication.shared.canOpenURL(url) {
+                                UIApplication.shared.open(url)
+                            } else {
+                                // Fallback if Mail app isn't configured
+                                activeDestination = .contactUs
+                            }
+                        }
                     } label: {
                         Label("Contact Us", systemImage: "envelope")
                             .foregroundColor(.appPrimary)

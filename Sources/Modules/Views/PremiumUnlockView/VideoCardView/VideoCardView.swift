@@ -12,13 +12,20 @@ struct VideoCardView: View {
     let videoName: String
     let title: String
     let description: String
+    var onVideoEnded: (() -> Void)?
     @StateObject private var viewModel: VideoPlayerViewModel
     
-    init(videoName: String, title: String, description: String) {
+    init(videoName: String, title: String, description: String, onVideoEnded: (() -> Void)? = nil) {
         self.videoName = videoName
         self.title = title
         self.description = description
-        self._viewModel = StateObject(wrappedValue: VideoPlayerViewModel(videoName: videoName))
+        self.onVideoEnded = onVideoEnded
+        self._viewModel = StateObject(
+            wrappedValue: VideoPlayerViewModel(
+                videoName: videoName,
+                onVideoEnded: onVideoEnded
+            )
+        )
     }
     
     var body: some View {
@@ -26,20 +33,8 @@ struct VideoCardView: View {
             videoContainer
                 .frame(maxHeight: .infinity)
                 .aspectRatio(9/18, contentMode: .fit)
-//                .padding(.horizontal, 32)
                 .background(Color(.clear))
-                .cornerRadius(28)
-            
-//            VStack(spacing: 8) {
-//                Text(title)
-//                    .font(.headline.weight(.semibold))
-//                
-//                Text(description)
-//                    .font(.subheadline)
-//                    .foregroundColor(.secondary)
-//            }
-//            .padding(.horizontal, 16)
-//            .padding(.bottom, 24)
+                .cornerRadius(UIDevice.isIpad ? 52 : 32)
         }
     }
     

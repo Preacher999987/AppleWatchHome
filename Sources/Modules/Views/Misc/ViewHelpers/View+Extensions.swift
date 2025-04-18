@@ -28,6 +28,10 @@ extension UIDevice {
         let screenHeight = UIScreen.main.nativeBounds.height
         return screenHeight == 2622
     }
+    
+    static var isIpad: Bool {
+        return UIDevice.current.userInterfaceIdiom == .pad
+    }
 }
 
 

@@ -229,7 +229,7 @@ struct GridGalleryView: View {
     }
     
     private var logoTopPadding: CGFloat {
-        UIDevice.isiPhoneSE ? 6 : 40
+        UIDevice.isiPhoneSE ? 6 : (UIDevice.isIpad ? 20 : 40)
     }
     
     private var informationFooterTitle: String {
@@ -446,7 +446,6 @@ struct GridGalleryView: View {
                     appState.openMyCollection = true
                     appState.showPlusButton = true
                     appState.showEllipsisButton = true
-                    appState.showCollectionButton = false
                     appState.showAddToCollectionButton = false
                 }
             } catch {
@@ -1362,10 +1361,6 @@ struct GridGalleryView: View {
             } else if appState.showEllipsisButton {
                 ellipsisButtonDropDownView()
             }
-            
-            if appState.showCollectionButton {
-                myCollectionButton
-            }
         }
     }
     
@@ -1392,30 +1387,6 @@ struct GridGalleryView: View {
                 Capsule()
                     .stroke(Color.appPrimary, lineWidth: 2)
             )
-        }
-    }
-    
-    private var myCollectionButton: some View {
-        Button(action: {
-            appState.openMyCollection = true
-            appState.showCollectionButton = false
-            appState.showAddToCollectionButton = false
-            dismissAction()
-        }) {
-            Text("My Collection")
-                .font(.system(size: 14, weight: .medium))
-                .foregroundColor(.white)
-                .padding(.horizontal, 18)
-                .padding(.vertical, 4)
-                .background(
-                    RoundedRectangle(cornerRadius: 20)
-                        .fill(.black.opacity(0.5))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 20)
-                                .stroke(Color.appPrimary, lineWidth: 1.5)
-                        )
-                )
-                .shadow(radius: 2)
         }
     }
     

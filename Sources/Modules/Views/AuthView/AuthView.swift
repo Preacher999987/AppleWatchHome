@@ -18,6 +18,8 @@ struct AuthView: View {
     @EnvironmentObject var appState: AppState
     
     @State private var showSuccessCheckmark = false
+    // Modal Safari browser view
+    @State private var activeDestination: SafariViewDestination?
     
     // Consistent horizontal padding for all elements
     private let horizontalPadding: CGFloat = 20
@@ -90,6 +92,11 @@ struct AuthView: View {
                 }
             } message: {
                 Text(viewModel.errorMessage ?? "")
+            }
+            .sheet(item: $activeDestination) { destination in
+                if let url = destination.url {
+                    SafariView(url: url)
+                }
             }
             
             // Success Checkmark Overlay
@@ -226,7 +233,7 @@ struct AuthView: View {
                     .foregroundColor(.secondary)
                 
                 Button("Terms") {
-                    // Show terms
+                    activeDestination = .terms
                 }
                 .font(.caption)
                 .foregroundColor(.appPrimary)
@@ -236,7 +243,7 @@ struct AuthView: View {
                     .foregroundColor(.secondary)
                 
                 Button("Privacy Policy") {
-                    // Show privacy policy
+                    activeDestination = .terms
                 }
                 .font(.caption)
                 .foregroundColor(.appPrimary)

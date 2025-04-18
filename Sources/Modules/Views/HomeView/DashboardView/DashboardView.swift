@@ -22,7 +22,7 @@ struct DashboardView: View {
     @State private var showLifetimeEarnings = true
     
     @State private var showRateOfReturnInfo = false
-    let itemsWithoutPurchasePrice: Int // Add this property
+    let itemsWithoutPurchasePrice: Int
     
     var body: some View {
         VStack(spacing: 12) {
@@ -31,7 +31,8 @@ struct DashboardView: View {
                     title: "Total Balance",
                     value: totalBalance,
                     valueColor: .primary,
-                    isInteractive: false
+                    isInteractive: false,
+                    showInfoPopover: .constant(false)
                 )
                 
                 DashboardCard(
@@ -40,6 +41,7 @@ struct DashboardView: View {
                     valueColor: rateOfReturn.contains("-") ? .red : .green,
                     isInteractive: false,
                     showInfoIcon: true,
+                    showInfoPopover: $showRateOfReturnInfo, // Pass the binding
                     infoAction: {
                         showRateOfReturnInfo = true
                     }
@@ -56,7 +58,8 @@ struct DashboardView: View {
                             value: showLifetimeSpendings ? lifetimeSpendings : lastMonthSpendings,
                             valueColor: .primary,
                             isInteractive: true,
-                            isToggled: !showLifetimeSpendings
+                            isToggled: !showLifetimeSpendings,
+                            showInfoPopover: .constant(false)
                         )
                     }
                     .buttonStyle(.plain)
@@ -74,7 +77,8 @@ struct DashboardView: View {
                             value: showLifetimeEarnings ? lifetimeEarnings : lastMonthEarnings,
                             valueColor: .primary,
                             isInteractive: true,
-                            isToggled: !showLifetimeEarnings
+                            isToggled: !showLifetimeEarnings,
+                            showInfoPopover: .constant(false)
                         )
                     }
                     .buttonStyle(.plain)
@@ -89,7 +93,8 @@ struct DashboardView: View {
                             value: showLifetimeSpendings ? lifetimeSpendings : lastMonthSpendings,
                             valueColor: .primary,
                             isInteractive: true,
-                            isToggled: !showLifetimeSpendings
+                            isToggled: !showLifetimeSpendings,
+                            showInfoPopover: .constant(false)
                         )
                     }
                     .buttonStyle(.plain)
@@ -98,9 +103,6 @@ struct DashboardView: View {
         }
         .padding(.horizontal)
         .frame(maxHeight: 160)
-        .popover(isPresented: $showRateOfReturnInfo) {
-            RateOfReturnInfoView(itemsWithoutPurchasePrice: itemsWithoutPurchasePrice)
-        }
     }
 }
 
@@ -110,8 +112,9 @@ struct DashboardCard: View {
     let valueColor: Color
     var isInteractive: Bool = false
     var isToggled: Bool = false
-    var showInfoIcon: Bool = false // Add this
-    var infoAction: (() -> Void)? = nil // Add this
+    var showInfoIcon: Bool = false
+    @Binding var showInfoPopover: Bool
+    var infoAction: (() -> Void)? = nil
     
     var body: some View {
         ZStack(alignment: .topTrailing) {
@@ -134,6 +137,11 @@ struct DashboardCard: View {
                                 .foregroundColor(.appPrimary)
                         }
                         .buttonStyle(.plain)
+                        .popover(isPresented: $showInfoPopover) {
+                            RateOfReturnInfoView(itemsWithoutPurchasePrice: 0)
+                                .padding()
+                                .frame(minWidth: 300, minHeight: 400)
+                        }
                     }
                 }
                 
@@ -188,7 +196,7 @@ struct RateOfReturnInfoView: View {
             [($1,500 + $200 - $1,000) ÷ $1,000] × 100% = 70%
             """)
             .font(.body)
-            .fixedSize(horizontal: false, vertical: true)
+//            .fixedSize(horizontal: false, vertical: true)
             
             if itemsWithoutPurchasePrice > 0 {
                 Divider()
@@ -201,6 +209,6 @@ struct RateOfReturnInfoView: View {
                     .font(.body)
             }
         }
-        .padding(.horizontal, 32)
+        .padding(32)
     }
 }

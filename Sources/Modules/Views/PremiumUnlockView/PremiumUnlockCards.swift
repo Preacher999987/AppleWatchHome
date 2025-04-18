@@ -38,7 +38,7 @@ struct FeatureCarouselCard: View {
 }
 
 struct PremiumPlanCard: View {
-    let plan: PremiumUnlockViewModel.PremiumPlan
+    let plan: PremiumPlan
     let isSelected: Bool
     let action: () -> Void
     

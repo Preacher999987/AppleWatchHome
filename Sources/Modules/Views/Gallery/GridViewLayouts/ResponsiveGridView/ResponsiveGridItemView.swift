@@ -113,6 +113,8 @@ struct ResponsiveGridItemView: View {
                 }
             }
         }
+        .padding(.bottom, UIDevice.isIpad ? 12 : 0)
+        .padding(.leading, UIDevice.isIpad ? 12 : 0) 
     }
     
     private func title(_ value: String) -> some View {

@@ -9,7 +9,9 @@ import SwiftUI
 import CommonCrypto
 
 class AppState: ObservableObject {
-    @Published var openMyCollection = false 
+    static let defaultGridViewColumnCount = UIDevice.isIpad ? 3 : 2
+    
+    @Published var openMyCollection = false
     @Published var openRelated = false {
         didSet {
             if openRelated {
@@ -19,7 +21,6 @@ class AppState: ObservableObject {
     }
     
     // Toolbar's navigationBar items visibility settings
-    @Published var showCollectionButton = false
     @Published var showBackButton = true
     @Published var showAddToCollectionButton = false {
         didSet {
@@ -40,7 +41,7 @@ class AppState: ObservableObject {
     
     @Published var gridViewSortOption: SortOption = .series
     @Published var gridViewFilter: String? = nil
-    @Published var gridViewColumnCount: Int = 2
+    @Published var gridViewColumnCount: Int = AppState.defaultGridViewColumnCount
     @Published var gridViewShowSections: Bool = false
     
     @AppStorage("showSearchResultsInteractiveTutorial")
@@ -49,7 +50,7 @@ class AppState: ObservableObject {
     func resetGridViewSortAndFilter() {
         gridViewSortOption = .series
         gridViewFilter = nil
-        gridViewColumnCount = 2
+        gridViewColumnCount = Self.defaultGridViewColumnCount
         gridViewShowSections = false
     }
 }

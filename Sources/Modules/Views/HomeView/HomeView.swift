@@ -19,6 +19,10 @@ struct PayloadWrapperView<Content: View>: View {
 // MARK: - Main Content View
 // Example usage in a parent view
 struct HomeView: View {
+    @EnvironmentObject private var appState: AppState
+    @EnvironmentObject private var subscriptionManager: SubscriptionManager
+    @Environment(\.colorScheme) var colorScheme
+    
     @StateObject private var viewModel = HomeViewModel()
 
     @State private var capturedImage: UIImage?
@@ -30,9 +34,6 @@ struct HomeView: View {
     @State private var navigationPath = NavigationPath()
     
     @State private var logoRect: CGRect = .zero
-    
-    @EnvironmentObject var appState: AppState
-    @Environment(\.colorScheme) var colorScheme
     
     private func addNewItemAction (_ action: AddNewItemAction) {
         switch action {
@@ -61,7 +62,12 @@ struct HomeView: View {
                 
                 // Main content
                 if appState.openMyCollection {
-                    collectionView
+                    if !subscriptionManager.isPremium {
+                        PremiumUnlockView(dismissAction: resetToInitialState)
+                            .environmentObject(appState)
+                    } else {
+                        collectionView
+                    }
                 } else if let image = capturedImage {
                     if !analysisResult.isEmpty {
                         galleryView
@@ -424,7 +430,6 @@ struct HomeView: View {
             appState.openMyCollection = true
             appState.showPlusButton = true
             appState.showEllipsisButton = true
-            appState.showCollectionButton = false
             appState.showAddToCollectionButton = false
         }
     }
