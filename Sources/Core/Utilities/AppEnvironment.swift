@@ -35,7 +35,6 @@ enum APIPath {
     
     // MARK: - Gallery
     case galleryImages
-    case relatedItems
     
     // MARK: - Images
     case userPhotosBase
@@ -53,8 +52,6 @@ enum APIPath {
             return .galleryImagesWithId(parameter)
         case .userPhotos:
             return .userPhotosWithId(parameter)
-        case .relatedItems:
-            return .relatedItemsWithQuery(parameter)
         default:
             return self
         }
@@ -86,8 +83,6 @@ enum APIPath {
             return "/api/gallery"
         case .galleryImagesWithId(let id):
             return "/api/gallery/\(id)"
-        case .relatedItems:
-            return "/api/related"
         case .relatedItemsWithQuery(let query):
             return "/api/related/\(query)"
             

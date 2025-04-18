@@ -14,9 +14,12 @@ class ProfileInfoViewModel: ObservableObject {
     @Published var error: Error?
     
     private let repository: UserProfileRepositoryProtocol
+    private let collectibleRepository: CollectibleRepositoryProtocol
     
-    init(repository: UserProfileRepositoryProtocol = UserProfileRepository()) {
+    init(repository: UserProfileRepositoryProtocol = UserProfileRepository(),
+         collectibleRepository: CollectibleRepositoryProtocol = CollectibleRepository()) {
         self.repository = repository
+        self.collectibleRepository = collectibleRepository
         loadUserProfile()
     }
     
@@ -68,5 +71,6 @@ class ProfileInfoViewModel: ObservableObject {
         // Additional cleanup if needed
         GIDSignIn.sharedInstance.signOut()
         try? repository.deleteUserProfile()
+        try? collectibleRepository.clearDatabase()
     }
 }

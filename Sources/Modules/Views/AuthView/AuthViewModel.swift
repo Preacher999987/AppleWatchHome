@@ -134,13 +134,16 @@ class AuthViewModel: ObservableObject {
     ) {
         switch result {
         case .success(let authorization):
-            guard let credential = authorization.credential as? ASAuthorizationAppleIDCredential else {
+            guard let credential = authorization.credential as? ASAuthorizationAppleIDCredential,
+                  let identityTokenData = credential.identityToken,
+                  let identityToken = String(data: identityTokenData, encoding: .utf8) else {
                 completion(.failure(AuthError.invalidCredentials))
                 return
             }
             
             self.socialSignIn(
-                idToken: credential.user,
+                userIdentifier: credential.user,
+                idToken: identityToken,
                 authMethod: "apple",
                 email: credential.email,
                 name: credential.fullName,
@@ -153,6 +156,7 @@ class AuthViewModel: ObservableObject {
     }
     
     private func socialSignIn(
+        userIdentifier: String? = nil,
         idToken: String,
         authMethod: String,
         email: String?,
@@ -164,6 +168,7 @@ class AuthViewModel: ObservableObject {
         
         let nameFormatter = PersonNameComponentsFormatter()
         let request = SocialAuthRequest(
+            userIdentifier: userIdentifier,
             idToken: idToken,
             authMethod: authMethod,
             email: email ?? "",
@@ -243,6 +248,7 @@ struct ResetPasswordRequest: Codable {
 }
 
 struct SocialAuthRequest: Codable {
+    let userIdentifier: String?
     let idToken: String
     let authMethod: String
     let email: String

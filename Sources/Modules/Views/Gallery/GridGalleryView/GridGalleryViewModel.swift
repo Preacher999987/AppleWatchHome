@@ -120,8 +120,8 @@ class GridGalleryViewModel: ObservableObject {
         Task {
             do {
                 let items: [Collectible] = try await apiClient.get(
-                    path: .relatedItems,
-                    queryItems: [URLQueryItem(name: "query", value: querySubject.urlSafeEncoded)]
+                    path: .relatedItemsWithQuery(querySubject.urlSafeEncoded),
+                    queryItems: nil
                 )
                 
                 await MainActor.run {
