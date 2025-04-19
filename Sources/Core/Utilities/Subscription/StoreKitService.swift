@@ -166,7 +166,8 @@ class StoreKitService: ObservableObject {
             print("Transaction verification failed")
             return
         }
-        
+        print("[StoreKitService]: handle(transactionResult triggered with .verified(\(transaction)). Sending transaction to transactionUpdates")
+
         if transaction.revocationDate == nil {
             purchasedProductIDs.insert(transaction.productID)
         } else {

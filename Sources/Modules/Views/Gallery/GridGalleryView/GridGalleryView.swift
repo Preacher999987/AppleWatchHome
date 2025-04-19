@@ -1014,6 +1014,7 @@ struct GridGalleryView: View {
             withAnimation {
                 onTextFieldSaveAction = { onComplete?(textFieldTextInput) }
                 textFieldTitle = title
+                self.keyboardType = keyboardType
                 isTextFieldPresented = true
                 showKeyboard = true
             }

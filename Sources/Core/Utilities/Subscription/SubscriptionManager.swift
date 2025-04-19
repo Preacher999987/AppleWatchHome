@@ -32,8 +32,12 @@ final class SubscriptionManager: ObservableObject {
     // MARK: - Public Interface
     
     func verifySubscriptions() async {
+        
+        print("[Subscription Manager]: verifySubscriptions. awaiting storeKitService.checkSubscriptionStatus...")
         do {
             let (status, _) = try await storeKitService.checkSubscriptionStatus()
+            
+            print("[Subscription Manager]: verifySubscriptions status:\(status)")
             
             switch status {
             case .active:
@@ -69,6 +73,7 @@ final class SubscriptionManager: ObservableObject {
     
     private func setupListeners() {
         // React to transaction updates
+        // IMPORTANT: Triggered just once on app launch
         storeKitService.transactionUpdates
             .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in
@@ -77,6 +82,19 @@ final class SubscriptionManager: ObservableObject {
                 }
             }
             .store(in: &cancellables)
+        
+            // React to purchasedProductIDs updates
+            // IMPORTANT: Triggered every time user completes a purchase
+        storeKitService.$purchasedProductIDs
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                Task { [weak self] in
+                    await self?.verifySubscriptions()
+                }
+            }
+            .store(in: &cancellables)
+        
+        print("[Subscription Manager]: setupListeners - done.")
     }
     
     private func startPeriodicVerification() {
